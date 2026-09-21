@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1830">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Персидский словарь</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;1,400&family=Onest:wght@400;500;600&family=Vazirmatn:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: inherit; }
+  [hidden] { display: none !important; }
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #0f1830; --bg2: #15203c; --raise: #1d2a4c; --line: #2b3b62;
+    --text: #efe8d6; --mute: #a1abc6; --faint: #7b87a8;
+    --accent: #e3b155; --accent-ink: #1b1405; --danger: #e58a7d;
+    --serif: Literata, Georgia, "Times New Roman", serif;
+    --fa: Vazirmatn, "Noto Naskh Arabic", Tahoma, "Geeza Pro", serif;
+    --sans: Onest, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--bg); color-scheme: dark; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+  button, label, input, textarea { touch-action: manipulation; }
+  button { font-family: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+
+  .head { padding: 22px 0 6px; }
+  h1 { margin: 0; font: 600 26px/1.15 var(--serif); letter-spacing: -0.01em; }
+  .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; color: var(--mute); font-size: 14px; gap: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; flex: none; }
+  .seg button { font-size: 13px; color: var(--mute); background: none; border: 0; padding: 3px 12px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--raise); color: var(--text); }
+
+  .toolbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding: 10px 0 8px; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; color: var(--mute); }
+  .search:focus-within { border-color: var(--accent); }
+  .search input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--text); font: inherit; font-size: 16px; padding: 12px 0; }
+  .search input::placeholder { color: var(--faint); }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .fchip { flex: none; font-size: 14px; padding: 6px 12px; border-radius: 999px; cursor: pointer; color: hsl(var(--h) 60% 80%); background: hsl(var(--h) 45% 55% / .12); border: 1px solid hsl(var(--h) 45% 60% / .3); }
+  .fchip .n { margin-left: 6px; opacity: .6; font-size: 12px; }
+  .fchip.on { background: hsl(var(--h) 60% 72%); color: #0f1830; border-color: transparent; }
+  .fchip.on .n { opacity: .7; }
+
+  #list { padding-bottom: 120px; }
+  .row { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 14px 2px; cursor: pointer; content-visibility: auto; contain-intrinsic-size: auto 84px; }
+  .row:active { background: var(--bg2); }
+  @media (hover: hover) { .row:hover { background: var(--bg2); } }
+  .rowmain { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .rt { min-width: 0; }
+  .fa { flex: none; max-width: 48%; direction: rtl; text-align: right; font: 600 28px/1.5 var(--fa); overflow-wrap: anywhere; }
+  .rt .tr { display: block; font: 600 21px/1.3 var(--serif); overflow-wrap: anywhere; }
+  .rt .mean { display: block; margin-top: 2px; color: var(--mute); overflow-wrap: anywhere; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag { display: inline-block; font-size: 12px; line-height: 1.5; padding: 1px 9px; border-radius: 999px; color: hsl(var(--h) 60% 78%); background: hsl(var(--h) 45% 55% / .16); border: 1px solid hsl(var(--h) 45% 60% / .3); }
+  button.tag { font-size: 13px; padding: 2px 11px; cursor: pointer; }
+  .note { color: var(--mute); padding: 28px 0; margin: 0; }
+  .empty { padding: 48px 0 0; }
+  .empty h2 { margin: 0 0 8px; font: 600 22px/1.25 var(--serif); }
+  .empty p { margin: 0 0 20px; color: var(--mute); max-width: 34ch; }
+  .foot { padding: 0 0 130px; margin-top: -90px; display: flex; flex-wrap: wrap; gap: 4px 20px; }
+  .linkbtn { background: none; border: 0; color: var(--mute); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; }
+
+  .fabwrap { position: fixed; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 10; pointer-events: none; display: flex; justify-content: center; }
+  .fabin { width: 100%; max-width: 640px; padding: 0 20px; display: flex; justify-content: flex-end; }
+  .fab { pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; border: 0; cursor: pointer; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 16px; padding: 14px 20px 14px 16px; border-radius: 999px; box-shadow: 0 6px 24px rgba(4, 8, 20, .55); }
+
+  .btn { font-weight: 500; font-size: 16px; border-radius: 12px; padding: 12px 18px; cursor: pointer; border: 1px solid transparent; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn.ghost { background: none; border-color: var(--line); color: var(--text); }
+  .btn.danger { background: var(--danger); color: #2a0d09; font-weight: 600; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .tbtn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; font-size: 15px; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+  .tbtn:active, .ibtn:active { background: var(--bg2); }
+  .ibtn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: none; border: 0; border-radius: 10px; cursor: pointer; }
+  .ic { display: inline-flex; }
+
+  .sheet { position: fixed; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .sheet.form { z-index: 30; }
+  .sheet.enter { animation: slide .2s ease-out; will-change: transform, opacity; }
+  @keyframes slide { from { transform: translate3d(28px, 0, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .sheet.enter { animation: none; } }
+  .bar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 8px; display: flex; align-items: center; gap: 4px; }
+  .bar .sp { flex: 1; }
+  .bar .ttl { flex: 1; text-align: center; font-weight: 600; }
+  .bar .side { min-width: 84px; }
+
+  .dfa { margin: 14px 0 0; direction: rtl; text-align: right; font: 600 clamp(40px, 13vw, 60px)/1.5 var(--fa); overflow-wrap: anywhere; }
+  .dfa + .dtr { margin-top: 0; }
+  .dtr { margin: 18px 0 4px; font: 600 clamp(36px, 11vw, 52px)/1.08 var(--serif); letter-spacing: -0.015em; overflow-wrap: anywhere; }
+  .dmean { margin: 0 0 14px; font-size: 22px; line-height: 1.35; overflow-wrap: anywhere; }
+  .sec { margin-top: 26px; }
+  .sec h3 { margin: 0 0 8px; font-size: 14px; font-weight: 500; color: var(--mute); }
+  .wchips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wchip { font-size: 15px; padding: 6px 12px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); color: var(--text); }
+  button.wchip.link { cursor: pointer; border-color: rgba(227, 177, 85, .5); }
+  .wchip small { color: var(--mute); margin-left: 6px; font-size: 13px; }
+  .ex { margin: 0; padding: 2px 0 2px 14px; border-left: 2px solid var(--accent); }
+  .extr { margin: 0; font: italic 400 19px/1.45 var(--serif); overflow-wrap: anywhere; }
+  .exm { margin: 4px 0 0; color: var(--mute); }
+  .txt { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .hintline { margin-top: 30px; color: var(--mute); }
+  .when { margin: 34px 0 0; padding-bottom: 56px; color: var(--faint); font-size: 13px; }
+
+  .fbody { padding-top: 10px; padding-bottom: 24px; }
+  .field { margin: 0 0 20px; }
+  .field > label { display: block; font-size: 14px; color: var(--mute); margin: 0 0 6px; }
+  .field > label.btn { display: inline-block; color: var(--text); font-size: 16px; margin: 0; }
+  .field input, .field textarea { width: 100%; background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; font-size: 16px; padding: 12px 14px; }
+  .field textarea { resize: vertical; min-height: 96px; }
+  .field input.big { font: 600 20px var(--serif); }
+  .field input.fa-in { direction: rtl; text-align: right; font: 600 24px var(--fa); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .hint { font-size: 13px; color: var(--faint); margin: 6px 0 0; }
+  .hint.warn { color: var(--accent); }
+  .err { font-size: 13px; color: var(--danger); margin: 6px 0 0; }
+  .err:empty { display: none; }
+  .picks { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pick { font-size: 14px; padding: 6px 12px; border-radius: 999px; cursor: pointer; color: hsl(var(--h) 60% 80%); background: hsl(var(--h) 45% 55% / .12); border: 1px solid hsl(var(--h) 45% 60% / .3); }
+  .pick.on { background: hsl(var(--h) 60% 72%); color: #0f1830; border-color: transparent; }
+  .addtag { display: flex; gap: 8px; margin-top: 10px; }
+  .addtag input { flex: 1; min-width: 0; }
+  .addtag .btn { padding: 10px 14px; font-size: 15px; }
+  .actions { position: sticky; bottom: 0; z-index: 2; background: var(--bg); border-top: 1px solid var(--line); padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; gap: 10px; }
+  .actions .btn { flex: 1 1 auto; }
+
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(5, 9, 20, .66); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .dialog { width: 100%; max-width: 340px; background: var(--raise); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  .dialog .dt { margin: 0 0 6px; font: 600 19px/1.3 var(--serif); overflow-wrap: anywhere; }
+  .dialog .dd { margin: 0 0 18px; color: var(--mute); }
+  .dact { display: flex; gap: 10px; justify-content: flex-end; }
+  #toast { position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 60; transform: translateX(-50%); max-width: calc(100% - 40px); background: var(--raise); border: 1px solid var(--line); padding: 10px 16px; border-radius: 12px; font-size: 15px; opacity: 0; pointer-events: none; transition: opacity .18s; }
+  #toast.show { opacity: 1; }
+
+  /* ---------- smooth scrolling on high-refresh screens ---------- */
+  html { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+  button, label, .row { touch-action: manipulation; }
+  .row { content-visibility: auto; contain-intrinsic-size: auto 92px; }
+  .fab { transform: translateZ(0); }
+  .sheet { contain: layout paint; }
+  .sheet.enter { animation-duration: .18s; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>Персидский словарь</h1>
+    <div class="meta">
+      <span id="count"></span>
+      <div class="seg" role="group" aria-label="Сортировка">
+        <button type="button" id="sortNew">Новые</button>
+        <button type="button" id="sortAz">A–Z</button>
+      </div>
+    </div>
+  </header>
+  <div class="toolbar">
+    <label class="search">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
+      <input id="q" type="search" placeholder="Поиск по слову, переводу, тегу" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск">
+    </label>
+    <div class="chips" id="filters" hidden></div>
+  </div>
+  <main id="list"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<div class="fabwrap"><div class="fabin">
+  <button type="button" class="fab" id="add">
+    <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+    Добавить слово
+  </button>
+</div></div>
+
+<div id="detailRoot"></div>
+<div id="formRoot"></div>
+<div id="dialogRoot"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- words that ship with the page ---------- */
+  var SEED = [{"id":"seed_001","fa":"ابرها","tr":"abr-hā","meaning":"ամպեր","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_002","fa":"بله / آره","tr":"bale / are","meaning":"այո","tags":["частица"],"syn":[],"ant":["heyr / ne"],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_003","fa":"باغچه","tr":"bāghcheh","meaning":"պարտեզ","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_004","fa":"چرخیدن","tr":"charkhidan","meaning":"պտտվել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: charkhid; основа настоящего: charkh","ex":"","exTr":"","notes":""},{"id":"seed_005","fa":"چشم","tr":"chashm","meaning":"աչք","tags":["существительное","тело"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_006","fa":"چتر","tr":"chatr","meaning":"անձրևանոց","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_007","fa":"چه / چی","tr":"che / chi","meaning":"ինչ","tags":["местоимение"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_008","fa":"درخت","tr":"darakht","meaning":"ծառ","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_009","fa":"دیدن","tr":"didan","meaning":"տեսնել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: did; основа настоящего: bin","ex":"","exTr":"","notes":""},{"id":"seed_010","fa":"دادن","tr":"dādan","meaning":"տալ","tags":["глагол"],"syn":[],"ant":["gereftan"],"forms":"основа прошедшего: dād; основа настоящего: deh","ex":"","exTr":"","notes":""},{"id":"seed_011","fa":"دامن","tr":"dāman","meaning":"կիսաշրջազգեստ (юбка)","tags":["существительное","одежда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_012","fa":"دانشگاه","tr":"dāneshgāh","meaning":"համալսարան","tags":["существительное","места","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_013","fa":"گرفتن","tr":"gereftan","meaning":"վերցնել","tags":["глагол"],"syn":[],"ant":["dādan"],"forms":"основа прошедшего: gereft; основа настоящего: gir","ex":"","exTr":"","notes":""},{"id":"seed_014","fa":"گوجه‌فرنگی","tr":"gojeh-farangi","meaning":"լոլիկ","tags":["существительное","еда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_015","fa":"خیر / نه","tr":"heyr / ne","meaning":"ոչ","tags":["частица"],"syn":[],"ant":["bale / are"],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_016","fa":"حیوان","tr":"heyvān","meaning":"կենդանի","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_017","fa":"حوله","tr":"hooleh","meaning":"սրբիչ","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_018","fa":"این","tr":"in","meaning":"սա","tags":["местоимение"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_019","fa":"جنگل","tr":"jangal","meaning":"անտառ","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_020","fa":"جوجه","tr":"joojeh","meaning":"ճուտիկ","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_021","fa":"جامدادی","tr":"jāmedādi","meaning":"գրչատուփ","tags":["существительное","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_022","fa":"کرم","tr":"kerm","meaning":"որդ","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_023","fa":"کتابخانه","tr":"ketāb-khāneh","meaning":"գրադարան","tags":["существительное","места","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_024","fa":"خرس","tr":"khers","meaning":"արջ","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_025","fa":"خیابان","tr":"kheyābān","meaning":"փողոց","tags":["существительное","места"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_026","fa":"خودکار","tr":"khodkār","meaning":"գրիչ","tags":["существительное","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_027","fa":"خوردن","tr":"khordan","meaning":"ուտել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: khord; основа настоящего: khor","ex":"","exTr":"","notes":""},{"id":"seed_028","fa":"خانه","tr":"khāneh","meaning":"տուն","tags":["существительное","места"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_029","fa":"کوه","tr":"kooh","meaning":"սար","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_030","fa":"کاخ","tr":"kākh","meaning":"պալատ","tags":["существительное","места"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_031","fa":"مدرسه","tr":"madreseh","meaning":"դպրոց","tags":["существительное","места","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_032","fa":"مسجد","tr":"masjed","meaning":"մզկիթ","tags":["существительное","места"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_033","fa":"مداد","tr":"medād","meaning":"մատիտ","tags":["существительное","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_034","fa":"میوه","tr":"miveh","meaning":"միրգ","tags":["существительное","еда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_035","fa":"موبایل","tr":"mobāyl","meaning":"սմարթֆոն","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_036","fa":"مرغ","tr":"morgh","meaning":"հավ","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_037","fa":"ماشین","tr":"māshin","meaning":"մեքենա","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_038","fa":"ماشین حساب","tr":"māshin-e hesāb","meaning":"հաշվիչ","tags":["существительное","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_039","fa":"نخ","tr":"nakh","meaning":"թել","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_040","fa":"نوشتن","tr":"neveštan","meaning":"գրել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: nevešt; основа настоящего: nevis","ex":"","exTr":"","notes":""},{"id":"seed_041","fa":"پنجره","tr":"panjareh","meaning":"պատուհան","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_042","fa":"پرچم","tr":"parcham","meaning":"դրոշ","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_043","fa":"پختن","tr":"pokhtan","meaning":"եփել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: pokht; основа настоящего: paz","ex":"","exTr":"","notes":""},{"id":"seed_044","fa":"پول","tr":"pool","meaning":"փող","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_045","fa":"پستچی","tr":"postchi","meaning":"փոստատար","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_046","fa":"پارچ","tr":"pārch","meaning":"սափոր (кувшин)","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_047","fa":"پارچه","tr":"pārcheh","meaning":"կտոր","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_048","fa":"قرمز","tr":"qermez","meaning":"կարմիր","tags":["прилагательное","цвета"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_049","fa":"رفتن","tr":"raftan","meaning":"հեռանալ / գնալ","tags":["глагол"],"syn":[],"ant":["āmadan"],"forms":"основа прошедшего: raft; основа настоящего: rav","ex":"","exTr":"","notes":""},{"id":"seed_050","fa":"رسیدن","tr":"residan","meaning":"հասնել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: resid; основа настоящего: ras","ex":"","exTr":"","notes":""},{"id":"seed_051","fa":"روح","tr":"rooh","meaning":"ոգի","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_052","fa":"صحرا","tr":"sahrā","meaning":"անապատ","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_053","fa":"سر","tr":"sar","meaning":"գլուխ","tags":["существительное","тело"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_054","fa":"سفید","tr":"sefid","meaning":"սպիտակ","tags":["прилагательное","цвета"],"syn":[],"ant":["siyāh"],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_055","fa":"سیب","tr":"sib","meaning":"խնձոր","tags":["существительное","еда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_056","fa":"سیاه","tr":"siyāh","meaning":"սև","tags":["прилагательное","цвета"],"syn":[],"ant":["sefid"],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_057","fa":"صبح","tr":"sobh","meaning":"առավոտ","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_058","fa":"صبحانه","tr":"sobhāneh","meaning":"նախաճաշ","tags":["существительное","еда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_059","fa":"ساحل","tr":"sāhel","meaning":"ափ (пляж)","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_060","fa":"ساندویچ","tr":"sāndevich","meaning":"սենդվիչ","tags":["существительное","еда"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_061","fa":"تخت","tr":"takht","meaning":"մահճակալ","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_062","fa":"تخته سیاه","tr":"takhte-siyāh","meaning":"գրատախտակ","tags":["существительное","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_063","fa":"تمساح","tr":"temsāh","meaning":"կոկորդիլոս","tags":["существительное","животные"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_064","fa":"تاج","tr":"tāj","meaning":"թագ","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_065","fa":"زبان انگلیسی","tr":"zabān-e engilisi","meaning":"անգլերեն լեզու","tags":["фраза","учёба"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_066","fa":"زرد","tr":"zard","meaning":"դեղին","tags":["прилагательное","цвета"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_067","fa":"آب","tr":"āb","meaning":"ջուր","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_068","fa":"آب دادن","tr":"āb dādan","meaning":"ջրել","tags":["глагол"],"syn":[],"ant":[],"forms":"основа прошедшего: āb dād; основа настоящего: āb deh","ex":"","exTr":"","notes":""},{"id":"seed_069","fa":"آبی","tr":"ābi","meaning":"կապույտ","tags":["прилагательное","цвета"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_070","fa":"آمدن","tr":"āmadan","meaning":"գալ","tags":["глагол"],"syn":[],"ant":["raftan"],"forms":"основа прошедшего: āmad; основа настоящего: āy","ex":"","exTr":"","notes":""},{"id":"seed_071","fa":"آقا","tr":"āqā","meaning":"պարոն","tags":["существительное"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_072","fa":"آسمان","tr":"āsemān","meaning":"երկինք","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""},{"id":"seed_073","fa":"آتش","tr":"ātash","meaning":"կրակ","tags":["существительное","природа"],"syn":[],"ant":[],"forms":"","ex":"","exTr":"","notes":""}];
+  var SEED_BASE = Date.UTC(2026, 8, 21);
+  var SEED_IDS = {};
+  SEED.forEach(function (w, i) { w.created = SEED_BASE - i * 1000; w.updated = SEED_BASE; SEED_IDS[w.id] = 1; });
+
+  var LS_KEY = 'fa-dict:v1', LS_MIG = 'fa-dict:migrated', LS_SORT = 'fa-dict:sort';
+  var PRESET_TAGS = ['существительное', 'глагол', 'прилагательное', 'наречие', 'местоимение', 'предлог', 'союз', 'фраза'];
+
+  /* ---------- helpers ---------- */
+  function $(s) { return document.querySelector(s); }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function norm(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+  function hue(t) { var h = 0, s = String(t).toLowerCase(); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
+  function plural(n, one, few, many) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return one;
+    if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return few;
+    return many;
+  }
+  function newId() { return 'w_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function splitList(s) {
+    var out = [], seen = {};
+    String(s || '').split(/[,;\u060C]+/).forEach(function (x) {
+      x = x.trim(); var k = norm(x);
+      if (x && !seen[k]) { seen[k] = 1; out.push(x); }
+    });
+    return out;
+  }
+  function el(tag, props) {
+    var n = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v == null || v === false) return;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k === 'style') n.style.cssText = v;
+      else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var kids = [].concat(arguments[i]);
+      for (var j = 0; j < kids.length; j++) {
+        var c = kids[j];
+        if (c == null || c === false) continue;
+        n.append(c.nodeType ? c : document.createTextNode(String(c)));
+      }
+    }
+    return n;
+  }
+  var ICONS = {
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    edit: '<path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13 7l4 4"/>',
+    trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/>'
+  };
+  function icon(n) {
+    var w = document.createElement('span');
+    w.className = 'ic'; w.setAttribute('aria-hidden', 'true');
+    w.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + ICONS[n] + '</svg>';
+    return w;
+  }
+  function tagEl(t) { return el('span', { 'class': 'tag', style: '--h:' + hue(t), text: t }); }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------- back gesture / back button ---------- */
+  // Every open layer (card, form, dialog) owns one history entry, so the
+  // system back gesture closes the top layer instead of leaving the page.
+  var layers = [], ignorePop = 0;
+  function pushLayer(name, closeUi) {
+    var pushed = false;
+    try { history.pushState({ fa: name }, ''); pushed = true; } catch (e) {}
+    layers.push({ name: name, close: closeUi, pushed: pushed });
+  }
+  function popLayer(name) {
+    for (var i = layers.length - 1; i >= 0; i--) {
+      if (layers[i].name !== name) continue;
+      var L = layers.splice(i, 1)[0];
+      if (L.pushed && i === layers.length) { ignorePop++; try { history.back(); } catch (e) { ignorePop--; } }
+      L.close();
+      return;
+    }
+  }
+  window.addEventListener('popstate', function () {
+    if (ignorePop > 0) { ignorePop--; return; }
+    var L = layers.pop();
+    if (L) L.close();
+  });
+
+  /* ---------- state + storage ---------- */
+  var stored = [];          // what is persisted (edits, new words, deleted-word markers)
+  var words = [];           // what is shown: shipped words + stored, minus deleted
+  var mode = 'local';       // 'db' | 'local'
+  var col = null;
+  var ready = false;
+  var downloadsApi = null;
+  var ui = { q: '', tag: null, sort: lsGet(LS_SORT) === 'az' ? 'az' : 'new', detailId: null, formOpen: false };
+
+  function keyOf(tr, meaning) { return norm(String(tr).trim()) + '|' + norm(String(meaning).trim()); }
+  function recompute() {
+    var live = {}, map = {};
+    stored.forEach(function (w) { if (!w._deleted && !SEED_IDS[w.id]) live[keyOf(w.tr || '', w.meaning || '')] = 1; });
+    SEED.forEach(function (w) { if (!live[keyOf(w.tr, w.meaning)]) map[w.id] = w; });
+    stored.forEach(function (w) { if (w._deleted) delete map[w.id]; else map[w.id] = w; });
+    words = Object.keys(map).map(function (k) { return map[k]; });
+  }
+  function loadLocal() {
+    try { var a = JSON.parse(lsGet(LS_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (w) { return w && w.id && (w.tr || w._deleted); }) : []; }
+    catch (e) { return []; }
+  }
+  function saveLocal() { lsSet(LS_KEY, JSON.stringify(stored)); }
+  function dataOf(w) { var d = Object.assign({}, w); delete d.id; return d; }
+
+  async function saveWord(w) {
+    var i = stored.findIndex(function (x) { return x.id === w.id; });
+    if (i >= 0) stored[i] = w; else stored.push(w);
+    recompute();
+    if (mode === 'db') {
+      try { await col.doc(w.id).set(dataOf(w)); }
+      catch (e) { toast('Не удалось сохранить. Попробуйте ещё раз.'); render(); return false; }
+    }
+    saveLocal(); render();
+    return true;
+  }
+  async function deleteWord(id) {
+    var isSeed = !!SEED_IDS[id];
+    var i = stored.findIndex(function (x) { return x.id === id; });
+    if (isSeed) { var t = { id: id, _deleted: true }; if (i >= 0) stored[i] = t; else stored.push(t); }
+    else if (i >= 0) stored.splice(i, 1);
+    recompute();
+    if (mode === 'db') {
+      try { if (isSeed) await col.doc(id).set({ _deleted: true }); else await col.doc(id).delete(); }
+      catch (e) { toast('Не удалось удалить. Попробуйте ещё раз.'); }
+    }
+    saveLocal(); render();
+  }
+
+  var decided = false;
+  function onSnapshot(snap) {
+    var remote = snap.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; });
+    if (!snap.metadata.fromCache && !decided) {
+      decided = true;
+      var done = lsGet(LS_MIG) === '1';
+      lsSet(LS_MIG, '1');
+      if (!done) {
+        var ids = {}; remote.forEach(function (w) { ids[w.id] = 1; });
+        var extra = loadLocal().filter(function (w) { return !ids[w.id]; });
+        if (extra.length) {
+          stored = remote.concat(extra); recompute(); saveLocal(); ready = true; render();
+          (async function () {
+            for (var i = 0; i < extra.length; i++) {
+              try { await col.doc(extra[i].id).set(dataOf(extra[i])); } catch (e) { toast('Часть слов не удалось перенести в облако.'); return; }
+            }
+          })();
+          return;
+        }
+      }
+    }
+    stored = remote; recompute(); saveLocal(); ready = true; render();
+  }
+
+  /* ---------- CSV import ---------- */
+  var HEAD = { 'персидское написание': 'fa', 'транслитерация': 'tr', 'перевод': 'meaning', 'теги': 'tags', 'синонимы': 'syn', 'антонимы': 'ant', 'формы': 'forms', 'пример': 'ex', 'перевод примера': 'exTr', 'заметки': 'notes' };
+  function parseCsv(text) {
+    text = text.replace(/^\uFEFF/, '');
+    var first = text.split(/\r?\n/)[0] || '';
+    var delim = first.split(';').length > first.split(',').length ? ';' : ',';
+    var rows = [], row = [], cur = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += c;
+      } else if (c === '"') q = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+      else cur += c;
+    }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (x) { return x.trim(); }); });
+  }
+  function parseRecords(text) {
+    var rows = parseCsv(text);
+    if (rows.length < 2) return { error: 'Не нашёл слов. В файле должна быть строка заголовков и хотя бы одно слово.' };
+    var cols = rows[0].map(function (h) { return HEAD[h.replace(/^\uFEFF/, '').trim().toLowerCase()] || null; });
+    if (cols.indexOf('tr') < 0 || cols.indexOf('meaning') < 0) return { error: 'В первой строке нужны столбцы «Транслитерация» и «Перевод».' };
+    var have = {}; words.forEach(function (w) { have[keyOf(w.tr || '', w.meaning || '')] = 1; });
+    var fresh = [], dups = 0, total = 0;
+    rows.slice(1).forEach(function (r) {
+      var o = {};
+      cols.forEach(function (k, i) { if (k) o[k] = (r[i] || '').trim(); });
+      if (!o.tr || !o.meaning) return;
+      total++;
+      var k = keyOf(o.tr, o.meaning);
+      if (have[k]) { dups++; return; }
+      have[k] = 1;
+      fresh.push({
+        fa: o.fa || '', tr: o.tr, meaning: o.meaning,
+        tags: splitList(o.tags).map(function (t) { return t.toLowerCase(); }),
+        syn: splitList(o.syn), ant: splitList(o.ant),
+        forms: o.forms || '', ex: o.ex || '', exTr: o.exTr || '', notes: o.notes || ''
+      });
+    });
+    return { total: total, fresh: fresh, dups: dups };
+  }
+  async function runImport(recs) {
+    var base = Date.now(), added = 0;
+    for (var i = 0; i < recs.length; i++) {
+      var rec = Object.assign({ id: newId() + i.toString(36) }, recs[i], { created: base - i * 1000, updated: base });
+      if (mode === 'db') {
+        var ok = false, err = null;
+        for (var attempt = 0; attempt < 2 && !ok; attempt++) {
+          try { await col.doc(rec.id).set(dataOf(rec)); ok = true; }
+          catch (e) { err = e; await new Promise(function (r) { setTimeout(r, 1200); }); }
+        }
+        if (!ok) { recompute(); saveLocal(); render(); return { added: added, error: err }; }
+        await new Promise(function (r) { setTimeout(r, 25); });
+      }
+      stored.push(rec); added++;
+    }
+    recompute(); saveLocal(); render();
+    return { added: added };
+  }
+
+  async function initCapabilities() {
+    try {
+      if (!(window.claude && window.claude.use)) return;
+      claude.use('downloads').then(function (d) { if (d) { downloadsApi = d; renderFoot(); } }).catch(function () {});
+      var res = await Promise.all([claude.use('db'), claude.use('user')]);
+      var db = res[0], user = res[1];
+      if (!db || !user) return;
+      var uid = await user.id();
+      if (!uid) return;
+      col = db.collection('data/users/' + uid);
+      mode = 'db';
+      col.onSnapshot(onSnapshot, function () {
+        mode = 'local';
+        toast('Синхронизация недоступна: слова сохраняются на этом устройстве.');
+      });
+    } catch (e) { /* stay in local mode */ }
+    finally {
+      setTimeout(function () { if (!ready) { ready = true; render(); } }, mode === 'db' ? 4000 : 0);
+      if (mode !== 'db') { ready = true; render(); }
+    }
+  }
+
+  /* ---------- list ---------- */
+  function hayOf(w) {
+    return norm([w.fa, w.tr, w.meaning, (w.tags || []).join(' '), (w.syn || []).join(' '), (w.ant || []).join(' '), w.forms, w.ex, w.exTr, w.notes].join(' '));
+  }
+  function visibleWords() {
+    var terms = norm(ui.q).split(/\s+/).filter(Boolean);
+    var a = words.filter(function (w) {
+      if (ui.tag && (w.tags || []).indexOf(ui.tag) < 0) return false;
+      if (!terms.length) return true;
+      var hay = hayOf(w);
+      return terms.every(function (t) { return hay.indexOf(t) >= 0; });
+    });
+    a.sort(ui.sort === 'az'
+      ? function (x, y) { return norm(x.tr).localeCompare(norm(y.tr)); }
+      : function (x, y) { return (y.created || 0) - (x.created || 0); });
+    return a;
+  }
+  function rowFor(w) {
+    return el('button', { 'class': 'row', type: 'button', 'data-id': w.id },
+      el('div', { 'class': 'rowmain' },
+        el('div', { 'class': 'rt' }, el('span', { 'class': 'tr', text: w.tr }), el('span', { 'class': 'mean', text: w.meaning })),
+        w.fa ? el('span', { 'class': 'fa', lang: 'fa', dir: 'rtl', text: w.fa }) : null),
+      (w.tags && w.tags.length) ? el('div', { 'class': 'tags' }, w.tags.map(tagEl)) : null);
+  }
+  var fillToken = 0;
+  function fillRows(list, vis) {
+    var token = ++fillToken, i = 0, FIRST = 300, CHUNK = 150;
+    var frag = document.createDocumentFragment();
+    for (; i < Math.min(FIRST, vis.length); i++) frag.append(rowFor(vis[i]));
+    list.replaceChildren(frag);
+    (function more() {
+      if (token !== fillToken || i >= vis.length) return;
+      requestAnimationFrame(function () {
+        if (token !== fillToken) return;
+        var f = document.createDocumentFragment(), end = Math.min(i + CHUNK, vis.length);
+        for (; i < end; i++) f.append(rowFor(vis[i]));
+        list.append(f);
+        more();
+      });
+    })();
+  }
+  function renderFilters() {
+    var counts = {}, order = [];
+    words.forEach(function (w) { (w.tags || []).forEach(function (t) { if (!(t in counts)) { counts[t] = 0; order.push(t); } counts[t]++; }); });
+    if (ui.tag && !(ui.tag in counts)) ui.tag = null;
+    order.sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ru'); });
+    var box = $('#filters');
+    box.replaceChildren.apply(box, order.map(function (t) {
+      var on = ui.tag === t;
+      return el('button', {
+        type: 'button', 'class': 'fchip' + (on ? ' on' : ''), 'aria-pressed': String(on), style: '--h:' + hue(t),
+        onclick: function () { ui.tag = on ? null : t; render(); }
+      }, t, el('span', { 'class': 'n', text: counts[t] }));
+    }));
+    box.hidden = !order.length;
+  }
+  function renderFoot() {
+    var f = $('#foot');
+    f.replaceChildren();
+    f.style.display = 'flex'; f.style.flexWrap = 'wrap'; f.style.gap = '4px 20px';
+    f.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Импорт из CSV', onclick: openImport }));
+    if (words.length) f.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать копию словаря (CSV)', onclick: exportCsv }));
+  }
+  function renderList() {
+    var list = $('#list'), total = words.length, vis = visibleWords();
+    $('#sortNew').setAttribute('aria-pressed', String(ui.sort === 'new'));
+    $('#sortAz').setAttribute('aria-pressed', String(ui.sort === 'az'));
+    var filtered = ui.q.trim() || ui.tag;
+    $('#count').textContent = filtered
+      ? 'Найдено: ' + vis.length + ' из ' + total
+      : total + ' ' + plural(total, 'слово', 'слова', 'слов');
+    renderFilters();
+    if (!total) {
+      fillToken++;
+      if (!ready) { list.replaceChildren(el('p', { 'class': 'note', text: 'Загружаю словарь…' })); }
+      else list.replaceChildren(el('div', { 'class': 'empty' },
+        el('h2', { text: 'Пока нет слов' }),
+        el('p', { text: 'Добавьте первое слово: транслитерацию, перевод и теги, например часть речи.' }),
+        el('div', { 'class': 'tags', style: 'gap:10px' },
+          el('button', { type: 'button', 'class': 'btn primary', text: 'Добавить слово', onclick: function () { openForm(null); } }),
+          el('button', { type: 'button', 'class': 'btn ghost', text: 'Импорт из CSV', onclick: openImport }))));
+    } else if (!vis.length) {
+      fillToken++;
+      list.replaceChildren(el('div', { 'class': 'empty' },
+        el('h2', { text: 'Ничего не найдено' }),
+        el('p', { text: 'Диакритика в поиске не важна: «ketab» найдёт и «ketāb».' })));
+    } else {
+      fillRows(list, vis);
+    }
+    renderFoot();
+  }
+  function render() {
+    renderList();
+    if (ui.detailId) renderDetail(false);
+  }
+
+  function syncLock() { document.documentElement.style.overflow = (ui.detailId || ui.formOpen) ? 'hidden' : ''; }
+
+  /* ---------- detail ---------- */
+  var detailRoot = $('#detailRoot'), formRoot = $('#formRoot'), dialogRoot = $('#dialogRoot');
+
+  function findByTr(text) { var k = norm(text); return words.find(function (w) { return norm(w.tr) === k; }); }
+
+  function uiCloseDetail() { ui.detailId = null; detailRoot.replaceChildren(); syncLock(); }
+  function openDetail(id) {
+    var first = !ui.detailId;
+    ui.detailId = id; syncLock();
+    if (first) pushLayer('detail', uiCloseDetail);
+    renderDetail(true);
+  }
+  function closeDetail() { popLayer('detail'); }
+
+  function wordChip(text, currentId) {
+    var target = findByTr(text);
+    if (target && target.id !== currentId) {
+      return el('button', { type: 'button', 'class': 'wchip link', onclick: function () { openDetail(target.id); } },
+        text, target.meaning ? el('small', { text: target.meaning }) : null);
+    }
+    return el('span', { 'class': 'wchip', text: text });
+  }
+  function section(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
+
+  function renderDetail(reset) {
+    var w = words.find(function (x) { return x.id === ui.detailId; });
+    if (!w) { closeDetail(); return; }
+    var old = detailRoot.firstElementChild;
+    var top = (!reset && old) ? old.scrollTop : 0;
+
+    var bar = el('div', { 'class': 'bar' },
+      el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Назад', onclick: closeDetail }, icon('back')),
+      el('span', { 'class': 'sp' }),
+      el('button', { type: 'button', 'class': 'tbtn', onclick: function () { openForm(w); } }, icon('edit'), 'Изменить'),
+      el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Удалить слово', onclick: function () { confirmDelete(w); } }, icon('trash')));
+
+    var tags = (w.tags && w.tags.length)
+      ? el('div', { 'class': 'tags' }, w.tags.map(function (t) {
+          return el('button', {
+            type: 'button', 'class': 'tag', style: '--h:' + hue(t), text: t, title: 'Показать все слова с этим тегом',
+            onclick: function () { ui.tag = t; ui.q = ''; $('#q').value = ''; closeDetail(); render(); window.scrollTo(0, 0); }
+          });
+        }))
+      : null;
+
+    var secs = [];
+    if (w.syn && w.syn.length) secs.push(section('Синонимы', el('div', { 'class': 'wchips' }, w.syn.map(function (s) { return wordChip(s, w.id); }))));
+    if (w.ant && w.ant.length) secs.push(section('Антонимы', el('div', { 'class': 'wchips' }, w.ant.map(function (s) { return wordChip(s, w.id); }))));
+    if (w.forms) secs.push(section('Формы', el('p', { 'class': 'txt', text: w.forms })));
+    if (w.ex || w.exTr) secs.push(section('Пример', el('blockquote', { 'class': 'ex' },
+      w.ex ? el('p', { 'class': 'extr', text: w.ex }) : null,
+      w.exTr ? el('p', { 'class': 'exm', text: w.exTr }) : null)));
+    if (w.notes) secs.push(section('Заметки', el('p', { 'class': 'txt', text: w.notes })));
+    if (!secs.length) secs.push(el('p', { 'class': 'hintline', text: 'Синонимы, антонимы, пример и заметки можно добавить через «Изменить».' }));
+
+    var when = w.created ? el('p', { 'class': 'when', text: 'Добавлено ' + new Date(w.created).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) }) : el('p', { 'class': 'when' });
+
+    var sheet = el('div', { 'class': 'sheet' + (old ? '' : ' enter'), role: 'dialog', 'aria-modal': 'true', 'aria-label': w.tr },
+      el('div', { 'class': 'wrap' }, bar,
+        w.fa ? el('div', { 'class': 'dfa', lang: 'fa', dir: 'rtl', text: w.fa }) : null,
+        el('h2', { 'class': 'dtr', text: w.tr }),
+        el('p', { 'class': 'dmean', text: w.meaning }),
+        tags, secs, when));
+    detailRoot.replaceChildren(sheet);
+    sheet.scrollTop = top;
+  }
+
+  function confirmDelete(w) {
+    function uiClose() { dialogRoot.replaceChildren(); }
+    function close() { popLayer('dialog'); }
+    var cancel = el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: close });
+    dialogRoot.replaceChildren(el('div', { 'class': 'scrim', onclick: function (e) { if (e.target === e.currentTarget) close(); } },
+      el('div', { 'class': 'dialog', role: 'alertdialog', 'aria-modal': 'true' },
+        el('p', { 'class': 'dt', text: 'Удалить слово «' + w.tr + '»?' }),
+        el('p', { 'class': 'dd', text: 'Вернуть его не получится.' }),
+        el('div', { 'class': 'dact' }, cancel,
+          el('button', { type: 'button', 'class': 'btn danger', text: 'Удалить', onclick: async function () {
+            close(); closeDetail(); await deleteWord(w.id); toast('Слово удалено');
+          } })))));
+    pushLayer('dialog', uiClose);
+    cancel.focus();
+  }
+
+  /* ---------- form ---------- */
+  function uiCloseForm() { ui.formOpen = false; formRoot.replaceChildren(); syncLock(); }
+  function closeForm() { popLayer('form'); }
+  function openSheet() { ui.formOpen = true; syncLock(); pushLayer('form', uiCloseForm); }
+
+  function openForm(w) {
+    openSheet();
+    var isNew = !w;
+    var d = Object.assign({ tr: '', meaning: '', tags: [], syn: [], ant: [], forms: '', ex: '', exTr: '', notes: '' }, w || {});
+    var sel = new Set(d.tags || []);
+
+    function input(cls, val, ph, extra) {
+      return el('input', Object.assign({ type: 'text', 'class': cls || '', value: val, placeholder: ph || '', autocomplete: 'off', enterkeyhint: 'next' }, extra || {}));
+    }
+    var fa = input('fa-in', d.fa || '', 'слово персидскими буквами', { dir: 'rtl', lang: 'fa', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', id: 'f-fa' });
+    var tr = input('big', d.tr, 'например, ketāb', { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', id: 'f-tr' });
+    var meaning = input('', d.meaning, 'например, книга', { autocapitalize: 'none', id: 'f-mean' });
+    var syn = input('', (d.syn || []).join(', '), 'через запятую', { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', id: 'f-syn' });
+    var ant = input('', (d.ant || []).join(', '), 'через запятую', { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', id: 'f-ant' });
+    var forms = input('', d.forms || '', 'например, основа прошедшего времени', { id: 'f-forms' });
+    var ex = input('', d.ex || '', 'предложение в транслитерации', { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', id: 'f-ex' });
+    var exTr = input('', d.exTr || '', 'перевод предложения', { id: 'f-extr' });
+    var notes = el('textarea', { id: 'f-notes', placeholder: 'произношение, ассоциации, где встретилось слово' });
+    notes.value = d.notes || '';
+
+    var errTr = el('p', { 'class': 'err', role: 'alert' });
+    var errMean = el('p', { 'class': 'err', role: 'alert' });
+    var dup = el('p', { 'class': 'hint warn', hidden: true });
+    tr.addEventListener('input', function () {
+      var v = norm(tr.value.trim());
+      var other = v && words.find(function (x) { return norm(x.tr) === v && (!w || x.id !== w.id); });
+      dup.hidden = !other;
+      if (other) dup.textContent = 'Такое слово уже есть: «' + other.meaning + '». Можно сохранить как отдельную запись.';
+      if (tr.value.trim()) errTr.textContent = '';
+    });
+    meaning.addEventListener('input', function () { if (meaning.value.trim()) errMean.textContent = ''; });
+
+    var picks = el('div', { 'class': 'picks' });
+    function pickBtn(t) {
+      var b = el('button', { type: 'button', 'class': 'pick', style: '--h:' + hue(t), text: t });
+      function sync() { var on = sel.has(t); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }
+      b.addEventListener('click', function () { if (sel.has(t)) sel.delete(t); else sel.add(t); sync(); });
+      b._sync = sync; sync();
+      return b;
+    }
+    function buildPicks() {
+      var seen = {}, all = [];
+      PRESET_TAGS.concat.apply(PRESET_TAGS, words.map(function (x) { return x.tags || []; })).concat(Array.from(sel)).forEach(function (t) { if (!seen[t]) { seen[t] = 1; all.push(t); } });
+      picks.replaceChildren.apply(picks, all.map(pickBtn));
+    }
+    buildPicks();
+    var custom = el('input', { type: 'text', placeholder: 'Новый тег', maxlength: '30', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Новый тег' });
+    function addTag() {
+      var t = custom.value.trim().toLowerCase();
+      if (!t) return;
+      sel.add(t); custom.value = ''; buildPicks();
+    }
+    custom.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addTag(); } });
+
+    var order = [fa, tr, meaning, syn, ant, forms, ex, exTr];
+    order.forEach(function (inp, i) {
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); (order[i + 1] || notes).focus(); } });
+    });
+
+    function field(label, forId, control, extra) {
+      return el('div', { 'class': 'field' }, el('label', { 'for': forId, text: label }), control, extra);
+    }
+
+    var saveBtn, moreBtn;
+    async function submit(more) {
+      var trv = tr.value.trim(), mv = meaning.value.trim();
+      errTr.textContent = trv ? '' : 'Введите транслитерацию';
+      errMean.textContent = mv ? '' : 'Введите перевод';
+      if (!trv || !mv) { (trv ? meaning : tr).focus(); return; }
+      var now = Date.now();
+      var rec = {
+        id: w ? w.id : newId(), fa: fa.value.trim(), tr: trv, meaning: mv, tags: Array.from(sel),
+        syn: splitList(syn.value), ant: splitList(ant.value),
+        forms: forms.value.trim(), ex: ex.value.trim(), exTr: exTr.value.trim(), notes: notes.value.trim(),
+        created: w ? (w.created || now) : now, updated: now
+      };
+      saveBtn.disabled = true; if (moreBtn) moreBtn.disabled = true;
+      var ok = await saveWord(rec);
+      saveBtn.disabled = false; if (moreBtn) moreBtn.disabled = false;
+      if (!ok) return;
+      if (isNew && more) {
+        [fa, tr, meaning, syn, ant, forms, ex, exTr].forEach(function (i) { i.value = ''; });
+        notes.value = ''; sel.clear();
+        picks.querySelectorAll('.pick').forEach(function (b) { b._sync(); });
+        dup.hidden = true; toast('Добавлено: ' + rec.tr);
+        fa.focus(); formRoot.firstElementChild.scrollTop = 0;
+        return;
+      }
+      closeForm();
+      if (isNew) toast('Слово добавлено'); else toast('Сохранено');
+    }
+    saveBtn = el('button', { type: 'button', 'class': 'btn primary', text: 'Сохранить', onclick: function () { submit(false); } });
+    moreBtn = isNew ? el('button', { type: 'button', 'class': 'btn ghost', text: 'Сохранить и добавить ещё', onclick: function () { submit(true); } }) : null;
+
+    var sheet = el('div', { 'class': 'sheet form enter', role: 'dialog', 'aria-modal': 'true', 'aria-label': isNew ? 'Новое слово' : 'Изменить слово' },
+      el('div', { 'class': 'wrap' },
+        el('div', { 'class': 'bar' },
+          el('button', { type: 'button', 'class': 'tbtn side', text: 'Отмена', onclick: closeForm }),
+          el('span', { 'class': 'ttl', text: isNew ? 'Новое слово' : 'Изменить слово' }),
+          el('span', { 'class': 'side' })),
+        el('div', { 'class': 'fbody' },
+          field('Персидское написание', 'f-fa', fa),
+          field('Транслитерация', 'f-tr', tr, [errTr, dup]),
+          field('Перевод', 'f-mean', meaning, errMean),
+          el('div', { 'class': 'field' },
+            el('label', { text: 'Теги' }), picks,
+            el('div', { 'class': 'addtag' }, custom, el('button', { type: 'button', 'class': 'btn ghost', text: 'Добавить тег', onclick: addTag }))),
+          field('Синонимы', 'f-syn', syn, el('p', { 'class': 'hint', text: 'Если слово уже есть в словаре, в карточке оно станет ссылкой.' })),
+          field('Антонимы', 'f-ant', ant),
+          field('Формы', 'f-forms', forms, el('p', { 'class': 'hint', text: 'Множественное число, основы глагола и другое.' })),
+          field('Пример', 'f-ex', ex),
+          field('Перевод примера', 'f-extr', exTr),
+          field('Заметки', 'f-notes', notes)),
+        el('div', { 'class': 'actions' }, saveBtn, moreBtn)));
+    formRoot.replaceChildren(sheet);
+    if (isNew) fa.focus();
+  }
+
+  /* ---------- import sheet ---------- */
+  function openImport() {
+    openSheet();
+    var ta = el('textarea', { id: 'imp-text', placeholder: 'Или вставьте сюда содержимое CSV-файла', spellcheck: 'false', style: 'min-height:160px' });
+    var status = el('p', { 'class': 'hint', role: 'status' });
+    var go = el('button', { type: 'button', 'class': 'btn primary', text: 'Добавить слова', disabled: true });
+    var pending = [];
+    function analyze() {
+      pending = []; go.disabled = true; status.className = 'hint';
+      if (!ta.value.trim()) { status.textContent = ''; go.textContent = 'Добавить слова'; return; }
+      var res = parseRecords(ta.value);
+      if (res.error) { status.className = 'err'; status.textContent = res.error; go.textContent = 'Добавить слова'; return; }
+      pending = res.fresh;
+      status.textContent = 'Найдено слов: ' + res.total + '. Новых: ' + res.fresh.length + (res.dups ? '. Уже есть в словаре: ' + res.dups : '') + '.';
+      go.textContent = pending.length ? 'Добавить слов: ' + pending.length : 'Добавлять нечего';
+      go.disabled = !pending.length;
+    }
+    ta.addEventListener('input', analyze);
+    var file = el('input', { type: 'file', accept: '.csv,text/csv,text/plain', hidden: true });
+    file.addEventListener('change', function () {
+      var f = file.files && file.files[0];
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function () { ta.value = String(r.result || ''); analyze(); };
+      r.onerror = function () { status.className = 'err'; status.textContent = 'Не удалось прочитать файл. Попробуйте вставить текст вручную.'; };
+      r.readAsText(f, 'utf-8');
+    });
+    go.addEventListener('click', async function () {
+      if (!pending.length) return;
+      go.disabled = true; status.className = 'hint'; status.textContent = 'Добавляю слова…';
+      var res = await runImport(pending);
+      if (res.error) {
+        status.className = 'err';
+        status.textContent = 'Добавлено слов: ' + res.added + '. Дальше запись не удалась' + (res.error && res.error.code ? ' (' + res.error.code + ')' : '') + '. Нажмите кнопку ещё раз, чтобы добавить остальные.';
+        analyze();
+        return;
+      }
+      closeForm(); toast('Добавлено слов: ' + res.added);
+    });
+    var sheet = el('div', { 'class': 'sheet form enter', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Импорт из CSV' },
+      el('div', { 'class': 'wrap' },
+        el('div', { 'class': 'bar' },
+          el('button', { type: 'button', 'class': 'tbtn side', text: 'Отмена', onclick: closeForm }),
+          el('span', { 'class': 'ttl', text: 'Импорт из CSV' }),
+          el('span', { 'class': 'side' })),
+        el('div', { 'class': 'fbody' },
+          el('p', { 'class': 'hint', text: 'Выберите CSV-файл со словами. Слова, которые уже есть в словаре, будут пропущены.' }),
+          el('div', { 'class': 'field', style: 'margin-top:14px' }, el('label', { 'class': 'btn ghost', style: 'display:inline-block;cursor:pointer', text: 'Выбрать CSV-файл' }, file)),
+          el('div', { 'class': 'field' }, ta, status)),
+        el('div', { 'class': 'actions' }, go)));
+    formRoot.replaceChildren(sheet);
+  }
+
+  /* ---------- export ---------- */
+  async function exportCsv() {
+    var cols = [['Персидское написание', 'fa'], ['Транслитерация', 'tr'], ['Перевод', 'meaning'], ['Теги', 'tags'], ['Синонимы', 'syn'], ['Антонимы', 'ant'], ['Формы', 'forms'], ['Пример', 'ex'], ['Перевод примера', 'exTr'], ['Заметки', 'notes']];
+    function esc(v) {
+      var s = Array.isArray(v) ? v.join('; ') : (v == null ? '' : String(v));
+      return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    var lines = [cols.map(function (c) { return esc(c[0]); }).join(',')];
+    words.slice().sort(function (a, b) { return (a.created || 0) - (b.created || 0); }).forEach(function (w) {
+      lines.push(cols.map(function (c) { return esc(w[c[1]]); }).join(','));
+    });
+    var data = '\ufeff' + lines.join('\r\n');
+    try {
+      if (downloadsApi) await downloadsApi.save({ filename: 'persian-dictionary.csv', data: data });
+      else {
+        var url = URL.createObjectURL(new Blob([data], { type: 'text/csv;charset=utf-8' }));
+        var a = document.createElement('a'); a.href = url; a.download = 'persian-dictionary.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      }
+    } catch (e) { if (!e || e.code !== 'declined') toast('Не удалось сохранить файл.'); }
+  }
+
+  /* ---------- wiring ---------- */
+  var searchFrame = 0;
+  $('#q').addEventListener('input', function (e) {
+    ui.q = e.target.value;
+    if (!searchFrame) searchFrame = requestAnimationFrame(function () { searchFrame = 0; renderList(); });
+  });
+  $('#list').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.row') : null;
+    if (b) openDetail(b.getAttribute('data-id'));
+  });
+  $('#sortNew').addEventListener('click', function () { ui.sort = 'new'; lsSet(LS_SORT, 'new'); renderList(); });
+  $('#sortAz').addEventListener('click', function () { ui.sort = 'az'; lsSet(LS_SORT, 'az'); renderList(); });
+  $('#add').addEventListener('click', function () { openForm(null); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var top = layers[layers.length - 1];
+    if (top) popLayer(top.name);
+  });
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  stored = loadLocal();
+  recompute();
+  ready = true;
+  render();
+  initCapabilities();
+})();
+
+</script>
+</body>
+</html>
