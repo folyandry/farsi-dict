@@ -149,6 +149,54 @@
   .fab { transform: translateZ(0); }
   .sheet { contain: layout paint; }
   .sheet.enter { animation-duration: .18s; }
+
+  /* ---------- actions, tags manager, selection, training ---------- */
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg2); cursor: pointer; }
+  .pill.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+  .pill .badge { background: var(--accent-ink); color: var(--accent); border-radius: 999px; font-size: 12px; padding: 0 7px; line-height: 1.6; }
+  .opt { font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg2); cursor: pointer; }
+  .opt.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+  .pick.part { border-style: dashed; background: hsl(var(--h) 45% 55% / .3); }
+  .tmrow { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .tmrow .sp { flex: 1; }
+  .tmn { color: var(--mute); font-size: 13px; }
+  .tmlist { margin-top: 12px; }
+  .dlg-input { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; font-size: 16px; padding: 12px 14px; margin-top: 4px; }
+  .dlg-input:focus { outline: none; border-color: var(--accent); }
+
+  .selwrap { position: fixed; left: 0; right: 0; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 12; display: flex; justify-content: center; pointer-events: none; }
+  .selin { pointer-events: auto; display: flex; align-items: center; gap: 8px; background: var(--raise); border: 1px solid var(--line); border-radius: 16px; padding: 8px 10px; box-shadow: 0 6px 24px rgba(4, 8, 20, .55); max-width: calc(100% - 24px); }
+  .selin .sc { font-size: 14px; color: var(--mute); padding: 0 6px; white-space: nowrap; }
+  .selin .btn { padding: 9px 14px; font-size: 15px; }
+  body.selmode .fabwrap { display: none; }
+  .selmode .row { position: relative; padding-left: 40px; }
+  .selmode .row::before { content: ''; position: absolute; left: 8px; top: 50%; width: 20px; height: 20px; margin-top: -10px; border: 2px solid var(--faint); border-radius: 50%; }
+  .selmode .row.sel { background: var(--bg2); }
+  .selmode .row.sel::before { background: var(--accent); border-color: var(--accent); }
+  .selmode .row.sel::after { content: ''; position: absolute; left: 15px; top: 50%; width: 6px; height: 11px; margin-top: -8px; border: solid var(--accent-ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+  #trainRoot .sheet { z-index: 30; }
+  .tright { text-align: right; color: var(--mute); font-size: 14px; }
+  .tstat { margin: 14px 0 6px; color: var(--mute); }
+  .tstat b { color: var(--text); }
+  .tprog { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .tprog i { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); transition: transform .2s; }
+  .tcard { margin: 16px 0 20px; min-height: min(54vh, 480px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: var(--bg2); border: 1px solid var(--line); border-radius: 20px; padding: 28px 20px; cursor: pointer; }
+  .tfa { direction: rtl; font: 600 clamp(48px, 16vw, 76px)/1.4 var(--fa); overflow-wrap: anywhere; }
+  .ttr { font: 600 clamp(28px, 8vw, 38px)/1.25 var(--serif); overflow-wrap: anywhere; }
+  .tmean { font: 500 clamp(26px, 8vw, 36px)/1.3 var(--sans); overflow-wrap: anywhere; }
+  .tsub { color: var(--mute); margin: 12px 0 0; white-space: pre-wrap; }
+  .thint { margin-top: 28px; font-size: 14px; color: var(--faint); }
+  .thr { width: 60%; border: 0; border-top: 1px solid var(--line); margin: 22px 0; }
+  .tags.tc { justify-content: center; }
+  .grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+  .gbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); font-size: 15px; cursor: pointer; }
+  .gbtn small { color: var(--mute); font-size: 12px; }
+  .gbtn.g0 { border-color: rgba(229, 138, 125, .55); }
+  .gbtn.g2 { border-color: rgba(227, 177, 85, .6); }
+  .tdone { padding: 56px 0 0; }
+  .tdone h2 { margin: 0 0 8px; font: 600 30px/1.2 var(--serif); }
 </style>
 </head>
 <body>
@@ -161,6 +209,11 @@
         <button type="button" id="sortNew">Новые</button>
         <button type="button" id="sortAz">A–Z</button>
       </div>
+    </div>
+    <div class="acts">
+      <button type="button" class="pill primary" id="trainBtn">Тренировка<span class="badge" id="dueBadge" hidden></span></button>
+      <button type="button" class="pill" id="selBtn">Выбрать</button>
+      <button type="button" class="pill" id="tagsBtn">Теги</button>
     </div>
   </header>
   <div class="toolbar">
@@ -181,7 +234,14 @@
   </button>
 </div></div>
 
+<div class="selwrap" id="selbar" hidden><div class="selin">
+  <span class="sc" id="selCount"></span>
+  <button type="button" class="btn ghost" id="selAll">Все</button>
+  <button type="button" class="btn primary" id="selTag">Тег</button>
+  <button type="button" class="btn ghost" id="selDone">Готово</button>
+</div></div>
 <div id="detailRoot"></div>
+<div id="trainRoot"></div>
 <div id="formRoot"></div>
 <div id="dialogRoot"></div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -291,18 +351,18 @@
   var col = null;
   var ready = false;
   var downloadsApi = null;
-  var ui = { q: '', tag: null, sort: lsGet(LS_SORT) === 'az' ? 'az' : 'new', detailId: null, formOpen: false };
+  var ui = { q: '', tag: null, sort: lsGet(LS_SORT) === 'az' ? 'az' : 'new', detailId: null, formOpen: false, select: false, sel: new Set(), train: false };
 
   function keyOf(tr, meaning) { return norm(String(tr).trim()) + '|' + norm(String(meaning).trim()); }
   function recompute() {
     var live = {}, map = {};
-    stored.forEach(function (w) { if (!w._deleted && !SEED_IDS[w.id]) live[keyOf(w.tr || '', w.meaning || '')] = 1; });
+    stored.forEach(function (w) { if (!w._meta && !w._deleted && !SEED_IDS[w.id]) live[keyOf(w.tr || '', w.meaning || '')] = 1; });
     SEED.forEach(function (w) { if (!live[keyOf(w.tr, w.meaning)]) map[w.id] = w; });
-    stored.forEach(function (w) { if (w._deleted) delete map[w.id]; else map[w.id] = w; });
+    stored.forEach(function (w) { if (w._meta) return; if (w._deleted) delete map[w.id]; else map[w.id] = w; });
     words = Object.keys(map).map(function (k) { return map[k]; });
   }
   function loadLocal() {
-    try { var a = JSON.parse(lsGet(LS_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (w) { return w && w.id && (w.tr || w._deleted); }) : []; }
+    try { var a = JSON.parse(lsGet(LS_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (w) { return w && w.id && (w.tr || w._deleted || w._meta); }) : []; }
     catch (e) { return []; }
   }
   function saveLocal() { lsSet(LS_KEY, JSON.stringify(stored)); }
@@ -459,7 +519,7 @@
     return a;
   }
   function rowFor(w) {
-    return el('button', { 'class': 'row', type: 'button', 'data-id': w.id },
+    return el('button', { 'class': 'row' + (ui.select && ui.sel.has(w.id) ? ' sel' : ''), type: 'button', 'data-id': w.id },
       el('div', { 'class': 'rowmain' },
         el('div', { 'class': 'rt' }, el('span', { 'class': 'tr', text: w.tr }), el('span', { 'class': 'mean', text: w.meaning })),
         w.fa ? el('span', { 'class': 'fa', lang: 'fa', dir: 'rtl', text: w.fa }) : null),
@@ -508,6 +568,13 @@
     var list = $('#list'), total = words.length, vis = visibleWords();
     $('#sortNew').setAttribute('aria-pressed', String(ui.sort === 'new'));
     $('#sortAz').setAttribute('aria-pressed', String(ui.sort === 'az'));
+    document.body.classList.toggle('selmode', ui.select);
+    $('#selbar').hidden = !ui.select;
+    (function () {
+      var m = srsMap(), n = Date.now(), d = 0;
+      words.forEach(function (w) { var s = m[w.id]; if (s && s.due <= n) d++; });
+      var b = $('#dueBadge'); b.textContent = d; b.hidden = !d;
+    })();
     var filtered = ui.q.trim() || ui.tag;
     $('#count').textContent = filtered
       ? 'Найдено: ' + vis.length + ' из ' + total
@@ -537,7 +604,7 @@
     if (ui.detailId) renderDetail(false);
   }
 
-  function syncLock() { document.documentElement.style.overflow = (ui.detailId || ui.formOpen) ? 'hidden' : ''; }
+  function syncLock() { document.documentElement.style.overflow = (ui.detailId || ui.formOpen || ui.train) ? 'hidden' : ''; }
 
   /* ---------- detail ---------- */
   var detailRoot = $('#detailRoot'), formRoot = $('#formRoot'), dialogRoot = $('#dialogRoot');
@@ -606,20 +673,32 @@
     sheet.scrollTop = top;
   }
 
-  function confirmDelete(w) {
+  function showDialog(children) {
     function uiClose() { dialogRoot.replaceChildren(); }
-    function close() { popLayer('dialog'); }
-    var cancel = el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: close });
-    dialogRoot.replaceChildren(el('div', { 'class': 'scrim', onclick: function (e) { if (e.target === e.currentTarget) close(); } },
-      el('div', { 'class': 'dialog', role: 'alertdialog', 'aria-modal': 'true' },
-        el('p', { 'class': 'dt', text: 'Удалить слово «' + w.tr + '»?' }),
-        el('p', { 'class': 'dd', text: 'Вернуть его не получится.' }),
-        el('div', { 'class': 'dact' }, cancel,
-          el('button', { type: 'button', 'class': 'btn danger', text: 'Удалить', onclick: async function () {
-            close(); closeDetail(); await deleteWord(w.id); toast('Слово удалено');
-          } })))));
+    dialogRoot.replaceChildren(el('div', { 'class': 'scrim', onclick: function (e) { if (e.target === e.currentTarget) popLayer('dialog'); } },
+      el('div', { 'class': 'dialog', role: 'alertdialog', 'aria-modal': 'true' }, children)));
     pushLayer('dialog', uiClose);
+  }
+  function askConfirm(title, text, okLabel, danger, onOk) {
+    var cancel = el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: function () { popLayer('dialog'); } });
+    showDialog([el('p', { 'class': 'dt', text: title }), text ? el('p', { 'class': 'dd', text: text }) : null,
+      el('div', { 'class': 'dact' }, cancel, el('button', { type: 'button', 'class': 'btn ' + (danger ? 'danger' : 'primary'), text: okLabel, onclick: function () { popLayer('dialog'); onOk(); } }))]);
     cancel.focus();
+  }
+  function askText(title, initial, okLabel, onOk) {
+    var inp = el('input', { type: 'text', 'class': 'dlg-input', value: initial, maxlength: '30', autocomplete: 'off', autocapitalize: 'off', 'aria-label': title });
+    function go() { var v = inp.value.trim(); if (!v) return; popLayer('dialog'); onOk(v); }
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    showDialog([el('p', { 'class': 'dt', text: title }), inp,
+      el('div', { 'class': 'dact', style: 'margin-top:16px' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: function () { popLayer('dialog'); } }),
+        el('button', { type: 'button', 'class': 'btn primary', text: okLabel, onclick: go }))]);
+    inp.focus(); inp.select();
+  }
+  function confirmDelete(w) {
+    askConfirm('Удалить слово «' + w.tr + '»?', 'Вернуть его не получится.', 'Удалить', true, async function () {
+      closeDetail(); await deleteWord(w.id); toast('Слово удалено');
+    });
   }
 
   /* ---------- form ---------- */
@@ -669,7 +748,7 @@
     }
     function buildPicks() {
       var seen = {}, all = [];
-      PRESET_TAGS.concat.apply(PRESET_TAGS, words.map(function (x) { return x.tags || []; })).concat(Array.from(sel)).forEach(function (t) { if (!seen[t]) { seen[t] = 1; all.push(t); } });
+      allTags().concat(Array.from(sel)).forEach(function (t) { if (!seen[t]) { seen[t] = 1; all.push(t); } });
       picks.replaceChildren.apply(picks, all.map(pickBtn));
     }
     buildPicks();
@@ -798,6 +877,292 @@
     formRoot.replaceChildren(sheet);
   }
 
+  /* ---------- meta records, tags ---------- */
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function getMeta(id) { return stored.find(function (x) { return x.id === id; }) || null; }
+  function upsertStored(rec) { var i = stored.findIndex(function (x) { return x.id === rec.id; }); if (i >= 0) stored[i] = rec; else stored.push(rec); }
+  async function dbSet(rec) {
+    if (mode !== 'db') return true;
+    for (var a = 0; a < 2; a++) {
+      try { await col.doc(rec.id).set(dataOf(rec)); return true; } catch (e) { await sleep(1000); }
+    }
+    return false;
+  }
+  async function persistRecs(recs) {
+    recs.forEach(upsertStored);
+    recompute(); saveLocal(); render();
+    if (mode === 'db') {
+      for (var i = 0; i < recs.length; i++) {
+        if (!(await dbSet(recs[i]))) { toast('Не все изменения удалось сохранить. Попробуйте ещё раз.'); return false; }
+        if (recs.length > 5) await sleep(20);
+      }
+    }
+    return true;
+  }
+  function persistMeta(id, fields) {
+    var rec = Object.assign({ id: id, _meta: true }, fields);
+    upsertStored(rec); saveLocal(); dbSet(rec);
+  }
+  function getTagList() { var m = getMeta('_tags'); return (m && Array.isArray(m.tags)) ? m.tags.slice() : PRESET_TAGS.slice(); }
+  function setTagList(list) { persistMeta('_tags', { tags: list }); }
+  function tagCounts() { var c = {}; words.forEach(function (w) { (w.tags || []).forEach(function (t) { c[t] = (c[t] || 0) + 1; }); }); return c; }
+  function allTags() {
+    var c = tagCounts(), seen = {}, out = [];
+    getTagList().forEach(function (t) { if (!seen[t]) { seen[t] = 1; out.push(t); } });
+    Object.keys(c).sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ru'); }).forEach(function (t) { if (!seen[t]) { seen[t] = 1; out.push(t); } });
+    return out;
+  }
+  function cleanTag(s) { return String(s || '').trim().toLowerCase().slice(0, 30); }
+  function addToRegistry(t) { var l = getTagList(); if (l.indexOf(t) < 0) { l.push(t); setTagList(l); } }
+  function withTags(w, tags) { return Object.assign({}, w, { tags: tags, updated: Date.now() }); }
+  function renameTag(oldT, newT) {
+    newT = cleanTag(newT);
+    if (!newT || newT === oldT) return Promise.resolve();
+    function swap(list) { var n = []; list.forEach(function (t) { t = t === oldT ? newT : t; if (n.indexOf(t) < 0) n.push(t); }); return n; }
+    var recs = [];
+    words.forEach(function (w) { if ((w.tags || []).indexOf(oldT) >= 0) recs.push(withTags(w, swap(w.tags))); });
+    var list = swap(getTagList()); if (list.indexOf(newT) < 0) list.push(newT);
+    setTagList(list);
+    if (ui.tag === oldT) ui.tag = newT;
+    return persistRecs(recs);
+  }
+  function deleteTag(t) {
+    var recs = [];
+    words.forEach(function (w) { if ((w.tags || []).indexOf(t) >= 0) recs.push(withTags(w, w.tags.filter(function (x) { return x !== t; }))); });
+    setTagList(getTagList().filter(function (x) { return x !== t; }));
+    if (ui.tag === t) ui.tag = null;
+    return persistRecs(recs);
+  }
+  function bulkTag(ids, tag, add) {
+    var recs = [];
+    ids.forEach(function (id) {
+      var w = words.find(function (x) { return x.id === id; });
+      if (!w) return;
+      var tg = w.tags || [], has = tg.indexOf(tag) >= 0;
+      if (add && !has) recs.push(withTags(w, tg.concat(tag)));
+      if (!add && has) recs.push(withTags(w, tg.filter(function (x) { return x !== tag; })));
+    });
+    return persistRecs(recs);
+  }
+
+  function sheetShell(title, closeLabel, body, actions) {
+    return el('div', { 'class': 'sheet form enter', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
+      el('div', { 'class': 'wrap' },
+        el('div', { 'class': 'bar' },
+          el('button', { type: 'button', 'class': 'tbtn side', text: closeLabel, onclick: closeForm }),
+          el('span', { 'class': 'ttl', text: title }),
+          el('span', { 'class': 'side' })),
+        el('div', { 'class': 'fbody' }, body),
+        actions ? el('div', { 'class': 'actions' }, actions) : null));
+  }
+
+  function openTagManager() {
+    openSheet();
+    var listBox = el('div', { 'class': 'tmlist' });
+    var inp = el('input', { type: 'text', placeholder: 'Новый тег, например «овощи»', maxlength: '30', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Новый тег' });
+    function build() {
+      var c = tagCounts(), tags = allTags();
+      listBox.replaceChildren.apply(listBox, tags.length ? tags.map(function (t) {
+        var n = c[t] || 0;
+        return el('div', { 'class': 'tmrow' },
+          el('span', { 'class': 'tag', style: '--h:' + hue(t), text: t }),
+          el('span', { 'class': 'tmn', text: n + ' ' + plural(n, 'слово', 'слова', 'слов') }),
+          el('span', { 'class': 'sp' }),
+          el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Переименовать тег ' + t, onclick: function () {
+            askText('Переименовать тег', t, 'Сохранить', function (v) { renameTag(t, v); build(); });
+          } }, icon('edit')),
+          el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Удалить тег ' + t, onclick: function () {
+            askConfirm('Удалить тег «' + t + '»?', n ? 'Он будет убран у слов: ' + n + '. Сами слова останутся.' : '', 'Удалить', true, function () { deleteTag(t); build(); });
+          } }, icon('trash')));
+      }) : [el('p', { 'class': 'hint', text: 'Тегов пока нет.' })]);
+    }
+    function create() {
+      var t = cleanTag(inp.value);
+      if (!t) return;
+      addToRegistry(t); inp.value = ''; build(); toast('Тег создан');
+    }
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); create(); } });
+    build();
+    formRoot.replaceChildren(sheetShell('Теги', 'Закрыть', [
+      el('div', { 'class': 'addtag' }, inp, el('button', { type: 'button', 'class': 'btn ghost', text: 'Создать', onclick: create })),
+      el('p', { 'class': 'hint', text: 'Новый тег появится в форме слова. Чтобы сразу назначить тег многим словам, нажмите «Выбрать» на главном экране.' }),
+      listBox]));
+  }
+
+  function openBulkTags() {
+    if (!ui.sel.size) { toast('Сначала выберите слова'); return; }
+    var ids = Array.from(ui.sel);
+    openSheet();
+    var box = el('div', { 'class': 'picks' });
+    var inp = el('input', { type: 'text', placeholder: 'Новый тег', maxlength: '30', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Новый тег' });
+    function state(t) {
+      var have = 0;
+      ids.forEach(function (id) { var w = words.find(function (x) { return x.id === id; }); if (w && (w.tags || []).indexOf(t) >= 0) have++; });
+      return have === 0 ? 0 : (have === ids.length ? 2 : 1);
+    }
+    function build() {
+      box.replaceChildren.apply(box, allTags().map(function (t) {
+        var s = state(t);
+        return el('button', { type: 'button', 'class': 'pick' + (s === 2 ? ' on' : (s === 1 ? ' part' : '')), style: '--h:' + hue(t), 'aria-pressed': String(s === 2), text: t, onclick: function () {
+          bulkTag(ids, t, state(t) !== 2); build();
+        } });
+      }));
+    }
+    function create() {
+      var t = cleanTag(inp.value);
+      if (!t) return;
+      addToRegistry(t); inp.value = ''; bulkTag(ids, t, true); build();
+    }
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); create(); } });
+    build();
+    formRoot.replaceChildren(sheetShell('Теги для выбранных', 'Закрыть', [
+      el('p', { 'class': 'hint', text: 'Слов выбрано: ' + ids.length + '. Нажмите на тег, чтобы добавить его всем. Повторное нажатие уберёт. Пунктирный тег есть только у части слов.' }),
+      el('div', { 'class': 'field', style: 'margin-top:16px' }, box),
+      el('div', { 'class': 'addtag' }, inp, el('button', { type: 'button', 'class': 'btn ghost', text: 'Создать и добавить', onclick: create }))],
+      el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: closeForm })));
+  }
+
+  /* ---------- select mode ---------- */
+  function updateSelBar() { $('#selCount').textContent = 'Выбрано: ' + ui.sel.size; $('#selTag').disabled = !ui.sel.size; }
+  function exitSelectUi() { ui.select = false; ui.sel.clear(); render(); }
+  function enterSelect() {
+    if (ui.select) return;
+    ui.select = true; ui.sel = new Set();
+    pushLayer('select', exitSelectUi);
+    render(); updateSelBar();
+  }
+  function toggleSel(id, btn) {
+    if (ui.sel.has(id)) ui.sel.delete(id); else ui.sel.add(id);
+    btn.classList.toggle('sel', ui.sel.has(id));
+    updateSelBar();
+  }
+
+  /* ---------- training (spaced repetition) ---------- */
+  var DAY = 86400000;
+  var trainCfg = { tag: null, mode: 'due', dir: 'mix', size: 20 };
+  var trainRoot = $('#trainRoot');
+  var session = null;
+  function srsMap() { var m = getMeta('_srs'); return (m && m.m) ? m.m : {}; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function schedule(st, g) {
+    var s = Object.assign({ ease: 2.5, ivl: 0, reps: 0, lapses: 0 }, st), now = Date.now();
+    if (g === 0) { s.lapses++; s.ease = Math.max(1.3, s.ease - 0.2); s.ivl = 0; s.reps = 0; s.due = now + 10 * 60000; return s; }
+    if (g === 1) { s.ease = Math.max(1.3, s.ease - 0.15); s.ivl = Math.max(1, Math.round(s.ivl * 1.2)); }
+    else if (g === 2) { s.ivl = s.reps === 0 ? 1 : (s.reps === 1 ? 3 : Math.max(s.ivl + 1, Math.round(s.ivl * s.ease))); }
+    else { s.ease += 0.15; s.ivl = s.reps === 0 ? 4 : Math.max(s.ivl + 2, Math.round(s.ivl * s.ease * 1.3)); }
+    s.reps++; s.due = now + s.ivl * DAY;
+    return s;
+  }
+  function fmtIvl(d) { return d < 7 ? d + ' д.' : (d < 30 ? Math.round(d / 7) + ' нед.' : Math.round(d / 30) + ' мес.'); }
+  function gradeHint(st, g) { return g === 0 ? '10 мин' : fmtIvl(schedule(st, g).ivl); }
+
+  function uiCloseTrain() { ui.train = false; session = null; trainRoot.replaceChildren(); syncLock(); render(); }
+  function openTrain() { ui.train = true; syncLock(); pushLayer('train', uiCloseTrain); trainSetup(); }
+  function closeTrain() { popLayer('train'); }
+  function scopeWords() { return words.filter(function (w) { return !trainCfg.tag || (w.tags || []).indexOf(trainCfg.tag) >= 0; }); }
+  function showTrain(children, actions) {
+    var first = !trainRoot.firstElementChild;
+    var sheet = el('div', { 'class': 'sheet form' + (first ? ' enter' : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Тренировка' },
+      el('div', { 'class': 'wrap' }, children, actions ? el('div', { 'class': 'actions' }, actions) : null));
+    trainRoot.replaceChildren(sheet);
+    return sheet;
+  }
+  function trainBar(right) {
+    return el('div', { 'class': 'bar' },
+      el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Закрыть тренировку', onclick: closeTrain }, icon('back')),
+      el('span', { 'class': 'ttl', text: 'Тренировка' }),
+      el('span', { 'class': 'side tright', text: right || '' }));
+  }
+  function opts(list, current, onPick) {
+    return el('div', { 'class': 'picks' }, list.map(function (o) {
+      return el('button', { type: 'button', 'class': 'opt' + (o[0] === current ? ' on' : ''), 'aria-pressed': String(o[0] === current), text: o[1], onclick: function () { onPick(o[0]); } });
+    }));
+  }
+  function trainSetup() {
+    if (session) session.active = false;
+    var map = srsMap(), now = Date.now(), sc = scopeWords(), due = 0, fresh = 0;
+    sc.forEach(function (w) { var s = map[w.id]; if (!s) fresh++; else if (s.due <= now) due++; });
+    var n = trainCfg.mode === 'all' ? Math.min(trainCfg.size, sc.length) : Math.min(trainCfg.size, due + fresh);
+    var c = tagCounts();
+    var scopeList = [[null, 'Все слова']].concat(allTags().filter(function (t) { return c[t]; }).map(function (t) { return [t, t]; }));
+    if (trainCfg.tag && !c[trainCfg.tag]) trainCfg.tag = null;
+    function sec(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
+    var start = el('button', { type: 'button', 'class': 'btn primary', text: n ? 'Начать: ' + n + ' ' + plural(n, 'карточка', 'карточки', 'карточек') : 'Нет карточек', disabled: !n, onclick: startSession });
+    showTrain([
+      trainBar(''),
+      el('p', { 'class': 'tstat' },
+        el('b', { text: due }), ' к повторению · ', el('b', { text: fresh }), ' новых · ', el('b', { text: sc.length }), ' в подборке'),
+      !n ? el('p', { 'class': 'hint', text: trainCfg.mode === 'due' ? 'На сегодня всё повторено. Выберите «Все подряд», чтобы позаниматься вне расписания.' : 'В подборке нет слов.' }) : null,
+      sec('Что учить', opts(scopeList, trainCfg.tag, function (v) { trainCfg.tag = v; trainSetup(); })),
+      sec('Режим', opts([['due', 'По расписанию'], ['all', 'Все подряд']], trainCfg.mode, function (v) { trainCfg.mode = v; trainSetup(); })),
+      sec('Направление', opts([['fwd', 'Слово → перевод'], ['rev', 'Перевод → слово'], ['mix', 'Вперемешку']], trainCfg.dir, function (v) { trainCfg.dir = v; trainSetup(); })),
+      sec('Карточек за раз', opts([[10, '10'], [20, '20'], [50, '50']], trainCfg.size, function (v) { trainCfg.size = v; trainSetup(); })),
+      el('p', { 'class': 'hint', style: 'margin-bottom:24px', text: 'После каждого ответа выберите, насколько легко вспомнилось слово: чем легче, тем позже оно вернётся.' })
+    ], start);
+  }
+  function startSession() {
+    var sc = scopeWords(), map = srsMap(), now = Date.now(), q;
+    if (trainCfg.mode === 'all') q = shuffle(sc).slice(0, trainCfg.size);
+    else {
+      var due = sc.filter(function (w) { return map[w.id] && map[w.id].due <= now; }).sort(function (a, b) { return map[a.id].due - map[b.id].due; }).slice(0, trainCfg.size);
+      var fresh = shuffle(sc.filter(function (w) { return !map[w.id]; })).slice(0, Math.max(0, trainCfg.size - due.length));
+      q = shuffle(due.concat(fresh));
+    }
+    if (!q.length) { trainSetup(); return; }
+    session = {
+      map: Object.assign({}, map), total: q.length, done: 0, revealed: false, counts: [0, 0, 0, 0], active: true,
+      queue: q.map(function (w) { return { id: w.id, dir: trainCfg.dir === 'mix' ? (Math.random() < 0.5 ? 'fwd' : 'rev') : trainCfg.dir }; })
+    };
+    showCard();
+  }
+  function showCard() {
+    var s = session;
+    while (s.queue.length && !words.find(function (x) { return x.id === s.queue[0].id; })) s.queue.shift();
+    if (!s.queue.length) { trainDone(); return; }
+    var card = s.queue[0], w = words.find(function (x) { return x.id === card.id; });
+    var tags = (w.tags && w.tags.length) ? el('div', { 'class': 'tags tc' }, w.tags.map(tagEl)) : null;
+    var fa = w.fa ? el('div', { 'class': 'tfa', lang: 'fa', dir: 'rtl', text: w.fa }) : null;
+    var trEl = el('div', { 'class': 'ttr', text: w.tr });
+    var mean = el('div', { 'class': 'tmean', text: w.meaning });
+    var extra = [w.forms ? el('p', { 'class': 'tsub', text: w.forms }) : null, w.notes ? el('p', { 'class': 'tsub', text: w.notes }) : null];
+    var front = card.dir === 'fwd' ? [fa, trEl, tags] : [mean, tags];
+    var back = card.dir === 'fwd' ? [mean, extra] : [fa, trEl, extra];
+    var face = el('div', { 'class': 'tcard', onclick: function () { if (!s.revealed) reveal(); } },
+      front,
+      s.revealed ? [el('hr', { 'class': 'thr' }), back] : el('p', { 'class': 'tsub thint', text: 'Нажмите, чтобы увидеть ответ' }));
+    var actions;
+    if (!s.revealed) actions = el('button', { type: 'button', 'class': 'btn primary', text: 'Показать ответ', onclick: reveal });
+    else {
+      var st = Object.assign({ ease: 2.5, ivl: 0, reps: 0, lapses: 0 }, s.map[w.id] || {});
+      actions = el('div', { 'class': 'grades' }, ['Снова', 'Трудно', 'Хорошо', 'Легко'].map(function (name, g) {
+        return el('button', { type: 'button', 'class': 'gbtn g' + g, onclick: function () { grade(g); } }, name, el('small', { text: gradeHint(st, g) }));
+      }));
+    }
+    showTrain([
+      trainBar('Осталось ' + s.queue.length),
+      el('div', { 'class': 'tprog', style: '--p:' + (s.done / s.total) }, el('i')),
+      face], actions);
+  }
+  function reveal() { if (!session || session.revealed) return; session.revealed = true; showCard(); }
+  function grade(g) {
+    var s = session, card = s.queue.shift(), w = words.find(function (x) { return x.id === card.id; });
+    if (w) { s.map[w.id] = schedule(s.map[w.id] || {}, g); persistMeta('_srs', { m: s.map }); }
+    s.counts[g]++; s.revealed = false;
+    if (g === 0) s.queue.splice(Math.min(3, s.queue.length), 0, card); else s.done++;
+    showCard();
+  }
+  function trainDone() {
+    var s = session; s.active = false;
+    showTrain([
+      trainBar(''),
+      el('div', { 'class': 'tdone' },
+        el('h2', { text: 'Готово' }),
+        el('p', { text: 'Карточек пройдено: ' + s.done + '.' }),
+        el('p', { 'class': 'hint', text: 'Ответов «Снова»: ' + s.counts[0] + '. Такие слова вернутся уже сегодня.' }))
+    ], [el('button', { type: 'button', 'class': 'btn primary', text: 'Ещё сессия', onclick: trainSetup }),
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Закрыть', onclick: closeTrain })]);
+  }
+
   /* ---------- export ---------- */
   async function exportCsv() {
     var cols = [['Персидское написание', 'fa'], ['Транслитерация', 'tr'], ['Перевод', 'meaning'], ['Теги', 'tags'], ['Синонимы', 'syn'], ['Антонимы', 'ant'], ['Формы', 'forms'], ['Пример', 'ex'], ['Перевод примера', 'exTr'], ['Заметки', 'notes']];
@@ -829,11 +1194,28 @@
   });
   $('#list').addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.row') : null;
-    if (b) openDetail(b.getAttribute('data-id'));
+    if (!b) return;
+    if (ui.select) toggleSel(b.getAttribute('data-id'), b);
+    else openDetail(b.getAttribute('data-id'));
   });
   $('#sortNew').addEventListener('click', function () { ui.sort = 'new'; lsSet(LS_SORT, 'new'); renderList(); });
   $('#sortAz').addEventListener('click', function () { ui.sort = 'az'; lsSet(LS_SORT, 'az'); renderList(); });
   $('#add').addEventListener('click', function () { openForm(null); });
+  $('#trainBtn').addEventListener('click', openTrain);
+  $('#tagsBtn').addEventListener('click', openTagManager);
+  $('#selBtn').addEventListener('click', function () { if (ui.select) popLayer('select'); else enterSelect(); });
+  $('#selDone').addEventListener('click', function () { popLayer('select'); });
+  $('#selTag').addEventListener('click', openBulkTags);
+  $('#selAll').addEventListener('click', function () {
+    var vis = visibleWords(), all = vis.every(function (w) { return ui.sel.has(w.id); });
+    vis.forEach(function (w) { if (all) ui.sel.delete(w.id); else ui.sel.add(w.id); });
+    render(); updateSelBar();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!(ui.train && session && session.active) || (e.target && /INPUT|TEXTAREA/.test(e.target.tagName))) return;
+    if (!session.revealed && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); reveal(); }
+    else if (session.revealed && e.key >= '1' && e.key <= '4') grade(Number(e.key) - 1);
+  });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var top = layers[layers.length - 1];
