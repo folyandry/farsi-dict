@@ -197,12 +197,135 @@
   .gbtn.g2 { border-color: rgba(227, 177, 85, .6); }
   .tdone { padding: 56px 0 0; }
   .tdone h2 { margin: 0 0 8px; font: 600 30px/1.2 var(--serif); }
+
+  /* ---------- Persian look: lapis, turquoise tilework, gold ---------- */
+  :root {
+    --fz: #58c2b6;
+    --gold-line: rgba(227, 177, 85, .34);
+    --tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%2358c2b6' stroke-width='1' stroke-linejoin='round'%3E%3Cpath d='M36.00 0.00 L46.54 10.54 L61.46 10.54 L61.46 25.46 L72.00 36.00 L61.46 46.54 L61.46 61.46 L46.54 61.46 L36.00 72.00 L25.46 61.46 L10.54 61.46 L10.54 46.54 L0.00 36.00 L10.54 25.46 L10.54 10.54 L25.46 10.54 Z'/%3E%3Cpath d='M36.00 19.00 L40.98 23.98 L48.02 23.98 L48.02 31.02 L53.00 36.00 L48.02 40.98 L48.02 48.02 L40.98 48.02 L36.00 53.00 L31.02 48.02 L23.98 48.02 L23.98 40.98 L19.00 36.00 L23.98 31.02 L23.98 23.98 L31.02 23.98 Z' stroke-opacity='.7'/%3E%3Ccircle cx='36' cy='36' r='3' stroke-opacity='.8'/%3E%3Cpath d='M0 -21 L21 0 L0 21 L-21 0 Z'/%3E%3Cpath d='M72 -21 L93 0 L72 21 L51 0 Z'/%3E%3Cpath d='M0 51 L21 72 L0 93 L-21 72 Z'/%3E%3Cpath d='M72 51 L93 72 L72 93 L51 72 Z'/%3E%3Cpath d='M0 -10 L10 0 L0 10 L-10 0 Z' stroke-opacity='.6'/%3E%3Cpath d='M72 -10 L82 0 L72 10 L62 0 Z' stroke-opacity='.6'/%3E%3Cpath d='M0 62 L10 72 L0 82 L-10 72 Z' stroke-opacity='.6'/%3E%3Cpath d='M72 62 L82 72 L72 82 L62 72 Z' stroke-opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  html { background: radial-gradient(90% 340px at 50% 0, rgba(88, 194, 182, .10), transparent 72%) no-repeat, var(--bg); }
+  body { background: transparent; }
+
+  .head { position: relative; isolation: isolate; text-align: center; padding: 24px 0 6px; }
+  .head::before {
+    content: ''; position: absolute; z-index: -1; left: -20px; right: -20px; top: 0; height: 250px;
+    background: var(--tile) center top / 96px 96px; opacity: .30; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 80% 100% at 50% 0, #000 15%, transparent 78%);
+    mask-image: radial-gradient(ellipse 80% 100% at 50% 0, #000 15%, transparent 78%);
+  }
+  .wordmark { display: block; font: 600 46px/1.35 var(--fa); color: var(--accent); text-shadow: 0 0 26px rgba(227, 177, 85, .28); }
+  h1 { font: 500 19px/1.2 var(--serif); letter-spacing: .02em; color: var(--text); }
+  .orn { display: block; margin: 10px auto 4px; max-width: 100%; }
+  .meta { text-align: left; margin-top: 14px; }
+
+  .row { border-bottom-color: rgba(88, 194, 182, .16); }
+  .sec h3 { display: flex; align-items: center; gap: 9px; }
+  .sec h3::before { content: ''; width: 6px; height: 6px; flex: none; background: var(--accent); opacity: .85; transform: rotate(45deg); }
+  .bar::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(227, 177, 85, .5), transparent); }
+  .pill { border-color: rgba(227, 177, 85, .28); }
+  .pill.primary { border-color: transparent; }
+  button.wchip.link { border-color: rgba(88, 194, 182, .55); }
+  .dialog { border-color: var(--gold-line); }
+  .fab { box-shadow: 0 6px 24px rgba(4, 8, 20, .55), 0 0 0 3px rgba(227, 177, 85, .16); }
+
+  .star { display: block; margin: 0 auto 14px; color: var(--accent); opacity: .85; width: max-content; }
+  .empty, .tdone { text-align: center; }
+  .empty p { margin-left: auto; margin-right: auto; }
+  .empty .tags { justify-content: center; }
+
+  /* the word card is a mehrab (arch) */
+  .dhead {
+    position: relative; isolation: isolate; text-align: center; margin: 12px 0 4px; padding: 46px 20px 22px;
+    border: 1px solid var(--gold-line); border-radius: 50% 50% 22px 22px / 96px 96px 22px 22px;
+    background: linear-gradient(180deg, rgba(88, 194, 182, .08), rgba(227, 177, 85, .03));
+  }
+  .dhead::before { content: ''; position: absolute; inset: 7px; pointer-events: none; border: 1px solid rgba(227, 177, 85, .16); border-radius: 50% 50% 16px 16px / 90px 90px 16px 16px; }
+  .dhead::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+    background: var(--tile) center top / 96px 96px; opacity: .16;
+    -webkit-mask-image: linear-gradient(#000, transparent 85%); mask-image: linear-gradient(#000, transparent 85%);
+  }
+  .dhead .dfa { margin: 0; text-align: center; }
+  .dhead .dtr { margin: 2px 0 4px; }
+  .dhead .dmean { margin: 0 0 4px; }
+  .dhead .tags { justify-content: center; margin-top: 12px; }
+
+  /* training card: same arch */
+  .tcard {
+    position: relative; isolation: isolate; overflow: hidden; padding-top: 60px;
+    border-color: var(--gold-line); border-radius: 50% 50% 22px 22px / 110px 110px 22px 22px;
+    background: linear-gradient(180deg, rgba(88, 194, 182, .07), var(--bg2));
+  }
+  .tcard::before { content: ''; position: absolute; inset: 8px; pointer-events: none; border: 1px solid rgba(227, 177, 85, .18); border-radius: 50% 50% 16px 16px / 102px 102px 16px 16px; }
+  .tcard::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: var(--tile) center bottom / 96px 96px; opacity: .14;
+    -webkit-mask-image: linear-gradient(transparent 15%, #000); mask-image: linear-gradient(transparent 15%, #000);
+  }
+
+  /* ---------- carpet: border band, medallion, field of boteh, motifs ---------- */
+  :root {
+    --madder: #c4584c;
+    --band: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2222%22 viewBox=%220 0 64 22%22%3E%3Cpath d=%22M0 2.5H64M0 19.5H64%22 stroke=%22%23e3b155%22 stroke-opacity=%22.4%22 stroke-width=%221%22/%3E%3Cpath d=%22M16 5 L22 11 L16 17 L10 11 Z%22 fill=%22none%22 stroke=%22%2358c2b6%22 stroke-opacity=%22.8%22 stroke-width=%221.1%22/%3E%3Ccircle cx=%2216%22 cy=%2211%22 r=%221.8%22 fill=%22%23c4584c%22 fill-opacity=%22.9%22/%3E%3Cg fill=%22%23c4584c%22 fill-opacity=%22.55%22 stroke=%22%23e08a7c%22 stroke-opacity=%22.8%22 stroke-width=%22.8%22%3E%3Ccircle cx=%2248%22 cy=%226.6%22 r=%222.6%22/%3E%3Ccircle cx=%2248%22 cy=%2215.4%22 r=%222.6%22/%3E%3Ccircle cx=%2243.6%22 cy=%2211%22 r=%222.6%22/%3E%3Ccircle cx=%2252.4%22 cy=%2211%22 r=%222.6%22/%3E%3C/g%3E%3Ccircle cx=%2248%22 cy=%2211%22 r=%221.9%22 fill=%22%23e3b155%22/%3E%3C/svg%3E");
+    --field: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22%3E%3Cg transform=%22translate%2832 32%29 rotate%2820%29 scale%280.62%29 translate%28-32 -32%29%22%3E%3Cpath d=%22M18 60 C5 54 5 34 18 24 C26 18 29 11 26 4 C40 5 55 17 55 36 C55 50 42 60 18 60 Z%22 fill=%22%23c4584c%22 fill-opacity=%22.06%22 stroke=%22%2358c2b6%22 stroke-opacity=%22.14%22 stroke-width=%222%22/%3E%3Cpath d=%22M20 52 C12 47 12 36 21 29 C28 24 33 18 32 12 C42 15 48 25 48 36 C48 46 38 52 20 52 Z%22 fill=%22none%22 stroke=%22%23e3b155%22 stroke-opacity=%22.10%22 stroke-width=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate%2896 96%29 rotate%28200%29 scale%280.62%29 translate%28-32 -32%29%22%3E%3Cpath d=%22M18 60 C5 54 5 34 18 24 C26 18 29 11 26 4 C40 5 55 17 55 36 C55 50 42 60 18 60 Z%22 fill=%22%23c4584c%22 fill-opacity=%22.06%22 stroke=%22%2358c2b6%22 stroke-opacity=%22.14%22 stroke-width=%222%22/%3E%3Cpath d=%22M20 52 C12 47 12 36 21 29 C28 24 33 18 32 12 C42 15 48 25 48 36 C48 46 38 52 20 52 Z%22 fill=%22none%22 stroke=%22%23e3b155%22 stroke-opacity=%22.10%22 stroke-width=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate%2896 32%29%22 fill=%22%23e3b155%22 fill-opacity=%22.10%22%3E%3Ccircle r=%222.2%22/%3E%3Ccircle cy=%22-5%22 r=%222%22/%3E%3Ccircle cx=%225%22 r=%222%22/%3E%3Ccircle cy=%225%22 r=%222%22/%3E%3Ccircle cx=%22-5%22 r=%222%22/%3E%3C/g%3E%3Cg transform=%22translate%2832 96%29%22 fill=%22%23e3b155%22 fill-opacity=%22.10%22%3E%3Ccircle r=%222.2%22/%3E%3Ccircle cy=%22-5%22 r=%222%22/%3E%3Ccircle cx=%225%22 r=%222%22/%3E%3Ccircle cy=%225%22 r=%222%22/%3E%3Ccircle cx=%22-5%22 r=%222%22/%3E%3C/g%3E%3Cpath d=%22M64 59 L69 64 L64 69 L59 64 Z%22 fill=%22none%22 stroke=%22%2358c2b6%22 stroke-opacity=%22.10%22/%3E%3Cpath d=%22M0 -5 L5 0 L0 5 L-5 0 Z M128 -5 L133 0 L128 5 L123 0 Z M0 123 L5 128 L0 133 L-5 128 Z M128 123 L133 128 L128 133 L123 128 Z%22 fill=%22none%22 stroke=%22%2358c2b6%22 stroke-opacity=%22.10%22/%3E%3C/svg%3E");
+  }
+  html { background: radial-gradient(90% 340px at 50% 0, rgba(88, 194, 182, .10), transparent 72%) no-repeat, var(--field) 0 0 / 128px 128px repeat, var(--bg); }
+  body::after {
+    content: ''; position: fixed; inset: 5px; z-index: 100; pointer-events: none; border-radius: 18px;
+    border: 1px solid rgba(227, 177, 85, .20); box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px rgba(227, 177, 85, .09);
+  }
+  .head { padding: 0 0 6px; }
+  .head::before { display: none; }
+  .band { height: 22px; margin: 0 -20px; background: var(--band) repeat-x center / 64px 22px; }
+  .hero { display: flex; align-items: center; justify-content: center; margin-top: 14px; }
+  .hero .dove { width: 54px; height: 54px; flex: none; margin: 0 -6px; }
+  .hero .flip { transform: scaleX(-1); }
+  .medal { position: relative; width: min(210px, 56vw); aspect-ratio: 200 / 110; display: grid; place-items: center; }
+  .medal .medsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wordmark { position: relative; font: 600 40px/1 var(--fa); }
+  h1 { margin-top: 6px; }
+
+  .motif { display: block; width: max-content; margin: 0 auto 10px; }
+  .motif svg { display: block; }
+  .motif.flip { transform: scaleX(-1); }
+  .pair { display: flex; justify-content: center; margin-bottom: 8px; }
+  .pair .motif { margin: 0 -4px; }
+  .crest { position: absolute; top: 15px; left: 50%; margin: 0; transform: translateX(-50%); }
+  .tcard .crest { top: 18px; }
+  .dhead { padding-top: 60px; }
+
+  .foot { display: block; text-align: center; }
+  .foot .band { margin: 6px -20px 14px; }
+  .footmotif { margin: 0 auto 4px; opacity: .9; }
+  .footlinks { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 20px; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="m-anar" viewBox="0 0 64 64"><g stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 19 C46 19 53 29 52 41 C51 53 41 59 32 59 C23 59 13 53 12 41 C11 29 18 19 32 19 Z" fill="#c4584c" fill-opacity=".30" stroke="#e08a7c" stroke-width="1.6"/><path d="M25 20 L23 11 L28 15.5 L32 8 L36 15.5 L41 11 L39 20" fill="#e3b155" fill-opacity=".18" stroke="#e3b155" stroke-width="1.6"/><path d="M32 23 C28 33 28 46 32 56" stroke="#e08a7c" stroke-opacity=".5" stroke-width="1.2"/><path d="M21 26 C16 32 16 43 20 50" stroke="#f0b8ae" stroke-opacity=".5" stroke-width="1.3"/><g fill="#e3b155" fill-opacity=".8" stroke="none"><circle cx="38" cy="30" r="1.5"/><circle cx="43" cy="37" r="1.5"/><circle cx="39" cy="45" r="1.5"/><circle cx="35" cy="52" r="1.3"/><circle cx="24" cy="49" r="1.2"/><circle cx="46" cy="45" r="1.2"/></g><path d="M44 13 C50 7 56 8 59 13 C53 16 49 16 44 13 Z" fill="#58c2b6" fill-opacity=".25" stroke="#58c2b6" stroke-width="1.3"/></g></symbol><symbol id="m-dove" viewBox="0 0 64 64"><g stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M41 20 C48 17 54 23 50 29 C47 36 44 44 32 47 C23 49 14 51 4 56 C10 47 14 40 24 33 C33 27 37 22 41 20 Z" fill="#efe8d6" fill-opacity=".12" stroke="#efe8d6" stroke-opacity=".9" stroke-width="1.6"/><path d="M52 22 L59 24.5 L52 27" fill="#e3b155" fill-opacity=".5" stroke="#e3b155" stroke-width="1.4"/><path d="M30 35 C29 23 21 14 7 11 C14 18 16 27 22 37 Z" fill="#58c2b6" fill-opacity=".16" stroke="#58c2b6" stroke-width="1.5"/><path d="M26 33 C24 25 18 19 11 15 M22 36 C21 29 16 24 10 21" stroke="#58c2b6" stroke-opacity=".7" stroke-width="1.1"/><path d="M12 51 C17 49 22 48 27 45 M16 54 C21 52 26 50 30 47" stroke="#efe8d6" stroke-opacity=".5" stroke-width="1.1"/><circle cx="46" cy="23" r="1.3" fill="#efe8d6" stroke="none"/></g></symbol><symbol id="m-tea" viewBox="0 0 64 64"><g stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M25 8 C22 12 28 14 25 18 M32 6 C29 10 35 12 32 16 M39 8 C36 12 42 14 39 18" stroke="#58c2b6" stroke-opacity=".8" stroke-width="1.4"/><path d="M20 22 C22 31 27 33 26.5 39 C26 45 22 47 21 52 L43 52 C42 47 38 45 37.5 39 C37 33 42 31 44 22 Z" fill="#efe8d6" fill-opacity=".08" stroke="#efe8d6" stroke-opacity=".9" stroke-width="1.6"/><path d="M21.4 28 C26 31 38 31 42.6 28 C41.5 33 38 34.5 37.6 39 C37 45 42 47 43 52 L21 52 C22 47 27 45 26.4 39 C26 34.5 22.5 33 21.4 28 Z" fill="#c9852b" fill-opacity=".55" stroke="none"/><path d="M12 55 C20 52 44 52 52 55 C44 58 20 58 12 55 Z" fill="#e3b155" fill-opacity=".2" stroke="#e3b155" stroke-width="1.5"/><path d="M24 54.5 H40" stroke="#e3b155" stroke-opacity=".6" stroke-width="1"/></g></symbol>
+<symbol id="m-samovar" viewBox="0 0 64 64">
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#e3b155" stroke-width="1.6">
+    <path d="M32 10 V15 M28 10 H36" />
+    <path d="M22 26 C22 18 42 18 42 26 Z" fill="#e3b155" fill-opacity=".16"/>
+    <path d="M19 26 H45 C48 36 46 47 42 53 H22 C18 47 16 36 19 26 Z" fill="#e3b155" fill-opacity=".12"/>
+    <path d="M16 55 H48 M20 53 V57 M44 53 V57" />
+    <path d="M45 40 H52 C54 40 54 45 52 45 H49 V49" stroke="#e08a7c"/>
+    <path d="M19 30 C12 30 12 40 19 40 M45 30 C52 30 52 34 47 35" />
+    <path d="M25 33 C28 36 36 36 39 33 M24 40 C28 44 36 44 40 40" stroke-opacity=".55" stroke-width="1.2"/>
+    <circle cx="32" cy="26.5" r="0" />
+  </g>
+</symbol>
+<symbol id="m-boteh" viewBox="0 0 64 64"><g stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M18 60 C5 54 5 34 18 24 C26 18 29 11 26 4 C40 5 55 17 55 36 C55 50 42 60 18 60 Z" fill="#c4584c" fill-opacity=".22" stroke="#58c2b6" stroke-width="1.6"/><path d="M20 52 C12 47 12 36 21 29 C28 24 33 18 32 12 C42 15 48 25 48 36 C48 46 38 52 20 52 Z" stroke="#e3b155" stroke-opacity=".75" stroke-width="1.2"/><g transform="translate(34 40)" fill="#e3b155" fill-opacity=".85" stroke="none"><circle r="2.4"/><circle cx="0" cy="-5" r="1.7"/><circle cx="4.7" cy="-1.5" r="1.7"/><circle cx="2.9" cy="4" r="1.7"/><circle cx="-2.9" cy="4" r="1.7"/><circle cx="-4.7" cy="-1.5" r="1.7"/></g></g></symbol></defs></svg>
 <div class="wrap">
   <header class="head">
+    <div class="band" aria-hidden="true"></div>
+    <div class="hero" aria-hidden="true">
+      <svg class="dove" viewBox="0 0 64 64"><use href="#m-dove"/></svg>
+      <div class="medal"><svg class="medsvg" viewBox="0 0 200 110" aria-hidden="true" focusable="false"><defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#58c2b6" stop-opacity=".16"/><stop offset="1" stop-color="#e3b155" stop-opacity=".07"/></linearGradient></defs><path d="M6 55 C30 55 42 12 100 12 C158 12 170 55 194 55 C170 55 158 98 100 98 C42 98 30 55 6 55 Z" fill="url(#mg)" stroke="#e3b155" stroke-opacity=".6" stroke-width="1.3"/><path d="M22 55 C42 55 52 21 100 21 C148 21 158 55 178 55 C158 55 148 89 100 89 C52 89 42 55 22 55 Z" fill="none" stroke="#58c2b6" stroke-opacity=".5" stroke-width="1"/><path d="M100 3 L104 8 L100 13 L96 8 Z M100 97 L104 102 L100 107 L96 102 Z" fill="#e3b155" fill-opacity=".8"/><path d="M2 55 L7 50 L12 55 L7 60 Z M188 55 L193 50 L198 55 L193 60 Z" fill="#e3b155" fill-opacity=".8"/></svg><span class="wordmark" lang="fa" dir="rtl">فارسی</span></div>
+      <svg class="dove flip" viewBox="0 0 64 64"><use href="#m-dove"/></svg>
+    </div>
     <h1>Персидский словарь</h1>
+    <svg class="orn" width="220" height="16" viewBox="0 0 220 16" aria-hidden="true"><defs><linearGradient id="og1" x1="0" x2="1"><stop offset="0" stop-color="#e3b155" stop-opacity="0"/><stop offset="1" stop-color="#e3b155" stop-opacity=".85"/></linearGradient><linearGradient id="og2" x1="1" x2="0"><stop offset="0" stop-color="#e3b155" stop-opacity="0"/><stop offset="1" stop-color="#e3b155" stop-opacity=".85"/></linearGradient></defs><path d="M6 8H92" stroke="url(#og1)"/><path d="M128 8H214" stroke="url(#og2)"/><path d="M99 5 L102 8 L99 11 L96 8 Z" fill="#e3b155" opacity=".8"/><path d="M121 5 L124 8 L121 11 L118 8 Z" fill="#e3b155" opacity=".8"/><path d="M110.0 1.0 L112.1 3.1 L114.9 3.1 L114.9 5.9 L117.0 8.0 L114.9 10.1 L114.9 12.9 L112.1 12.9 L110.0 15.0 L107.9 12.9 L105.1 12.9 L105.1 10.1 L103.0 8.0 L105.1 5.9 L105.1 3.1 L107.9 3.1 Z" fill="none" stroke="#e3b155" stroke-width="1.2" stroke-linejoin="round"/></svg>
     <div class="meta">
       <span id="count"></span>
       <div class="seg" role="group" aria-label="Сортировка">
@@ -313,6 +436,22 @@
     return w;
   }
   function tagEl(t) { return el('span', { 'class': 'tag', style: '--h:' + hue(t), text: t }); }
+
+  function star(px) {
+    var w = document.createElement('span');
+    w.className = 'star'; w.setAttribute('aria-hidden', 'true');
+    w.innerHTML = '<svg viewBox="0 0 48 48" width="' + px + '" height="' + px + '" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M24.0 2.0 L30.4 8.4 L39.6 8.4 L39.6 17.6 L46.0 24.0 L39.6 30.4 L39.6 39.6 L30.4 39.6 L24.0 46.0 L17.6 39.6 L8.4 39.6 L8.4 30.4 L2.0 24.0 L8.4 17.6 L8.4 8.4 L17.6 8.4 Z"/><path d="M24.0 13.0 L27.2 16.2 L31.8 16.2 L31.8 20.8 L35.0 24.0 L31.8 27.2 L31.8 31.8 L27.2 31.8 L24.0 35.0 L20.8 31.8 L16.2 31.8 L16.2 27.2 L13.0 24.0 L16.2 20.8 L16.2 16.2 L20.8 16.2 Z" opacity=".6"/></svg>';
+    return w;
+  }
+
+  function motif(id, px, cls) {
+    var w = document.createElement('span');
+    w.className = 'motif' + (cls ? ' ' + cls : ''); w.setAttribute('aria-hidden', 'true');
+    w.innerHTML = '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64"><use href="#' + id + '"/></svg>';
+    return w;
+  }
+  var MOTIFS = ['m-anar', 'm-dove', 'm-tea', 'm-boteh', 'm-samovar'];
+  function motifFor(id) { var h = 0; id = String(id); for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return MOTIFS[h % MOTIFS.length]; }
 
   var toastTimer;
   function toast(msg) {
@@ -560,9 +699,10 @@
   function renderFoot() {
     var f = $('#foot');
     f.replaceChildren();
-    f.style.display = 'flex'; f.style.flexWrap = 'wrap'; f.style.gap = '4px 20px';
-    f.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Импорт из CSV', onclick: openImport }));
-    if (words.length) f.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать копию словаря (CSV)', onclick: exportCsv }));
+    var links = el('div', { 'class': 'footlinks' });
+    links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Импорт из CSV', onclick: openImport }));
+    if (words.length) links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать копию словаря (CSV)', onclick: exportCsv }));
+    f.append(el('div', { 'class': 'band', 'aria-hidden': 'true' }), motif('m-tea', 46, 'footmotif'), links);
   }
   function renderList() {
     var list = $('#list'), total = words.length, vis = visibleWords();
@@ -584,6 +724,7 @@
       fillToken++;
       if (!ready) { list.replaceChildren(el('p', { 'class': 'note', text: 'Загружаю словарь…' })); }
       else list.replaceChildren(el('div', { 'class': 'empty' },
+        motif('m-tea', 88),
         el('h2', { text: 'Пока нет слов' }),
         el('p', { text: 'Добавьте первое слово: транслитерацию, перевод и теги, например часть речи.' }),
         el('div', { 'class': 'tags', style: 'gap:10px' },
@@ -592,6 +733,7 @@
     } else if (!vis.length) {
       fillToken++;
       list.replaceChildren(el('div', { 'class': 'empty' },
+        motif('m-anar', 88),
         el('h2', { text: 'Ничего не найдено' }),
         el('p', { text: 'Диакритика в поиске не важна: «ketab» найдёт и «ketāb».' })));
     } else {
@@ -665,10 +807,13 @@
 
     var sheet = el('div', { 'class': 'sheet' + (old ? '' : ' enter'), role: 'dialog', 'aria-modal': 'true', 'aria-label': w.tr },
       el('div', { 'class': 'wrap' }, bar,
-        w.fa ? el('div', { 'class': 'dfa', lang: 'fa', dir: 'rtl', text: w.fa }) : null,
-        el('h2', { 'class': 'dtr', text: w.tr }),
-        el('p', { 'class': 'dmean', text: w.meaning }),
-        tags, secs, when));
+        el('div', { 'class': 'dhead' },
+          motif(motifFor(w.id), 34, 'crest'),
+          w.fa ? el('div', { 'class': 'dfa', lang: 'fa', dir: 'rtl', text: w.fa }) : null,
+          el('h2', { 'class': 'dtr', text: w.tr }),
+          el('p', { 'class': 'dmean', text: w.meaning }),
+          tags),
+        secs, when));
     detailRoot.replaceChildren(sheet);
     sheet.scrollTop = top;
   }
@@ -1128,6 +1273,7 @@
     var front = card.dir === 'fwd' ? [fa, trEl, tags] : [mean, tags];
     var back = card.dir === 'fwd' ? [mean, extra] : [fa, trEl, extra];
     var face = el('div', { 'class': 'tcard', onclick: function () { if (!s.revealed) reveal(); } },
+      motif(motifFor(w.id), 40, 'crest'),
       front,
       s.revealed ? [el('hr', { 'class': 'thr' }), back] : el('p', { 'class': 'tsub thint', text: 'Нажмите, чтобы увидеть ответ' }));
     var actions;
@@ -1156,6 +1302,7 @@
     showTrain([
       trainBar(''),
       el('div', { 'class': 'tdone' },
+        el('div', { 'class': 'pair' }, motif('m-dove', 76), motif('m-dove', 76, 'flip')),
         el('h2', { text: 'Готово' }),
         el('p', { text: 'Карточек пройдено: ' + s.done + '.' }),
         el('p', { 'class': 'hint', text: 'Ответов «Снова»: ' + s.counts[0] + '. Такие слова вернутся уже сегодня.' }))
