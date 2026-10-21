@@ -4,26 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#10294b">
-<meta name="description" content="Личный персидский словарь: слова, транслитерация, перевод, теги и интервальные повторения. Работает офлайн после первого открытия.">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1615">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Персидский словарь</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&family=Vazirmatn:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  @font-face { font-family: Inter; src: url("fonts/inter-regular.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
-  @font-face { font-family: Inter; src: url("fonts/inter-medium.otf") format("opentype"); font-weight: 500; font-style: normal; font-display: swap; }
-  @font-face { font-family: Inter; src: url("fonts/inter-semibold.otf") format("opentype"); font-weight: 600; font-style: normal; font-display: swap; }
-  @font-face { font-family: Amiri; src: url("fonts/amiri-regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-  @font-face { font-family: Amiri; src: url("fonts/amiri-bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
-  @font-face { font-family: "Noto Nastaliq Urdu"; src: url("fonts/nastaliq-regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-  @font-face { font-family: "Noto Nastaliq Urdu"; src: url("fonts/nastaliq-bold.ttf") format("truetype"); font-weight: 600 700; font-style: normal; font-display: swap; }
-  @font-face { font-family: "Noto Sans Arabic UI"; src: url("fonts/arabic-ui-regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-  @font-face { font-family: "Noto Sans Arabic UI"; src: url("fonts/arabic-ui-bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
   *, *::before, *::after { box-sizing: inherit; }
   [hidden] { display: none !important; }
   :root {
@@ -36,11 +25,11 @@
     --text: #ece4d0; --mute: #a9a390; --faint: #7a7661;
     --accent: #d0ae68; --accent-ink: #1b1405; --teal: #58b8ad; --danger: #d9857a;
     --gold-line: rgba(208, 174, 104, .38);
-    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --fa: "Noto Sans Arabic UI", "Noto Naskh Arabic", Tahoma, "Geeza Pro", sans-serif;
-    --fa-d: Amiri, "Noto Sans Arabic UI", "Noto Naskh Arabic", Tahoma, serif;
+    --sans: Onest, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --fa: Vazirmatn, "Noto Naskh Arabic", Tahoma, "Geeza Pro", sans-serif;
+    --fa-d: Amiri, Vazirmatn, "Noto Naskh Arabic", Tahoma, serif;
   }
-  html { background: radial-gradient(80% 300px at 50% 0, rgba(88, 184, 173, .10), transparent 72%) no-repeat, var(--bg); color-scheme: dark; scroll-padding-top: env(safe-area-inset-top, 0px); overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; overflow-x: clip; }
+  html { background: radial-gradient(80% 300px at 50% 0, rgba(88, 184, 173, .10), transparent 72%) no-repeat, var(--bg); color-scheme: dark; scroll-padding-top: env(safe-area-inset-top, 0px); overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
   body { margin: 0; background: transparent; color: var(--text); font: 400 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; overflow-x: hidden; }
   button, label, input, textarea { touch-action: manipulation; }
   button { font-family: inherit; color: inherit; }
@@ -282,7 +271,7 @@
   /* =====================================================================
      Persian layer: calligraphy, watercolour washes, tilework, ember sparks
      ===================================================================== */
-  :root { --nq: "Noto Nastaliq Urdu", Amiri, "Noto Sans Arabic UI", serif; --ember: #e0794f; --violet: #9a7bd1; --sky: #5aa0d6; }
+  :root { --nq: "Noto Nastaliq Urdu", Amiri, Vazirmatn, serif; --ember: #e0794f; --violet: #9a7bd1; --sky: #5aa0d6; }
   html { background:
     radial-gradient(60% 420px at 8% 0, rgba(88, 184, 173, .16), transparent 70%) no-repeat,
     radial-gradient(55% 380px at 96% 120px, rgba(154, 123, 209, .14), transparent 70%) no-repeat,
@@ -463,147 +452,6 @@
     var(--bg); }
   .toolbar { background: rgba(15, 22, 21, .5); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); padding-bottom: 14px; }
-
-  /* Persian-inspired refinement: clearer surfaces, quieter ornament, safer mobile layout */
-  :root {
-    --bg: #101b2a;
-    --surface: #17263a;
-    --surface2: #1d3046;
-    --raise: #243951;
-    --line: rgba(226, 207, 157, .14);
-    --line2: rgba(226, 207, 157, .28);
-    --text: #f2ead8;
-    --mute: #c0b9a8;
-    --faint: #918d83;
-    --accent: #e3c47d;
-    --accent-ink: #201a10;
-    --teal: #72c8bd;
-    --gold-line: rgba(227, 196, 125, .42);
-    --ember: #d77c61;
-    --violet: #9a8ad2;
-    --sky: #6aa9d2;
-  }
-  html {
-    background:
-      radial-gradient(ellipse at 50% -12%, rgba(37, 94, 124, .45), transparent 54%),
-      repeating-conic-gradient(from 22.5deg at 50% 50%, rgba(227,196,125,.025) 0deg 2deg, transparent 2deg 45deg) 0 0 / 84px 84px,
-      var(--bg);
-    background-attachment: scroll, fixed, scroll;
-  }
-  body { background: transparent; }
-  .wrap { max-width: 620px; }
-  .head { padding-top: 26px; }
-  #headArt {
-    background:
-      radial-gradient(ellipse at 24% 28%, rgba(34, 130, 139, .28), transparent 58%),
-      radial-gradient(ellipse at 78% 25%, rgba(121, 91, 160, .25), transparent 58%),
-      radial-gradient(ellipse at 50% 80%, rgba(196, 119, 75, .14), transparent 65%);
-  }
-  .brand::before { background: radial-gradient(closest-side, rgba(16,27,42,.74), rgba(16,27,42,.24) 68%, transparent); }
-  .wordmark { filter: drop-shadow(0 0 12px rgba(227,196,125,.24)); }
-  .sub { color: #9adbd0; }
-  .tileband { opacity: .9; }
-  .cta {
-    background: linear-gradient(110deg, #f0d99a, #d8b66d 48%, #e6c985);
-    color: #211a0d;
-    animation: none;
-    box-shadow: inset 0 0 0 1px rgba(255,249,224,.55), 0 7px 22px rgba(0,0,0,.22);
-  }
-  .cta::before, .cta::after { opacity: .58; }
-  .tiles { gap: 9px; }
-  .tile {
-    min-height: 88px;
-    background: linear-gradient(180deg, rgba(44,94,112,.34), rgba(23,38,58,.96) 65%);
-    border-color: rgba(227,196,125,.30);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.015);
-  }
-  .tile:nth-child(2) { background: linear-gradient(180deg, rgba(102,77,145,.30), rgba(23,38,58,.96) 65%); }
-  .tile:nth-child(3) { background: linear-gradient(180deg, rgba(157,82,60,.25), rgba(23,38,58,.96) 65%); }
-  .tile:nth-child(4) { background: linear-gradient(180deg, rgba(54,113,153,.30), rgba(23,38,58,.96) 65%); }
-  .tile:focus-visible, .row:focus-visible, .fchip:focus-visible { outline-offset: 3px; }
-  .toolbar {
-    background: rgba(16,27,42,.96);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    -webkit-mask-image: none;
-    mask-image: none;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(227,196,125,.08);
-  }
-  .search { background: #17263a; border-color: rgba(227,196,125,.28); }
-  .search:focus-within { box-shadow: 0 0 0 3px rgba(114,200,189,.12); }
-  .fchip { background: #17263a; }
-  .fchip.on { background: #e3c47d; color: #201a10; }
-  .seg { background: #17263a; }
-  .row {
-    background-color: rgba(23,38,58,.96);
-    border-color: rgba(227,196,125,.16);
-    border-radius: 16px;
-    box-shadow: 0 5px 16px rgba(0,0,0,.09);
-    background-image: none;
-  }
-  .row::before { opacity: .62; }
-  .row .ghost { opacity: .055; font-size: 76px; }
-  .row:hover .ghost, .row:active .ghost { opacity: .09; }
-  .row:active { background-color: #1d3046; }
-  .tag { background: rgba(114,200,189,.08); border-color: rgba(114,200,189,.16); }
-  .dhead, .tcard {
-    border-color: rgba(227,196,125,.45);
-    box-shadow: inset 0 0 0 4px rgba(227,196,125,.025), 0 12px 34px rgba(0,0,0,.13);
-  }
-  .dhead::before { border-color: rgba(227,196,125,.20); }
-  .bar { background: rgba(16,27,42,.97); }
-  .sheet {
-    background:
-      radial-gradient(ellipse at 12% 0, rgba(34,130,139,.15), transparent 48%),
-      radial-gradient(ellipse at 95% 20%, rgba(121,91,160,.12), transparent 45%),
-      var(--bg);
-  }
-  .sec h3 { color: #d9c58e; }
-  .wchip { background: #17263a; }
-  .field input, .field textarea, .two input, .dlg-input { background: #101b2a; }
-  .actions { background: rgba(16,27,42,.98); }
-  .dialog { background: #243951; }
-  .fab { box-shadow: 0 8px 26px rgba(0,0,0,.32); }
-  .foot { margin-top: 0; padding-bottom: 120px; }
-  .footlinks { border-top: 1px solid var(--line); flex-wrap: wrap; gap: 10px 16px; }
-  .linkbtn { min-height: 40px; }
-  button, input, textarea, select { font: inherit; }
-  button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid #79d4c8; outline-offset: 3px; }
-  input, textarea { color-scheme: dark; }
-  img, svg { max-width: 100%; }
-  @supports (padding: max(0px)) {
-    .fabin { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-    .selin { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-  }
-  @media (max-width: 520px) {
-    .footlinks { justify-content: center; }
-    .linkbtn { padding: 8px 4px; }
-  }
-  #pageArt { opacity: .075; }
-  #blobs { opacity: .55; }
-  .calli.live span { animation: none; }
-  @media (max-width: 380px) {
-    .wrap { padding-left: 12px; padding-right: 12px; }
-    #headArt { left: -12px; right: -12px; }
-    .tileband { margin-left: -12px; margin-right: -12px; }
-    .foot .tileband { margin-left: -12px; margin-right: -12px; }
-    .wm { gap: 0; }
-    .wordmark { height: 76px; }
-    .esl { max-width: 66px; height: 42px; }
-    .tiles { gap: 6px; }
-    .tile { min-height: 82px; padding-left: 2px; padding-right: 2px; }
-    .tile .pw { font-size: 18px; }
-    .tile span:last-child { font-size: 11px; }
-    .row { padding: 12px; }
-    .rowmain { gap: 10px; }
-    .fa { max-width: 42vw; font-size: 23px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  }
-
 </style>
 </head>
 <body>
@@ -1057,11 +905,8 @@
     f.replaceChildren();
     var links = el('div', { 'class': 'footlinks' });
     links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Импорт из CSV', onclick: openImport }));
-    if (words.length) links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать словарь (CSV)', onclick: exportCsv }));
-    links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Полная резервная копия (JSON)', onclick: exportBackup }));
-    links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Восстановить копию (JSON)', onclick: importBackup }));
-    f.append(el('div', { 'class': 'tileband', 'aria-hidden': 'true' }), links,
-      el('p', { 'class': 'hint', style: 'text-align:center;margin:14px 8px 0', text: 'Ваши данные хранятся в браузере этого устройства. Периодически сохраняйте резервную копию JSON.' }));
+    if (words.length) links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать копию словаря (CSV)', onclick: exportCsv }));
+    f.append(el('div', { 'class': 'tileband', 'aria-hidden': 'true' }), links);
   }
   function renderList() {
     var list = $('#list'), total = words.length, vis = visibleWords();
@@ -1795,65 +1640,6 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
       }
     } catch (e) { if (!e || e.code !== 'declined') toast('Не удалось сохранить файл.'); }
-  }
-
-  /* ---------- full backup ---------- */
-  function downloadText(filename, data, type) {
-    var url = URL.createObjectURL(new Blob([data], { type: type || 'application/octet-stream' }));
-    var a = document.createElement('a'); a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
-  }
-  async function exportBackup() {
-    var backup = {
-      app: 'persian-dictionary',
-      formatVersion: 1,
-      exportedAt: new Date().toISOString(),
-      sort: ui.sort,
-      records: stored.map(function (x) { return Object.assign({}, x); })
-    };
-    try {
-      var json = JSON.stringify(backup, null, 2);
-      if (downloadsApi) {
-        try { await downloadsApi.save({ filename: 'persian-dictionary-backup.json', data: json }); toast('Резервная копия сохранена'); return; }
-        catch (e) { if (e && e.code === 'declined') return; }
-      }
-      downloadText('persian-dictionary-backup.json', json, 'application/json;charset=utf-8');
-      toast('Резервная копия подготовлена');
-    } catch (e) { toast('Не удалось создать резервную копию.'); }
-  }
-  function importBackup() {
-    var file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, 'aria-label': 'Выберите резервную копию JSON' });
-    file.addEventListener('change', function () {
-      var f = file.files && file.files[0];
-      if (!f) return;
-      if (f.size > 12 * 1024 * 1024) { toast('Файл слишком большой. Максимум 12 МБ.'); return; }
-      var reader = new FileReader();
-      reader.onerror = function () { toast('Не удалось прочитать файл.'); };
-      reader.onload = function () {
-        var data;
-        try { data = JSON.parse(String(reader.result || '')); } catch (e) { toast('Это не корректный JSON-файл.'); return; }
-        if (!data || data.app !== 'persian-dictionary' || data.formatVersion !== 1 || !Array.isArray(data.records)) {
-          toast('Формат копии не распознан. Выберите JSON-копию этого словаря.'); return;
-        }
-        var valid = data.records.filter(function (r) {
-          return r && typeof r === 'object' && typeof r.id === 'string' && r.id.length > 0 && r.id.length < 180 &&
-            (r._meta === true || r._deleted === true || typeof r.tr === 'string');
-        }).map(function (r) { return JSON.parse(JSON.stringify(r)); });
-        if (valid.length !== data.records.length) { toast('В копии есть неподдерживаемые записи. Ничего не изменено.'); return; }
-        askConfirm('Восстановить резервную копию?',
-          'Будет добавлено или обновлено записей: ' + valid.length + '. Совпадающие ID заменятся данными из копии. Остальные текущие слова останутся. Это объединение, а не полная очистка словаря.',
-          'Восстановить', false, async function () {
-            var ok = await persistRecs(valid);
-            if (ok) {
-              if (data.sort === 'az' || data.sort === 'new') { ui.sort = data.sort; lsSet(LS_SORT, ui.sort); }
-              render(); toast('Резервная копия восстановлена');
-            }
-          });
-      };
-      reader.readAsText(f, 'utf-8');
-    });
-    document.body.appendChild(file); file.click(); setTimeout(function () { file.remove(); }, 60000);
   }
 
   /* ---------- wiring ---------- */
