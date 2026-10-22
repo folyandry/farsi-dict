@@ -275,7 +275,7 @@
   html { background:
     radial-gradient(60% 420px at 8% 0, rgba(88, 184, 173, .16), transparent 70%) no-repeat,
     radial-gradient(55% 380px at 96% 120px, rgba(154, 123, 209, .14), transparent 70%) no-repeat,
-    radial-gradient(70% 360px at 50% 100%, rgba(224, 121, 79, .10), transparent 70%) fixed no-repeat,
+    radial-gradient(70% 360px at 50% 100%, rgba(224, 121, 79, .10), transparent 70%) no-repeat,
     var(--bg); }
   .wrap { position: relative; z-index: 1; }
   #pageArt { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .16; }
@@ -306,8 +306,8 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 24%, #000 76%, transparent); }
   .cta { background: linear-gradient(120deg, #dcb96f, #e08a58); box-shadow: 0 6px 22px rgba(224, 121, 79, .22); margin-top: 14px; }
-  .tile { background: rgba(21, 30, 29, .72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-  .toolbar { background: rgba(15, 22, 21, .82); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .tile { background: rgba(21, 30, 29, .72); }
+  .toolbar { background: rgba(15, 22, 21, .82); }
   .seg { background: rgba(21, 30, 29, .7); }
 
   /* rows: translucent, with the word itself as a ghost calligraphy stroke */
@@ -344,7 +344,7 @@
       radial-gradient(60% 320px at 10% 0, rgba(88, 184, 173, .12), transparent 70%) no-repeat,
       radial-gradient(55% 300px at 95% 80px, rgba(154, 123, 209, .10), transparent 70%) no-repeat,
       var(--bg); }
-  .bar { background: rgba(15, 22, 21, .85); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .bar { background: rgba(15, 22, 21, .85); }
   .sec h3::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 9px; background: var(--accent); transform: rotate(45deg); vertical-align: 1px; }
   .dialog { background: radial-gradient(70% 60% at 90% 0, rgba(154, 123, 209, .16), transparent 70%), var(--raise); }
   .tdone .star, .empty .star { color: var(--ember); opacity: 1; filter: drop-shadow(0 0 12px rgba(224, 121, 79, .4)); }
@@ -367,21 +367,8 @@
   /* =====================================================================
      Round 2: weightlessness. Drifting washes, floating script, vines, arches
      ===================================================================== */
-  @keyframes drift { to { translate: var(--dx, 24px) var(--dy, -28px); } }
-  @keyframes bob { from { translate: 0 0; } to { translate: 0 -6px; } }
-  @keyframes shimmer { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
-  .calli.live span { animation: drift var(--t, 16s) ease-in-out infinite alternate; }
+  @keyframes lay { to { transform: translate3d(var(--dx), var(--dy), 0); } }
   #blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  #blobs i { position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%; animation: drift 30s ease-in-out infinite alternate; }
-  #blobs i:nth-child(1) { left: -40vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(88, 184, 173, .20), transparent); --dx: 18vmax; --dy: 12vmax; }
-  #blobs i:nth-child(2) { right: -45vmax; top: 10vmax; background: radial-gradient(closest-side, rgba(154, 123, 209, .18), transparent); --dx: -14vmax; --dy: 18vmax; animation-duration: 38s; }
-  #blobs i:nth-child(3) { left: -20vmax; bottom: -55vmax; background: radial-gradient(closest-side, rgba(224, 121, 79, .15), transparent); --dx: 26vmax; --dy: -10vmax; animation-duration: 44s; }
-  html { background:
-    var(--esl) 3% 30% / 120px no-repeat fixed,
-    var(--esl-r) 97% 52% / 130px no-repeat fixed,
-    var(--esl) 6% 86% / 150px no-repeat fixed,
-    var(--esl-r) 94% 94% / 110px no-repeat fixed,
-    var(--bg); }
   @media (prefers-reduced-motion: reduce) { .calli.live span, #blobs i, .wm, .cta { animation: none !important; } }
 
   /* the title: layered ink with chromatic echoes, vines on both sides */
@@ -446,12 +433,174 @@
   .row { background-image: var(--esl-r); background-position: right -12px bottom -14px; background-size: 70px; background-color: rgba(21, 30, 29, .88); }
   @media (hover: hover) { .row:hover { background-image: var(--esl-r); } }
   .row:active, .selmode .row.sel { background-image: var(--esl-r); }
+  .toolbar { background: rgba(15, 22, 21, .5);
+    padding-bottom: 14px; }
+
+  /* =====================================================================
+     Round 3: light on the GPU, no flat fills, quieter title and primary button
+     ===================================================================== */
+  :root {
+    --g-card: linear-gradient(150deg, rgba(38, 55, 52, .88), rgba(21, 30, 29, .88) 55%, rgba(34, 29, 46, .88));
+    --g-gold: linear-gradient(135deg, #ecd491, #d3b06a 48%, #c98b53);
+    --g-warm: linear-gradient(115deg, rgba(224, 121, 79, .34), rgba(208, 174, 104, .24) 50%, rgba(154, 123, 209, .30));
+    --rule: inset 0 0 0 1px rgba(208, 174, 104, .30);
+    --rule2: inset 0 0 0 1px rgba(255, 244, 214, .55), inset 0 0 0 4px rgba(27, 20, 5, .09);
+  }
+  .wm, .cta { animation: none; }
   html { background:
-    var(--esl) -34px 34% / 120px no-repeat fixed,
-    var(--esl-r) calc(100% + 34px) 56% / 120px no-repeat fixed,
+    radial-gradient(60% 420px at 8% 0, rgba(88, 184, 173, .16), transparent 70%) no-repeat,
+    radial-gradient(55% 380px at 96% 120px, rgba(154, 123, 209, .14), transparent 70%) no-repeat,
     var(--bg); }
-  .toolbar { background: rgba(15, 22, 21, .5); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); padding-bottom: 14px; }
+
+  /* ambient layer: two slow washes, vines in the margins. Composited, never repainted */
+  #blobs i { position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%; will-change: transform; animation: lay 40s ease-in-out infinite alternate; }
+  #blobs i:nth-child(1) { left: -40vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(88, 184, 173, .22), transparent); --dx: 16vmax; --dy: 12vmax; }
+  #blobs i:nth-child(2) { right: -50vmax; top: 20vmax; background: radial-gradient(closest-side, rgba(154, 123, 209, .19), transparent); --dx: -12vmax; --dy: 14vmax; animation-duration: 52s; }
+  #blobs i:nth-child(3) { display: none; }
+  #blobs b { position: absolute; width: 130px; height: 65px; background: var(--esl) center / contain no-repeat; opacity: .8; }
+  #blobs b:nth-of-type(1) { left: -40px; top: 36%; }
+  #blobs b:nth-of-type(2) { right: -40px; top: 58%; background-image: var(--esl-r); }
+  #blobs b:nth-of-type(3) { left: -34px; bottom: 7%; width: 110px; height: 55px; transform: scaleY(-1); }
+
+  /* floating script: three shared layers, so it is cheap and clearly visible */
+  .calli.live .lay { position: absolute; inset: -6%; will-change: transform; animation: lay 24s ease-in-out infinite alternate; }
+  .calli.live .l0 { --dx: 38px; --dy: -22px; }
+  .calli.live .l1 { --dx: -46px; --dy: 18px; animation-duration: 33s; }
+  .calli.live .l2 { --dx: 24px; --dy: 34px; animation-duration: 41s; }
+  #headArt .calli { opacity: .85; }
+  #pageArt { opacity: .34; }
+  .calli span { text-shadow: 0 0 12px currentColor; }
+  @media (prefers-reduced-motion: reduce) { .calli.live .lay, #blobs i { animation: none !important; } }
+
+  /* the title: ink on parchment gold, no neon */
+  .wordmark { height: 88px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6)) drop-shadow(0 0 10px rgba(208, 174, 104, .16)); }
+  .brand::before { background: radial-gradient(closest-side, rgba(12, 19, 18, .72), rgba(12, 19, 18, .3) 62%, transparent); }
+
+  /* primary button: same family as the tiles, quieter */
+  .cta { min-height: 0; height: 46px; padding: 0 18px; margin-top: 14px; border-radius: 14px; gap: 12px; color: #f3e6c4; font-size: 16px; font-weight: 600;
+    background: var(--g-warm), rgba(21, 30, 29, .9); box-shadow: inset 0 0 0 1px rgba(208, 174, 104, .45), inset 0 0 0 4px rgba(15, 22, 21, .0); }
+  .cta::before, .cta::after { width: 13px; height: 13px; opacity: .85; filter: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none' stroke='%23d0ae68' stroke-width='3' stroke-linejoin='round'%3E%3Cpath d='M24 2 L30.4 8.4 L39.6 8.4 L39.6 17.6 L46 24 L39.6 30.4 L39.6 39.6 L30.4 39.6 L24 46 L17.6 39.6 L8.4 39.6 L8.4 30.4 L2 24 L8.4 17.6 L8.4 8.4 L17.6 8.4 Z'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .cta:active { filter: brightness(1.15); }
+  .cta .badge { top: -8px; right: 16px; background: linear-gradient(135deg, #e8946a, #c4584c); }
+  .tiles { margin-top: 10px; }
+
+  /* no flat fills anywhere */
+  .toolbar { background: linear-gradient(rgba(15, 22, 21, .93) 72%, rgba(15, 22, 21, 0)); padding-bottom: 16px; }
+  .bar { background: linear-gradient(rgba(15, 22, 21, .96), rgba(15, 22, 21, .82)); border-bottom: 0; }
+  .bar::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-line), transparent); }
+  .search, .field input, .field textarea, .two input, .dlg-input { background: var(--g-card); border-color: rgba(208, 174, 104, .22); }
+  .search { background: var(--g-card); }
+  .seg { background: var(--g-card); }
+  .seg button[aria-pressed="true"] { background: var(--g-warm); box-shadow: var(--rule); color: #f3e6c4; }
+  .fchip, .pick, .opt, .wchip, .cjtab, .pill { background: var(--g-card); border-color: rgba(208, 174, 104, .20); }
+  .fchip.on, .pick.on, .opt.on, .cjtab[aria-pressed="true"], .pill.primary { background: var(--g-gold); color: var(--accent-ink); border-color: transparent; box-shadow: var(--rule2); }
+  .fchip.on .n { opacity: .7; }
+  .tag { background: linear-gradient(120deg, hsl(var(--h) 50% 52% / .26), rgba(21, 30, 29, .5)); border-color: hsl(var(--h) 50% 62% / .28); color: var(--text); }
+  .vc { background: linear-gradient(135deg, rgba(88, 184, 173, .20), rgba(21, 30, 29, .72) 70%); border-color: rgba(88, 184, 173, .28); }
+  .vc.pres { background: linear-gradient(135deg, rgba(208, 174, 104, .22), rgba(21, 30, 29, .72) 70%); border-color: rgba(208, 174, 104, .30); }
+  .row { background-color: rgba(21, 30, 29, .74); border-color: rgba(208, 174, 104, .15); }
+  .row::after { content: ''; }
+  .row .tr { text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+  .btn.primary { background: var(--g-gold); box-shadow: var(--rule2); border-radius: 14px; }
+  .btn.ghost { background: var(--g-card); border-color: rgba(208, 174, 104, .32); }
+  .btn.danger { background: linear-gradient(135deg, #e8998c, #c4584c); }
+  .tbtn { background: var(--g-card); box-shadow: var(--rule); border-radius: 12px; padding: 8px 14px; }
+  .ibtn { background: var(--g-card); box-shadow: var(--rule); border-radius: 12px; }
+  .fab { background: var(--g-gold); box-shadow: var(--rule2), 0 8px 24px rgba(0, 0, 0, .5); }
+  .selin { background: var(--g-card), var(--raise); border-color: rgba(208, 174, 104, .3); }
+  .dialog { background: radial-gradient(70% 60% at 90% 0, rgba(154, 123, 209, .2), transparent 70%), radial-gradient(70% 60% at 0 100%, rgba(88, 184, 173, .16), transparent 70%), var(--raise); }
+  .gbtn { background: var(--g-card); }
+  .gbtn.g0 { background: linear-gradient(150deg, rgba(217, 133, 122, .30), rgba(21, 30, 29, .85)); border-color: rgba(217, 133, 122, .55); }
+  .gbtn.g1 { background: linear-gradient(150deg, rgba(224, 121, 79, .26), rgba(21, 30, 29, .85)); border-color: rgba(224, 121, 79, .5); }
+  .gbtn.g2 { background: linear-gradient(150deg, rgba(208, 174, 104, .28), rgba(21, 30, 29, .85)); border-color: var(--gold-line); }
+  .gbtn.g3 { background: linear-gradient(150deg, rgba(88, 184, 173, .30), rgba(21, 30, 29, .85)); border-color: rgba(88, 184, 173, .55); }
+  .qopt { background: var(--g-card); }
+  .tprog { background: rgba(236, 228, 208, .12); }
+  .tprog i { background: linear-gradient(90deg, var(--teal), var(--accent), var(--ember)); }
+  .tmrow { border-bottom-color: rgba(208, 174, 104, .15); }
+  #sentinel { height: 1px; margin-bottom: -1px; }
+  .toolbar { background: transparent; transition: none; }
+  .toolbar.stuck { background: linear-gradient(rgba(15, 22, 21, .94) 72%, rgba(15, 22, 21, 0)); }
+  .toolbar { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+
+  /* =====================================================================
+     Round 4: neon title back, motion pauses while scrolling, cheaper paint
+     ===================================================================== */
+  .wordmark { height: 92px; filter:
+      drop-shadow(-3px 2px 0 rgba(88, 184, 173, .55)) drop-shadow(3px -2px 0 rgba(154, 123, 209, .5))
+      drop-shadow(0 0 22px rgba(224, 121, 79, .45)) drop-shadow(0 0 3px rgba(251, 239, 200, .6)); }
+  .brand::before { background: radial-gradient(closest-side, rgba(12, 19, 18, .82), rgba(12, 19, 18, .45) 60%, transparent); }
+  .paused .lay, .paused.lay, #blobs.paused i { animation-play-state: paused !important; }
+  .calli span { text-shadow: none; }
+  #headArt { -webkit-mask-image: none; mask-image: none; }
+  #headArt::after { -webkit-mask-image: none; mask-image: none; opacity: .55; }
+  #headArt .calli { -webkit-mask-image: none; mask-image: none; contain: paint; }
+  .row { contain-intrinsic-size: auto 120px; }
+  .fa { font-family: var(--fa-d); font-weight: 700; line-height: 1.7; }
+  .row .ghost { font-family: var(--fa-d); font-weight: 700; }
+  #headArt .calli { opacity: .66; }
+
+  /* =====================================================================
+     Round 5: instant sheets, static page art, redesigned alphabet and conjugations
+     ===================================================================== */
+  #pageArt .lay, #blobs i { animation: none !important; }
+  .sheet.enter { animation: none; }
+  body.sheet-open > .wrap, body.sheet-open > .fabwrap, body.sheet-open > #pageArt, body.sheet-open > #blobs { visibility: hidden; }
+  .row, .tile, .fab, .gbtn, .qopt { -webkit-user-select: none; user-select: none; }
+  .row:active, .tile:active, .fab:active { transform: scale(.985); }
+  .dhead .calli span, .tcard .calli span { font-family: var(--fa-d); }
+  .dhead > .calli, .tcard > .calli { -webkit-mask-image: none; mask-image: none; opacity: .34; }
+
+  /* sheet top bar spans the full width, no dark box */
+  .bar { margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+
+  /* banner: Persian title between two vines */
+  .banner { display: flex; align-items: center; justify-content: center; height: 78px; margin: 6px -4px 2px;
+    background: var(--esl) left center / 96px no-repeat, var(--esl-r) right center / 96px no-repeat; }
+  .banner span { direction: rtl; font: 400 34px/2 var(--nq); color: #f3e3b8; text-shadow: 0 2px 4px rgba(0, 0, 0, .55); }
+  .banner::before, .banner::after { content: ''; width: 7px; height: 7px; margin: 0 14px; background: var(--accent); transform: rotate(45deg); }
+  .banner::before { order: 0; } .banner span { order: 1; } .banner::after { order: 2; }
+
+  /* alphabet + conjugation tables become rows of cards */
+  .cj { border-collapse: separate; border-spacing: 0 6px; margin-top: 0; }
+  .cj th, .cj td { border-bottom: 0; }
+  .cj tr:first-child th { border-bottom: 0; padding-bottom: 4px; }
+  .cj td { background: var(--g-card); padding: 10px 6px; }
+  .cj td:first-child { border-radius: 14px 0 0 14px; border-left: 1px solid rgba(208, 174, 104, .22); }
+  .cj td:last-child { border-radius: 0 14px 14px 0; border-right: 1px solid rgba(208, 174, 104, .22); }
+  .cj tr:nth-child(even) td { background: linear-gradient(150deg, rgba(34, 29, 46, .88), rgba(21, 30, 29, .88) 55%, rgba(38, 55, 52, .88)); }
+  .cj td { border-top: 1px solid rgba(208, 174, 104, .12); border-bottom: 1px solid rgba(208, 174, 104, .12); }
+  .cj td:first-child b, .cj td:first-child .f { color: var(--accent); }
+  .alpha .f { font: 400 30px/1.5 var(--fa-d); }
+  .alpha td:first-child .f { font-size: 38px; color: #f6e8bf; text-shadow: 0 0 14px rgba(208, 174, 104, .35); }
+  .alpha .f2 { color: var(--accent); }
+  .alpha tr { content-visibility: auto; contain-intrinsic-size: auto 62px; }
+  .hint { text-align: center; }
+  .cjtabs { justify-content: flex-start; }
+
+  /* alphabet cards: only rows near the viewport are rendered */
+  .alpha2 { display: flex; flex-direction: column; gap: 6px; padding-bottom: 24px; }
+  .arow { display: grid; grid-template-columns: repeat(4, 1fr) 1.15fr; align-items: center; min-height: 62px; border-radius: 14px; border: 1px solid rgba(208, 174, 104, .20);
+    background: var(--g-card); content-visibility: auto; contain-intrinsic-size: auto 62px; }
+  .arow:nth-child(odd) { background: linear-gradient(150deg, rgba(34, 29, 46, .88), rgba(21, 30, 29, .88) 55%, rgba(38, 55, 52, .88)); }
+  .arow.ahead { min-height: 0; padding: 2px 0; background: none; border: 0; content-visibility: visible; font-size: 11px; color: var(--mute); text-align: center; letter-spacing: .03em; }
+  .arow.ahead span { display: block; }
+  .ac { text-align: center; padding: 6px 2px; }
+  .ac .f { font: 400 30px/1.5 var(--fa-d); }
+  .ac:first-child .f { font-size: 40px; color: #f6e8bf; text-shadow: 0 0 14px rgba(208, 174, 104, .35); }
+  .ac.dash { color: var(--faint); }
+  .ac.snd .f2 { display: block; font: 600 15px/1.2 var(--sans); color: var(--accent); }
+  .ac.snd .sp2 { display: block; font-size: 12px; color: var(--mute); }
+  .banner::before, .banner::after { display: none; }
+  /* conjugation rows: one continuous gradient per row instead of patchy cells */
+  .cj { border-spacing: 0; }
+  .cj tr:not(:first-child) { background: linear-gradient(100deg, rgba(38, 55, 52, .85), rgba(21, 30, 29, .85) 55%, rgba(34, 29, 46, .85)); }
+  .cj tr:not(:first-child):nth-child(even) { background: linear-gradient(100deg, rgba(34, 29, 46, .85), rgba(21, 30, 29, .85) 55%, rgba(38, 55, 52, .85)); }
+  .cj td, .cj tr:nth-child(even) td { background: none; border-radius: 0; border-left: 0; border-right: 0; padding: 11px 8px; }
+  .cj td { border-top: 1px solid rgba(208, 174, 104, .16); border-bottom: 0; }
+  .cj tr:last-child td { border-bottom: 1px solid rgba(208, 174, 104, .16); }
+  .cj th { padding-left: 8px; padding-right: 8px; }
 </style>
 </head>
 <body>
@@ -473,6 +622,7 @@
       <button type="button" class="tile" id="tagsBtn"><span class="pw" lang="fa">برچسب</span><span>Теги</span></button>
     </div>
   </header>
+  <div id="sentinel" aria-hidden="true"></div>
   <div class="toolbar">
     <label class="search">
       <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
@@ -642,19 +792,25 @@
     var h = 2166136261; String(seed).split('').forEach(function (c) { h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0; });
     function rnd() { h = (h + 0x6D2B79F5) >>> 0; var t = Math.imul(h ^ h >>> 15, 1 | h); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
     var box = document.createElement('div'); box.className = 'calli' + (kind === 'card' ? '' : ' live'); box.setAttribute('aria-hidden', 'true');
-    var lo = kind === 'head' ? 16 : (kind === 'page' ? 18 : 13), hi = kind === 'head' ? 40 : (kind === 'page' ? 34 : 26);
+    var lo = kind === 'head' ? 16 : (kind === 'page' ? 22 : 13), hi = kind === 'head' ? 38 : (kind === 'page' ? 46 : 26);
+    var lays = null;
+    if (kind !== 'card') lays = [0, 1, 2].map(function (k) { var l = document.createElement('div'); l.className = 'lay l' + k; box.append(l); return l; });
+    function fill() {
     for (var i = 0; i < n; i++) {
       var sp = document.createElement('span');
       sp.textContent = VERSES[Math.floor(rnd() * VERSES.length)];
       var big = rnd() < .18;
-      if (kind !== 'card') { sp.style.setProperty('--dx', ((rnd() - .5) * 60).toFixed(0) + 'px'); sp.style.setProperty('--dy', ((rnd() - .5) * 50).toFixed(0) + 'px'); sp.style.setProperty('--t', (12 + rnd() * 16).toFixed(1) + 's'); }
-      sp.style.cssText += ';left:' + (-15 + rnd() * 85).toFixed(1) + '%;top:' + (-4 + rnd() * 100).toFixed(1) + '%;font-size:' + ((big ? hi * 1.5 : lo + rnd() * (hi - lo))).toFixed(0) +
-        'px;color:' + INK[Math.floor(rnd() * INK.length)] + ';opacity:' + (.3 + rnd() * .6).toFixed(2) + ';transform:rotate(' + ((rnd() - .5) * (rnd() < .3 ? 120 : 46)).toFixed(0) + 'deg)';
-      box.append(sp);
+      var tp = -4 + rnd() * (kind === 'head' ? 72 : 100), fade = kind === 'head' ? Math.max(0, Math.min(1, 1 - (tp - 36) / 34)) : 1;
+      sp.style.cssText = 'left:' + (-15 + rnd() * 85).toFixed(1) + '%;top:' + tp.toFixed(1) + '%;font-size:' + ((big ? hi * 1.5 : lo + rnd() * (hi - lo))).toFixed(0) +
+        'px;color:' + INK[Math.floor(rnd() * INK.length)] + ';opacity:' + ((.3 + rnd() * .6) * fade).toFixed(2) + ';transform:rotate(' + ((rnd() - .5) * (rnd() < .3 ? 120 : 46)).toFixed(0) + 'deg)';
+      (lays ? lays[i % 3] : box).append(sp);
     }
+    }
+    if (kind === 'card') requestAnimationFrame(function () { setTimeout(fill, 40); }); else fill();
     return box;
   }
 
+  function banner(t) { return el('div', { 'class': 'banner', 'aria-hidden': 'true' }, el('span', { lang: 'fa', text: t })); }
   var toastTimer;
   function toast(msg) {
     var t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -950,7 +1106,7 @@
     if (ui.detailId) renderDetail(false);
   }
 
-  function syncLock() { document.documentElement.style.overflow = (ui.detailId || ui.formOpen || ui.train) ? 'hidden' : ''; }
+  function syncLock() { var o = !!(ui.detailId || ui.formOpen || ui.train); document.documentElement.style.overflow = o ? 'hidden' : ''; document.body.classList.toggle('sheet-open', o); }
 
   /* ---------- detail ---------- */
   var detailRoot = $('#detailRoot'), formRoot = $('#formRoot'), dialogRoot = $('#dialogRoot');
@@ -1013,7 +1169,7 @@
 
     var sheet = el('div', { 'class': 'sheet' + (old ? '' : ' enter'), role: 'dialog', 'aria-modal': 'true', 'aria-label': w.tr },
       el('div', { 'class': 'wrap' }, bar,
-        el('div', { 'class': 'dhead' }, calli(16, w.id, 'card'), el('span', { 'class': 'crest' }),
+        el('div', { 'class': 'dhead' }, calli(9, w.id, 'card'), el('span', { 'class': 'crest' }),
           w.fa ? el('div', { 'class': 'dfa', lang: 'fa', dir: 'rtl', text: w.fa }) : null,
           el('h2', { 'class': 'dtr', text: w.tr }),
           el('p', { 'class': 'dmean', text: w.meaning }),
@@ -1227,21 +1383,21 @@
     function show(i) { btns.forEach(function (b, k) { b.setAttribute('aria-pressed', String(k === i)); }); box.replaceChildren.apply(box, TABS[i][1].map(build)); }
     btns = TABS.map(function (t, i) { return el('button', { type: 'button', 'class': 'cjtab', 'aria-pressed': 'false', text: t[0], onclick: function () { show(i); } }); });
     show(0);
-    formRoot.replaceChildren(sheetShell('Спряжения', 'Закрыть', [el('div', { 'class': 'cjtabs' }, btns), box]));
+    formRoot.replaceChildren(sheetShell('Спряжения', 'Закрыть', [banner('صرف افعال'), el('div', { 'class': 'cjtabs' }, btns), box]));
   }
   $('#conjBtn').addEventListener('click', openConj);
   function openAlpha() {
     openSheet();
     var Z = '\u200d';
     var LET = [['آ', 'ā', 'ā', 0], ['ا', 'a, e, o', 'alef', 0], ['ب', 'b', 'be', 1], ['پ', 'p', 'pe', 1], ['ت', 't', 'te', 1], ['ث', 's', 'se', 1], ['ج', 'j', 'jim', 1], ['چ', 'ch', 'che', 1], ['ح', 'h', 'he', 1], ['خ', 'kh', 'khe', 1], ['د', 'd', 'dāl', 0], ['ذ', 'z', 'zāl', 0], ['ر', 'r', 're', 0], ['ز', 'z', 'ze', 0], ['ژ', 'zh', 'zhe', 0], ['س', 's', 'sin', 1], ['ش', 'sh', 'shin', 1], ['ص', 's', 'sād', 1], ['ض', 'z', 'zād', 1], ['ط', 't', 'tā', 1], ['ظ', 'z', 'zā', 1], ['ع', '\u02bc', 'ayn', 1], ['غ', 'gh', 'ghayn', 1], ['ف', 'f', 'fe', 1], ['ق', 'q', 'qāf', 1], ['ک', 'k', 'kāf', 1], ['گ', 'g', 'gāf', 1], ['ل', 'l', 'lām', 1], ['م', 'm', 'mim', 1], ['ن', 'n', 'nun', 1], ['و', 'v, u, o', 'vāv', 0], ['ه', 'h, e', 'he', 1], ['ی', 'y, i', 'ye', 1]];
-    function cell(t) { return el('td', null, el('span', { 'class': 'f', lang: 'fa', text: t })); }
-    var head = el('tr', null, ['отдельно', 'начало', 'середина', 'конец', 'звук'].map(function (h) { return el('th', null, el('span', { text: h })); }));
+    function cell(t) { return el('div', { 'class': 'ac' }, el('span', { 'class': 'f', lang: 'fa', text: t })); }
+    var head = el('div', { 'class': 'arow ahead' }, ['отдельно', 'начало', 'середина', 'конец', 'звук'].map(function (h) { return el('span', { text: h }); }));
     var rows = LET.map(function (l) {
       var c = l[0], j = l[3];
-      return el('tr', null, cell(c), j ? cell(c + Z) : el('td', { 'class': 'dash', text: '\u2013' }), j ? cell(Z + c + Z) : el('td', { 'class': 'dash', text: '\u2013' }), cell(Z + c),
-        el('td', null, el('span', { 'class': 'f2', text: l[1] }), el('span', { 'class': 'sp2', text: l[2] })));
+      return el('div', { 'class': 'arow' }, cell(c), j ? cell(c + Z) : el('div', { 'class': 'ac dash', text: '\u2013' }), j ? cell(Z + c + Z) : el('div', { 'class': 'ac dash', text: '\u2013' }), cell(Z + c),
+        el('div', { 'class': 'ac snd' }, el('span', { 'class': 'f2', text: l[1] }), el('span', { 'class': 'sp2', text: l[2] })));
     });
-    formRoot.replaceChildren(sheetShell('Алфавит', 'Закрыть', [el('p', { 'class': 'hint', text: 'Письмо идёт справа налево. Буквы с прочерком не соединяются со следующей, поэтому у них нет начальной и средней формы.' }), el('table', { 'class': 'cj alpha' }, head, rows)]));
+    formRoot.replaceChildren(sheetShell('Алфавит', 'Закрыть', [banner('الفبای فارسی'), el('p', { 'class': 'hint', text: 'Письмо идёт справа налево. Буквы с прочерком не соединяются со следующей, поэтому у них нет начальной и средней формы.' }), el('div', { 'class': 'alpha2' }, head, rows)]));
   }
   $('#alphaBtn').addEventListener('click', openAlpha);
 
@@ -1563,7 +1719,7 @@
       return el('button', { type: 'button', 'class': cls, onclick: function () { if (card.choice != null) return; card.choice = id; showCard(); } }, kids);
     }));
     var front = card.dir === 'fwd' ? [fa, trEl, tags] : [mean, tags];
-    var face = el('div', { 'class': 'tcard quiz' }, calli(16, w.id, 'card'), el('span', { 'class': 'crest' }), front, el('hr', { 'class': 'thr' }), list);
+    var face = el('div', { 'class': 'tcard quiz' }, calli(9, w.id, 'card'), el('span', { 'class': 'crest' }), front, el('hr', { 'class': 'thr' }), list);
     var actions = answered ? el('button', { type: 'button', 'class': 'btn primary', text: card.choice === w.id ? 'Верно, дальше' : 'Дальше', onclick: function () { grade(card.choice === w.id ? 2 : 0); } }) : null;
     showTrain([trainBar('Осталось ' + s.queue.length), el('div', { 'class': 'tprog', style: '--p:' + (s.done / s.total) }, el('i')), face], actions);
     return true;
@@ -1582,7 +1738,7 @@
     if (trainCfg.type === 'quiz' && quizCard(card, w, s, tags, fa, trEl, mean)) return;
     var front = card.dir === 'fwd' ? [fa, trEl, tags] : [mean, tags];
     var back = card.dir === 'fwd' ? [mean, extra] : [fa, trEl, extra];
-    var face = el('div', { 'class': 'tcard', onclick: function () { if (!s.revealed) reveal(); } }, calli(16, w.id, 'card'), el('span', { 'class': 'crest' }),
+    var face = el('div', { 'class': 'tcard', onclick: function () { if (!s.revealed) reveal(); } }, calli(9, w.id, 'card'), el('span', { 'class': 'crest' }),
       front,
       s.revealed ? [el('hr', { 'class': 'thr' }), back].flat(Infinity) : el('p', { 'class': 'tsub thint', text: 'Нажмите, чтобы увидеть ответ' }));
     var actions;
@@ -1683,9 +1839,15 @@
   recompute();
   ready = true;
   render();
-  $('#headArt').append(calli(30, 'head', 'head'));
-  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(34, 'page', 'page')); document.body.prepend(pa);
-  var bl = document.createElement('div'); bl.id = 'blobs'; bl.setAttribute('aria-hidden', 'true'); bl.innerHTML = '<i></i><i></i><i></i>'; document.body.prepend(bl);
+  $('#headArt').append(calli(27, 'head', 'head'));
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
+  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(24, 'page', 'page')); document.body.prepend(pa);
+  var bl = document.createElement('div'); bl.id = 'blobs'; bl.setAttribute('aria-hidden', 'true'); bl.innerHTML = '<i></i><i></i><i></i><b></b><b></b><b></b>'; document.body.prepend(bl);
+  (function () {
+    var targets = [$('#headArt'), $('#pageArt'), $('#blobs')], t = 0, on = false;
+    function set(v) { on = v; targets.forEach(function (n) { if (n) n.classList.toggle('paused', v); }); }
+    window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
+  })();
   initCapabilities();
 })();
 
