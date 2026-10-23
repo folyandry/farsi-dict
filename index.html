@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1615">
 <link rel="manifest" href="manifest.webmanifest">
@@ -640,15 +640,22 @@
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
 
-  /* Keyboard-open stability: fixed bottom controls otherwise get repositioned
-     into the reduced Android WebView viewport and appear to jump over search. */
+  /* Keyboard stability: hide bottom overlays as soon as search is touched,
+     not after the virtual keyboard finishes opening. Disable sticky positioning
+     while typing because WebView viewport changes can make sticky elements jump. */
   body.typing .fabwrap,
   body.typing .selwrap,
   body.typing #toast { display: none !important; }
   body.typing { scroll-behavior: auto !important; }
+  body.typing .toolbar { position: relative !important; top: auto !important; }
   body.typing .toolbar,
-  body.typing .bar { animation: none !important; transition: none !important; }
-  body.typing #artBackground { height: 100lvh; max-height: 100lvh; }
+  body.typing .bar,
+  body.typing .head { animation: none !important; transition: none !important; }
+  body.keyboard-open .fabwrap,
+  body.keyboard-open .selwrap,
+  body.keyboard-open #toast { display: none !important; }
+  body.keyboard-open .toolbar { position: relative !important; top: auto !important; }
+  #artBackground { height: 100%; }
   @media (max-height: 520px) {
     body.typing .head { padding-top: 4px; }
   }
@@ -1956,25 +1963,52 @@
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    /* Do not fight Android/WebView's own keyboard viewport adjustment with scrollTo().
-       Repeated forced scroll restoration was causing the page to bounce as the IME opened. */
-    var tt = 0, q = $('#q');
+    /* Never force scroll restoration here: Android/WebView owns IME panning.
+       Hide the floating add button immediately on touch, and detect actual
+       keyboard viewport reduction when VisualViewport is available. */
+    var tt = 0, q = $('#q'), initialHeight = window.innerHeight;
+    function setKeyboardState() {
+      var vv = window.visualViewport;
+      var reduced = vv ? (window.innerHeight - vv.height > 120) : (initialHeight - window.innerHeight > 150);
+      document.body.classList.toggle('keyboard-open', !!reduced);
+    }
+    if (q) {
+      q.addEventListener('pointerdown', function () {
+        document.body.classList.add('typing');
+        document.body.classList.add('search-active');
+      }, { passive: true });
+      q.addEventListener('touchstart', function () {
+        document.body.classList.add('typing');
+        document.body.classList.add('search-active');
+      }, { passive: true });
+    }
     document.addEventListener('focusin', function (e) {
       if (e.target && e.target.id === 'q') {
         clearTimeout(tt);
         document.body.classList.add('typing');
+        document.body.classList.add('search-active');
       }
     });
     document.addEventListener('focusout', function (e) {
       if (e.target && e.target.id === 'q') {
         clearTimeout(tt);
         tt = setTimeout(function () {
-          if (document.activeElement !== q) document.body.classList.remove('typing');
+          if (document.activeElement !== q) {
+            document.body.classList.remove('typing');
+            document.body.classList.remove('search-active');
+          }
         }, 180);
       }
     });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setKeyboardState, { passive: true });
+      window.visualViewport.addEventListener('scroll', setKeyboardState, { passive: true });
+    }
+    window.addEventListener('resize', setKeyboardState, { passive: true });
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden && document.activeElement !== q) document.body.classList.remove('typing');
+      if (document.hidden && document.activeElement !== q) {
+        document.body.classList.remove('typing', 'search-active', 'keyboard-open');
+      }
     });
   })();
   initCapabilities();
