@@ -639,6 +639,19 @@
   #pageArt, #blobs { display: none !important; }
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
+
+  /* Keyboard-open stability: fixed bottom controls otherwise get repositioned
+     into the reduced Android WebView viewport and appear to jump over search. */
+  body.typing .fabwrap,
+  body.typing .selwrap,
+  body.typing #toast { display: none !important; }
+  body.typing { scroll-behavior: auto !important; }
+  body.typing .toolbar,
+  body.typing .bar { animation: none !important; transition: none !important; }
+  body.typing #artBackground { height: 100lvh; max-height: 100lvh; }
+  @media (max-height: 520px) {
+    body.typing .head { padding-top: 4px; }
+  }
 </style>
 </head>
 <body>
