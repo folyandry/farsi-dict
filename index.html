@@ -628,7 +628,7 @@
   #blobs i { width: 150vw; height: 150vw; }
   #blobs i:nth-child(1) { left: -70vw; top: -50vw; }
   #blobs i:nth-child(2) { right: -80vw; top: 20vw; }
-  body.typing > #pageArt, body.typing > #blobs { visibility: hidden; }
+  /* Keep decorative background visible while search is focused; pause motion only. */
   body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
 </style>
 </head>
