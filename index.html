@@ -640,6 +640,10 @@
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
 
+  /* Hard fallback: when the search itself has focus, never let the floating
+     add button cover it, even if WebView focus events/classes are delayed. */
+  body:has(#q:focus) .fabwrap { display: none !important; }
+  body.search-active .fabwrap { display: none !important; }
   /* Keyboard stability: hide bottom overlays as soon as search is touched,
      not after the virtual keyboard finishes opening. Disable sticky positioning
      while typing because WebView viewport changes can make sticky elements jump. */
@@ -1974,9 +1978,14 @@
     }
     if (q) {
       q.addEventListener('pointerdown', function () {
-        document.body.classList.add('typing');
-        document.body.classList.add('search-active');
+        document.body.classList.add('typing', 'search-active');
       }, { passive: true });
+      q.addEventListener('focus', function () {
+        document.body.classList.add('typing', 'search-active');
+      });
+      q.addEventListener('input', function () {
+        document.body.classList.add('typing', 'search-active');
+      });
       q.addEventListener('touchstart', function () {
         document.body.classList.add('typing');
         document.body.classList.add('search-active');
