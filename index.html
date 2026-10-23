@@ -601,6 +601,35 @@
   .cj td { border-top: 1px solid rgba(208, 174, 104, .16); border-bottom: 0; }
   .cj tr:last-child td { border-bottom: 1px solid rgba(208, 174, 104, .16); }
   .cj th { padding-left: 8px; padding-right: 8px; }
+
+  /* =====================================================================
+     Round 6: new title (گلواژه), tile band on top, stable fixed layers
+     ===================================================================== */
+  #pageArt, #blobs { bottom: auto; height: 100vh; height: 100lvh; contain: strict; }
+  .sentinel { height: 1px; }
+  .head { padding-top: 12px; }
+  .brand::before { display: none; }
+  .tileband { margin: 0 -16px 0; align-self: stretch; }
+  .wm { position: relative; margin-top: 30px; }
+  .wm::before { content: ''; position: absolute; z-index: 0; left: 50%; top: 50%; width: 320px; height: 190px; transform: translate(-50%, -50%); pointer-events: none;
+    background: radial-gradient(closest-side, rgba(12, 19, 18, .82), rgba(12, 19, 18, .45) 60%, transparent); }
+  .wm > * { position: relative; z-index: 1; }
+  .wordmark { height: 112px; }
+  .esl { height: 58px; }
+  .sub { margin-top: 6px; }
+  .row .ghost { display: none; }
+  .row { background-image: radial-gradient(70% 140% at 100% 50%, hsl(var(--h) 55% 55% / .13), transparent 70%), var(--esl-r); background-repeat: no-repeat; background-position: 0 0, right -12px bottom -14px; background-size: auto, 70px; }
+  @media (hover: hover) { .row:hover { background-image: radial-gradient(70% 140% at 100% 50%, hsl(var(--h) 55% 55% / .2), transparent 70%), var(--esl-r); } }
+  .row:active, .selmode .row.sel { background-image: radial-gradient(70% 140% at 100% 50%, hsl(var(--h) 55% 55% / .2), transparent 70%), var(--esl-r); }
+
+  /* =====================================================================
+     Round 7: keyboard. Decor rests while typing; blobs sized by width only
+     ===================================================================== */
+  #blobs i { width: 150vw; height: 150vw; }
+  #blobs i:nth-child(1) { left: -70vw; top: -50vw; }
+  #blobs i:nth-child(2) { right: -80vw; top: 20vw; }
+  body.typing > #pageArt, body.typing > #blobs { visibility: hidden; }
+  body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
 </style>
 </head>
 <body>
@@ -608,9 +637,9 @@
   <header class="head">
     <div id="headArt" aria-hidden="true"></div>
     <div class="brand">
-      <div class="wm"><i class="esl" aria-hidden="true"></i><svg class="wordmark" viewBox="0 0 2238 1246" role="img" aria-label="فارسی"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbefc8"/><stop offset="0.55" stop-color="#d9b46a"/><stop offset="1" stop-color="#e0794f"/></linearGradient></defs><path fill="url(#wg)" d="M243 1246Q165 1246 111 1209Q57 1173 28 1110Q0 1046 0 968Q0 901 17 822Q34 743 70 660Q105 576 160 497L190 513Q155 571 133 621Q110 671 100 719Q89 766 89 818Q89 874 106 914Q123 954 153 980Q183 1005 222 1017Q260 1029 304 1029Q348 1029 385 1019Q423 1008 454 991Q485 974 508 955Q532 935 547 918Q578 890 587 868Q596 846 580 828Q560 801 523 770Q489 748 476 713Q463 679 472 628Q473 606 479 580Q486 553 497 529Q507 504 519 488Q530 472 541 472Q565 472 565 491Q565 504 556 518Q546 531 546 552Q546 572 560 585Q575 597 606 607Q640 617 658 629Q676 641 683 660Q691 679 691 711Q691 742 682 786Q672 830 653 881Q634 931 603 985Q562 1062 507 1122Q452 1181 386 1213Q320 1246 243 1246ZM529 532Q506 532 506 514Q506 505 517 483Q528 462 548 431Q569 399 596 368Q622 338 652 316Q707 275 765 275Q796 275 821 293Q834 302 847 307Q860 311 874 311Q906 311 931 292Q957 273 976 244L990 243Q1007 256 1020 261Q1033 266 1046 266Q1078 266 1098 242Q1118 217 1134 172L1167 176Q1137 304 1096 360Q1055 416 1002 416Q985 416 969 410Q953 404 941 395Q916 435 890 450Q863 466 838 466Q819 466 801 459Q782 452 765 440Q747 427 731 421Q716 415 702 415Q685 415 666 422Q646 430 627 443Q607 456 589 474Q572 491 562 508Q546 532 529 532ZM1172 951 1165 926Q1191 909 1228 882Q1265 855 1305 822Q1345 789 1384 755Q1422 722 1452 691Q1482 660 1498 637Q1514 612 1527 589Q1539 566 1551 542Q1562 517 1574 488Q1586 458 1600 421L1634 426Q1619 488 1599 554Q1578 619 1553 679Q1527 738 1500 785Q1472 832 1445 857Q1436 864 1413 874Q1389 884 1359 894Q1328 905 1294 916Q1259 927 1227 936Q1195 945 1172 951ZM1946 885Q1866 885 1830 829Q1794 773 1794 652Q1794 608 1795 566Q1797 524 1800 481Q1802 439 1806 394Q1809 350 1813 302Q1817 241 1823 190Q1830 139 1841 93Q1853 46 1874 0L1898 7Q1893 33 1887 80Q1882 128 1877 188Q1872 249 1869 318Q1865 388 1865 459Q1865 509 1872 550Q1878 591 1892 620Q1907 649 1932 665Q1957 680 1995 680Q2018 680 2028 702Q2038 724 2038 764Q2038 803 2026 830Q2014 857 1994 871Q1973 885 1946 885ZM2121 203Q2098 181 2084 168Q2070 154 2058 144Q2047 134 2032 124V115Q2039 104 2051 89Q2064 73 2079 57Q2094 41 2106 29Q2119 16 2125 12H2135Q2177 39 2198 60Q2218 80 2218 102Q2218 124 2192 151Q2166 177 2129 203H2121ZM1946 885Q1926 885 1914 865Q1901 845 1901 799Q1901 761 1914 734Q1926 708 1947 694Q1968 680 1995 680Q2042 680 2083 667Q2125 654 2151 632Q2177 610 2177 584Q2177 574 2173 567Q2166 572 2150 579Q2134 585 2115 589Q2096 593 2077 593Q2053 593 2030 583Q2007 572 1992 552Q1977 532 1977 506Q1977 485 1984 464Q1991 442 2002 421L2035 358Q2050 329 2069 316Q2089 302 2112 302Q2145 302 2169 318Q2193 335 2208 361Q2223 387 2230 418Q2238 449 2238 480Q2238 642 2160 764Q2083 885 1946 885Z"/></svg><i class="esl r" aria-hidden="true"></i></div>
-      <div class="sub" lang="fa"><span>واژه‌نامه</span></div>
       <div class="tileband" aria-hidden="true"></div>
+      <div class="wm"><i class="esl" aria-hidden="true"></i><svg class="wordmark" viewBox="-39 -1514 2384 1647" role="img" aria-label="گلواژه"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbefc8"/><stop offset="0.55" stop-color="#d9b46a"/><stop offset="1" stop-color="#e0794f"/></linearGradient></defs><path fill="url(#wg)" d="M114 17Q64 17 32.5 -13.0Q1 -43 1 -92Q1 -149 20.0 -204.5Q39 -260 95 -327Q89 -333 89 -346Q89 -362 98.5 -387.0Q108 -412 123.0 -437.5Q138 -463 156.5 -480.5Q175 -498 193 -498Q222 -498 250.0 -483.5Q278 -469 305 -440Q332 -411 345.5 -371.0Q359 -331 359 -281Q359 -225 341.0 -172.0Q323 -119 290.5 -76.0Q258 -33 213.0 -8.0Q168 17 114 17ZM163 -104Q210 -104 244.0 -122.0Q278 -140 278 -183Q278 -212 260.0 -237.5Q242 -263 212.0 -281.0Q182 -299 145 -306Q112 -279 97.0 -243.0Q82 -207 82 -179Q82 -142 104.0 -123.0Q126 -104 163 -104Z M673 -594Q646 -620 631 -634L606 -656Q596 -665 581 -675V-685Q589 -697 603.0 -713.5Q617 -730 633.0 -746.5Q649 -763 661.5 -775.5Q674 -788 679 -791H689Q712 -776 728.5 -762.5Q745 -749 755 -737Q776 -762 797.0 -782.5Q818 -803 827 -809H837Q882 -781 901.5 -760.5Q921 -740 921 -717Q921 -692 892.5 -664.0Q864 -636 829 -612H821Q800 -632 786.5 -644.5Q773 -657 761 -667Q739 -633 681 -594ZM745 -777Q731 -791 721.0 -800.5Q711 -810 699.5 -820.5Q688 -831 667 -848V-856Q676 -869 692.5 -887.5Q709 -906 725.0 -922.0Q741 -938 750 -944H758Q801 -916 816.5 -899.5Q832 -883 832 -869Q832 -854 814.0 -832.0Q796 -810 754 -777Z M328 80 320 55Q347 36 386.5 6.5Q426 -23 470.5 -59.5Q515 -96 557.5 -133.5Q600 -171 633.5 -206.0Q667 -241 684 -268Q702 -298 715.0 -321.0Q728 -344 738.5 -366.5Q749 -389 760.5 -417.5Q772 -446 787 -486L823 -481Q811 -427 790.5 -360.5Q770 -294 743.5 -229.0Q717 -164 687.0 -110.5Q657 -57 627 -28Q619 -21 592.0 -9.0Q565 3 528.5 16.0Q492 29 453.0 42.0Q414 55 380.5 65.0Q347 75 328 80Z M983 -101 957 -107Q961 -126 968.0 -179.5Q975 -233 979 -334L992 -621Q995 -677 999.5 -718.0Q1004 -759 1013.0 -795.0Q1022 -831 1037.5 -869.5Q1053 -908 1077 -958L1102 -950Q1095 -927 1087.0 -876.5Q1079 -826 1074 -730L1058 -433Q1054 -347 1034.5 -261.0Q1015 -175 983 -101Z M1204 93 1196 68Q1221 56 1246.5 41.5Q1272 27 1298.0 11.0Q1324 -5 1351.5 -23.0Q1379 -41 1407 -60Q1463 -99 1494.5 -135.0Q1526 -171 1533 -205Q1513 -204 1492.5 -202.0Q1472 -200 1452 -200Q1425 -200 1397.5 -210.5Q1370 -221 1351.5 -242.0Q1333 -263 1333 -294Q1333 -312 1339.0 -336.0Q1345 -360 1358 -388L1398 -469Q1428 -530 1485 -530Q1529 -530 1555.5 -499.0Q1582 -468 1593.5 -419.5Q1605 -371 1605 -317Q1605 -265 1591.5 -213.5Q1578 -162 1558.5 -119.5Q1539 -77 1520.5 -48.5Q1502 -20 1491 -12Q1477 -3 1441.5 12.5Q1406 28 1361.5 44.5Q1317 61 1274.5 74.0Q1232 87 1204 93Z M1501 -207Q1482 -207 1471.5 -221.0Q1461 -235 1461 -262Q1461 -300 1482.0 -320.5Q1503 -341 1544 -345Q1604 -350 1640.0 -384.5Q1676 -419 1693.5 -476.5Q1711 -534 1715 -607Q1717 -649 1720.0 -690.5Q1723 -732 1725.5 -774.0Q1728 -816 1731.5 -857.5Q1735 -899 1738.0 -940.5Q1741 -982 1745 -1024Q1748 -1058 1754.5 -1090.0Q1761 -1122 1771.5 -1154.5Q1782 -1187 1796 -1222L1822 -1216Q1814 -1171 1808.0 -1111.0Q1802 -1051 1798.5 -985.0Q1795 -919 1793.0 -855.5Q1791 -792 1791 -740Q1791 -680 1801.5 -633.5Q1812 -587 1840.5 -561.0Q1869 -535 1922 -535Q1948 -535 1957.0 -513.0Q1966 -491 1966 -448Q1966 -400 1953.0 -368.5Q1940 -337 1918.5 -322.0Q1897 -307 1873 -307Q1816 -307 1784.0 -336.0Q1752 -365 1735 -425Q1713 -341 1674.0 -293.5Q1635 -246 1589.5 -226.5Q1544 -207 1501 -207Z  M1873 -307Q1854 -307 1841.0 -330.0Q1828 -353 1828 -408Q1828 -451 1840.0 -479.0Q1852 -507 1873.0 -521.0Q1894 -535 1922 -535Q1974 -535 2003.0 -546.0Q2032 -557 2044.5 -573.5Q2057 -590 2057 -604Q2057 -624 2038.0 -643.5Q2019 -663 1988.5 -675.5Q1958 -688 1924 -688Q1872 -688 1837.0 -668.0Q1802 -648 1793 -610Q1789 -593 1783.0 -584.0Q1777 -575 1769 -575Q1743 -575 1743 -603Q1743 -635 1755.0 -674.5Q1767 -714 1785.0 -753.5Q1803 -793 1821.5 -826.5Q1840 -860 1852 -879Q1865 -899 1891.0 -931.5Q1917 -964 1949.5 -1001.5Q1982 -1039 2014.5 -1075.5Q2047 -1112 2074.0 -1142.0Q2101 -1172 2115 -1189Q2150 -1230 2186.0 -1271.0Q2222 -1312 2256 -1354Q2266 -1367 2275.0 -1381.5Q2284 -1396 2294 -1409L2304 -1405Q2305 -1401 2305 -1399V-1392Q2305 -1360 2294.5 -1330.0Q2284 -1300 2263 -1272Q2245 -1248 2215.5 -1212.5Q2186 -1177 2152.5 -1138.0Q2119 -1099 2087.5 -1063.0Q2056 -1027 2033 -1002L1917 -875L1920 -871Q1930 -877 1944.5 -880.0Q1959 -883 1979 -883Q2031 -883 2064.5 -856.5Q2098 -830 2114.5 -783.0Q2131 -736 2131 -673Q2131 -645 2124.0 -605.0Q2117 -565 2102.5 -521.0Q2088 -477 2064.5 -435.5Q2041 -394 2008 -363Q1978 -335 1944.5 -321.0Q1911 -307 1873 -307ZM1983 -1095 1959 -1106Q1967 -1131 1985.0 -1159.5Q2003 -1188 2034.5 -1226.5Q2066 -1265 2113 -1321Q2126 -1336 2138.5 -1351.0Q2151 -1366 2164.0 -1381.0Q2177 -1396 2189.5 -1411.5Q2202 -1427 2214 -1442Q2221 -1450 2227.0 -1458.0Q2233 -1466 2240 -1474L2256 -1469Q2254 -1453 2249.5 -1438.0Q2245 -1423 2237 -1407Q2226 -1385 2204.5 -1357.0Q2183 -1329 2146 -1288L2071 -1204Q2064 -1197 2051.0 -1181.0Q2038 -1165 2023.5 -1147.5Q2009 -1130 1997.5 -1115.5Q1986 -1101 1983 -1095Z"/></svg><i class="esl r" aria-hidden="true"></i></div>
+      <div class="sub" lang="fa"><span>واژه‌نامه</span></div>
       <div class="orn" aria-hidden="true"><i></i><svg viewBox="0 0 48 48" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M24 2 L30.4 8.4 L39.6 8.4 L39.6 17.6 L46 24 L39.6 30.4 L39.6 39.6 L30.4 39.6 L24 46 L17.6 39.6 L8.4 39.6 L8.4 30.4 L2 24 L8.4 17.6 L8.4 8.4 L17.6 8.4 Z"/></svg><i></i></div>
       <h1 class="sr">Персидский словарь</h1>
     </div>
@@ -626,7 +655,7 @@
   <div class="toolbar">
     <label class="search">
       <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
-      <input id="q" type="search" placeholder="Поиск по слову, переводу, тегу" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск">
+      <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Поиск по слову, переводу, тегу" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск">
     </label>
     <div class="chips" id="filters" hidden></div>
   </div>
@@ -999,8 +1028,17 @@
   }
 
   /* ---------- list ---------- */
+  var hayCache = new Map(), keyCache = new Map(), COLL = new Intl.Collator();
   function hayOf(w) {
-    return norm([w.fa, w.tr, w.meaning, (w.tags || []).join(' '), (w.syn || []).join(' '), (w.ant || []).join(' '), w.forms, w.ex, w.exTr, w.notes].join(' '));
+    var raw = [w.fa, w.tr, w.meaning, (w.tags || []).join(' '), (w.syn || []).join(' '), (w.ant || []).join(' '), w.forms, w.ex, w.exTr, w.notes].join(' ');
+    var c = hayCache.get(w.id);
+    if (c && c.raw === raw) return c.h;
+    var h = norm(raw); hayCache.set(w.id, { raw: raw, h: h }); return h;
+  }
+  function sortKey(w) {
+    var c = keyCache.get(w.id);
+    if (c && c.tr === w.tr) return c.k;
+    var k = norm(w.tr); keyCache.set(w.id, { tr: w.tr, k: k }); return k;
   }
   function visibleWords() {
     var terms = norm(ui.q).split(/\s+/).filter(Boolean);
@@ -1011,35 +1049,41 @@
       return terms.every(function (t) { return hay.indexOf(t) >= 0; });
     });
     a.sort(ui.sort === 'az'
-      ? function (x, y) { return norm(x.tr).localeCompare(norm(y.tr)); }
+      ? function (x, y) { return COLL.compare(sortKey(x), sortKey(y)); }
       : function (x, y) { return (y.created || 0) - (x.created || 0); });
     return a;
   }
   function rowFor(w) {
     return el('button', { 'class': 'row' + (ui.select && ui.sel.has(w.id) ? ' sel' : ''), type: 'button', 'data-id': w.id, style: '--h:' + hue((w.tags && w.tags[0]) || w.tr) },
-      w.fa ? el('span', { 'class': 'ghost', 'aria-hidden': 'true', lang: 'fa', text: w.fa }) : null,
       el('div', { 'class': 'rowmain' },
         el('div', { 'class': 'rt' }, el('span', { 'class': 'tr', text: w.tr }), el('span', { 'class': 'mean', text: w.meaning })),
         w.fa ? el('span', { 'class': 'fa', lang: 'fa', dir: 'rtl', text: w.fa }) : null),
-      stemsOf(w) ? stemGrid(stemsOf(w), false) : null,
+      (function () { var st = stemsOf(w); return st ? stemGrid(st, false) : null; })(),
       (w.tags && w.tags.length) ? el('div', { 'class': 'tags' }, w.tags.map(tagEl)) : null);
   }
   var fillToken = 0;
+  var fillIO = null;
   function fillRows(list, vis) {
-    var token = ++fillToken, i = 0, FIRST = 300, CHUNK = 150;
+    var token = ++fillToken, i = 0, FIRST = 16, CHUNK = 24;
+    if (fillIO) { fillIO.disconnect(); fillIO = null; }
     var frag = document.createDocumentFragment();
     for (; i < Math.min(FIRST, vis.length); i++) frag.append(rowFor(vis[i]));
     list.replaceChildren(frag);
-    (function more() {
-      if (token !== fillToken || i >= vis.length) return;
-      requestAnimationFrame(function () {
-        if (token !== fillToken) return;
-        var f = document.createDocumentFragment(), end = Math.min(i + CHUNK, vis.length);
-        for (; i < end; i++) f.append(rowFor(vis[i]));
-        list.append(f);
-        more();
-      });
-    })();
+    if (i >= vis.length) return;
+    var sent = el('div', { 'class': 'sentinel', 'aria-hidden': 'true' });
+    list.append(sent);
+    function more() {
+      if (token !== fillToken || !sent.parentNode) return;
+      var f = document.createDocumentFragment(), end = Math.min(i + CHUNK, vis.length);
+      for (; i < end; i++) f.append(rowFor(vis[i]));
+      list.insertBefore(f, sent);
+      if (i >= vis.length) { sent.remove(); if (fillIO) { fillIO.disconnect(); fillIO = null; } return; }
+      requestAnimationFrame(function () { if (token === fillToken && sent.parentNode && sent.getBoundingClientRect().top < window.innerHeight + 1400) more(); });
+    }
+    if ('IntersectionObserver' in window) {
+      fillIO = new IntersectionObserver(function (e) { if (e[0].isIntersecting) more(); }, { rootMargin: '1400px 0px' });
+      fillIO.observe(sent);
+    } else { (function all() { more(); if (i < vis.length) requestAnimationFrame(all); })(); }
   }
   function renderFilters() {
     var counts = {}, order = [];
@@ -1064,7 +1108,7 @@
     if (words.length) links.append(el('button', { type: 'button', 'class': 'linkbtn', text: 'Скачать копию словаря (CSV)', onclick: exportCsv }));
     f.append(el('div', { 'class': 'tileband', 'aria-hidden': 'true' }), links);
   }
-  function renderList() {
+  function renderList(searchOnly) {
     var list = $('#list'), total = words.length, vis = visibleWords();
     $('#sortNew').setAttribute('aria-pressed', String(ui.sort === 'new'));
     $('#sortAz').setAttribute('aria-pressed', String(ui.sort === 'az'));
@@ -1079,7 +1123,7 @@
     $('#count').textContent = filtered
       ? 'Найдено: ' + vis.length + ' из ' + total
       : total + ' ' + plural(total, 'слово', 'слова', 'слов');
-    renderFilters();
+    if (!searchOnly) renderFilters();
     if (!total) {
       fillToken++;
       if (!ready) { list.replaceChildren(el('p', { 'class': 'note', text: 'Загружаю словарь…' })); }
@@ -1099,7 +1143,7 @@
     } else {
       fillRows(list, vis);
     }
-    renderFoot();
+    if (!searchOnly) renderFoot();
   }
   function render() {
     renderList();
@@ -1601,12 +1645,13 @@
 
   /* ---------- select mode ---------- */
   function updateSelBar() { $('#selCount').textContent = 'Выбрано: ' + ui.sel.size; $('#selTag').disabled = !ui.sel.size; }
-  function exitSelectUi() { ui.select = false; ui.sel.clear(); render(); }
+  function applySelectUi() { document.body.classList.toggle('selmode', ui.select); $('#selbar').hidden = !ui.select; if (!ui.select) document.querySelectorAll('#list .row.sel').forEach(function (r) { r.classList.remove('sel'); }); }
+  function exitSelectUi() { ui.select = false; ui.sel.clear(); applySelectUi(); }
   function enterSelect() {
     if (ui.select) return;
     ui.select = true; ui.sel = new Set();
     pushLayer('select', exitSelectUi);
-    render(); updateSelBar();
+    applySelectUi(); updateSelBar();
   }
   function toggleSel(id, btn) {
     if (ui.sel.has(id)) ui.sel.delete(id); else ui.sel.add(id);
@@ -1802,7 +1847,7 @@
   var searchFrame = 0;
   $('#q').addEventListener('input', function (e) {
     ui.q = e.target.value;
-    if (!searchFrame) searchFrame = requestAnimationFrame(function () { searchFrame = 0; renderList(); });
+    if (!searchFrame) searchFrame = requestAnimationFrame(function () { searchFrame = 0; renderList(true); });
   });
   $('#list').addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.row') : null;
@@ -1847,6 +1892,11 @@
     var targets = [$('#headArt'), $('#pageArt'), $('#blobs')], t = 0, on = false;
     function set(v) { on = v; targets.forEach(function (n) { if (n) n.classList.toggle('paused', v); }); }
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
+  })();
+  (function () {
+    var tt = 0;
+    document.addEventListener('focusin', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); document.body.classList.add('typing'); } });
+    document.addEventListener('focusout', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); tt = setTimeout(function () { document.body.classList.remove('typing'); }, 450); } });
   })();
   initCapabilities();
 })();
