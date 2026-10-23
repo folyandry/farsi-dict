@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1615">
 <link rel="manifest" href="manifest.webmanifest">
@@ -1943,34 +1943,17 @@
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    var tt = 0, q = $('#q'), savedY = window.scrollY || 0, holdUntil = 0;
-    function rememberPosition() {
-      savedY = window.scrollY || 0;
-      holdUntil = Date.now() + 900;
-    }
-    function restorePosition() {
-      if (document.activeElement !== q || Date.now() > holdUntil) return;
-      if (Math.abs((window.scrollY || 0) - savedY) > 2) window.scrollTo(0, savedY);
-    }
-    q.addEventListener('pointerdown', rememberPosition, { passive: true });
-    q.addEventListener('touchstart', rememberPosition, { passive: true });
-    window.addEventListener('scroll', restorePosition, { passive: true });
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', function () {
-      if (document.activeElement === q && Date.now() <= holdUntil) requestAnimationFrame(restorePosition);
-    }, { passive: true });
+    /* Do not fight Android/WebView's own keyboard viewport adjustment with scrollTo().
+       Repeated forced scroll restoration was causing the page to bounce as the IME opened. */
+    var tt = 0, q = $('#q');
     document.addEventListener('focusin', function (e) {
       if (e.target && e.target.id === 'q') {
         clearTimeout(tt);
         document.body.classList.add('typing');
-        if (!holdUntil || Date.now() > holdUntil) rememberPosition();
-        [0, 80, 180, 350, 600, 850].forEach(function (delay) {
-          setTimeout(restorePosition, delay);
-        });
       }
     });
     document.addEventListener('focusout', function (e) {
       if (e.target && e.target.id === 'q') {
-        holdUntil = 0;
         clearTimeout(tt);
         tt = setTimeout(function () {
           if (document.activeElement !== q) document.body.classList.remove('typing');
