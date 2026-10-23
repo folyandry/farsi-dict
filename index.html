@@ -630,9 +630,55 @@
   #blobs i:nth-child(2) { right: -55vw; top: 24vw; }
   /* Keep decorative background visible while search is focused; pause motion only. */
   body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
+
+  /* Unified lightweight background: one static SVG instead of several independent layers. */
+  #artBackground { position: fixed; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; pointer-events: none; contain: strict; }
+  #pageArt, #blobs { display: none !important; }
+  .wrap { position: relative; z-index: 1; }
+  body.sheet-open > #artBackground { visibility: hidden; }
 </style>
 </head>
 <body>
+<!-- Единый статичный фон: орнаменты и персидские надписи собраны в одном SVG -->
+<svg id="artBackground" aria-hidden="true" viewBox="0 0 400 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgWash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#58b8ad" stop-opacity=".18"/>
+      <stop offset=".48" stop-color="#9a7bd1" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#e0794f" stop-opacity=".14"/>
+    </linearGradient>
+    <radialGradient id="softTeal"><stop stop-color="#58b8ad" stop-opacity=".26"/><stop offset="1" stop-color="#58b8ad" stop-opacity="0"/></radialGradient>
+    <radialGradient id="softGold"><stop stop-color="#d0ae68" stop-opacity=".20"/><stop offset="1" stop-color="#d0ae68" stop-opacity="0"/></radialGradient>
+    <g id="rosette" fill="none" stroke="#d0ae68" stroke-opacity=".55" stroke-width="1">
+      <circle r="25"/><circle r="20" stroke="#58b8ad" stroke-opacity=".6"/>
+      <path d="M0-29 Q8-15 0-5 Q-8-15 0-29 M29 0 Q15 8 5 0 Q15-8 29 0 M0 29 Q-8 15 0 5 Q8 15 0 29 M-29 0 Q-15-8-5 0 Q-15 8-29 0"/>
+      <path d="M-18-18L18 18M18-18L-18 18" stroke="#9a7bd1" stroke-opacity=".65"/>
+      <circle r="5" fill="#d0ae68" fill-opacity=".4"/>
+    </g>
+  </defs>
+  <rect width="400" height="800" fill="url(#bgWash)" opacity=".34"/>
+  <ellipse cx="20" cy="115" rx="170" ry="230" fill="url(#softTeal)"/>
+  <ellipse cx="390" cy="365" rx="180" ry="260" fill="url(#softGold)"/>
+  <ellipse cx="185" cy="760" rx="220" ry="190" fill="url(#softTeal)"/>
+  <g fill="none" stroke="#58b8ad" stroke-opacity=".20" stroke-width="1.2">
+    <path d="M-25 150 Q55 95 32 25 Q92 72 115 8 M-18 175 Q40 142 67 92 Q81 135 119 129"/>
+    <path d="M425 505 Q347 449 372 385 Q311 432 290 366 M419 532 Q359 497 333 448 Q320 491 280 484"/>
+    <path d="M-10 670 Q55 624 41 573 Q92 616 119 562 M411 730 Q351 682 368 632 Q315 671 292 619"/>
+  </g>
+  <g opacity=".65"><use href="#rosette" x="34" y="270"/><use href="#rosette" x="365" y="160"/><use href="#rosette" x="48" y="570"/><use href="#rosette" x="354" y="690"/></g>
+  <g fill="#d0ae68" fill-opacity=".48">
+    <path d="M20 390l5-5 5 5-5 5z M370 295l5-5 5 5-5 5z M80 735l4-4 4 4-4 4z M330 80l4-4 4 4-4 4z"/>
+    <circle cx="72" cy="340" r="2"/><circle cx="326" cy="540" r="2"/><circle cx="82" cy="490" r="1.5"/><circle cx="310" cy="740" r="1.5"/>
+  </g>
+  <g font-family="'Noto Nastaliq Urdu', Amiri, serif" direction="rtl" text-anchor="middle" fill="#d0ae68" fill-opacity=".36">
+    <text x="205" y="115" font-size="25" transform="rotate(-7 205 115)">بنی‌آدم اعضای یک پیکرند</text>
+    <text x="190" y="225" font-size="22" fill="#58b8ad" fill-opacity=".34" transform="rotate(5 190 225)">که در آفرینش ز یک گوهرند</text>
+    <text x="210" y="390" font-size="24" transform="rotate(-4 210 390)">بشنو این نی چون حکایت می‌کند</text>
+    <text x="190" y="500" font-size="23" fill="#9a7bd1" fill-opacity=".36" transform="rotate(6 190 500)">از جدایی‌ها شکایت می‌کند</text>
+    <text x="205" y="635" font-size="23" transform="rotate(-5 205 635)">گل آدم بسرشتند و به پیمانه زدند</text>
+    <text x="190" y="755" font-size="24" fill="#58b8ad" fill-opacity=".35" transform="rotate(4 190 755)">عشق · بهار · نور · دل</text>
+  </g>
+</svg>
 <div class="wrap">
   <header class="head">
     <div id="headArt" aria-hidden="true"></div>
@@ -1888,10 +1934,8 @@
   render();
   $('#headArt').append(calli(5, 'head', 'head'));
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
-  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(4, 'page', 'page')); document.body.prepend(pa);
-  var bl = document.createElement('div'); bl.id = 'blobs'; bl.setAttribute('aria-hidden', 'true'); bl.innerHTML = '<i></i><i></i><i></i><b></b><b></b><b></b>'; document.body.prepend(bl);
   (function () {
-    var targets = [$('#headArt'), $('#pageArt'), $('#blobs')], t = 0, on = false;
+    var targets = [$('#headArt')], t = 0, on = false;
     function set(v) { on = v; targets.forEach(function (n) { if (n) n.classList.toggle('paused', v); }); }
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
