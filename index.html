@@ -453,7 +453,7 @@
     var(--bg); }
 
   /* ambient layer: two slow washes, vines in the margins. Composited, never repainted */
-  #blobs i { position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%; will-change: transform; animation: lay 40s ease-in-out infinite alternate; }
+  #blobs i { position: absolute; width: 115vw; height: 115vw; border-radius: 50%; will-change: auto; animation: none !important; }
   #blobs i:nth-child(1) { left: -40vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(88, 184, 173, .22), transparent); --dx: 16vmax; --dy: 12vmax; }
   #blobs i:nth-child(2) { right: -50vmax; top: 20vmax; background: radial-gradient(closest-side, rgba(154, 123, 209, .19), transparent); --dx: -12vmax; --dy: 14vmax; animation-duration: 52s; }
   #blobs i:nth-child(3) { display: none; }
@@ -468,8 +468,10 @@
   .calli.live .l1 { --dx: -46px; --dy: 18px; animation-duration: 33s; }
   .calli.live .l2 { --dx: 24px; --dy: 34px; animation-duration: 41s; }
   #headArt .calli { opacity: .85; }
-  #pageArt { opacity: .34; }
-  .calli span { text-shadow: 0 0 12px currentColor; }
+  #pageArt { opacity: .20; }
+  /* Lightweight static ornament: no glow filters or continuous motion. */
+  #headArt .calli .lay, #pageArt .calli .lay, #blobs i { animation: none !important; will-change: auto; }
+  #headArt .calli span, #pageArt .calli span { text-shadow: none !important; }
   @media (prefers-reduced-motion: reduce) { .calli.live .lay, #blobs i { animation: none !important; } }
 
   /* the title: ink on parchment gold, no neon */
@@ -625,9 +627,9 @@
   /* =====================================================================
      Round 7: keyboard. Decor rests while typing; blobs sized by width only
      ===================================================================== */
-  #blobs i { width: 150vw; height: 150vw; }
-  #blobs i:nth-child(1) { left: -70vw; top: -50vw; }
-  #blobs i:nth-child(2) { right: -80vw; top: 20vw; }
+  #blobs i { width: 115vw; height: 115vw; }
+  #blobs i:nth-child(1) { left: -52vw; top: -35vw; }
+  #blobs i:nth-child(2) { right: -55vw; top: 24vw; }
   /* Keep decorative background visible while search is focused; pause motion only. */
   body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
 </style>
@@ -823,7 +825,7 @@
     var box = document.createElement('div'); box.className = 'calli' + (kind === 'card' ? '' : ' live'); box.setAttribute('aria-hidden', 'true');
     var lo = kind === 'head' ? 16 : (kind === 'page' ? 22 : 13), hi = kind === 'head' ? 38 : (kind === 'page' ? 46 : 26);
     var lays = null;
-    if (kind !== 'card') lays = [0, 1, 2].map(function (k) { var l = document.createElement('div'); l.className = 'lay l' + k; box.append(l); return l; });
+    if (kind !== 'card') { var l = document.createElement('div'); l.className = 'lay l0'; box.append(l); lays = [l]; }
     function fill() {
     for (var i = 0; i < n; i++) {
       var sp = document.createElement('span');
@@ -1884,9 +1886,9 @@
   recompute();
   ready = true;
   render();
-  $('#headArt').append(calli(27, 'head', 'head'));
+  $('#headArt').append(calli(12, 'head', 'head'));
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
-  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(24, 'page', 'page')); document.body.prepend(pa);
+  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(10, 'page', 'page')); document.body.prepend(pa);
   var bl = document.createElement('div'); bl.id = 'blobs'; bl.setAttribute('aria-hidden', 'true'); bl.innerHTML = '<i></i><i></i><i></i><b></b><b></b><b></b>'; document.body.prepend(bl);
   (function () {
     var targets = [$('#headArt'), $('#pageArt'), $('#blobs')], t = 0, on = false;
