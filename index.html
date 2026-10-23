@@ -632,6 +632,9 @@
   body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
 
   /* Unified lightweight background: one static SVG instead of several independent layers. */
+  /* Prevent browser scroll anchoring from moving the page as Android resizes the viewport for the keyboard. */
+  html, body { overflow-anchor: none; }
+  html { scroll-behavior: auto; }
   #artBackground { position: fixed; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; pointer-events: none; contain: strict; }
   #pageArt, #blobs { display: none !important; }
   .wrap { position: relative; z-index: 1; }
@@ -1940,10 +1943,43 @@
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    var tt = 0;
-    document.addEventListener('focusin', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); document.body.classList.add('typing'); } });
-    document.addEventListener('focusout', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); tt = setTimeout(function () { if (document.activeElement !== $('#q')) document.body.classList.remove('typing'); }, 180); } });
-    document.addEventListener('visibilitychange', function () { if (document.hidden && document.activeElement !== $('#q')) document.body.classList.remove('typing'); });
+    var tt = 0, q = $('#q'), savedY = window.scrollY || 0, holdUntil = 0;
+    function rememberPosition() {
+      savedY = window.scrollY || 0;
+      holdUntil = Date.now() + 900;
+    }
+    function restorePosition() {
+      if (document.activeElement !== q || Date.now() > holdUntil) return;
+      if (Math.abs((window.scrollY || 0) - savedY) > 2) window.scrollTo(0, savedY);
+    }
+    q.addEventListener('pointerdown', rememberPosition, { passive: true });
+    q.addEventListener('touchstart', rememberPosition, { passive: true });
+    window.addEventListener('scroll', restorePosition, { passive: true });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', function () {
+      if (document.activeElement === q && Date.now() <= holdUntil) requestAnimationFrame(restorePosition);
+    }, { passive: true });
+    document.addEventListener('focusin', function (e) {
+      if (e.target && e.target.id === 'q') {
+        clearTimeout(tt);
+        document.body.classList.add('typing');
+        if (!holdUntil || Date.now() > holdUntil) rememberPosition();
+        [0, 80, 180, 350, 600, 850].forEach(function (delay) {
+          setTimeout(restorePosition, delay);
+        });
+      }
+    });
+    document.addEventListener('focusout', function (e) {
+      if (e.target && e.target.id === 'q') {
+        holdUntil = 0;
+        clearTimeout(tt);
+        tt = setTimeout(function () {
+          if (document.activeElement !== q) document.body.classList.remove('typing');
+        }, 180);
+      }
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && document.activeElement !== q) document.body.classList.remove('typing');
+    });
   })();
   initCapabilities();
 })();
