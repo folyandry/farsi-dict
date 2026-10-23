@@ -282,9 +282,7 @@
 
   .calli { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
   .calli span { position: absolute; direction: rtl; white-space: nowrap; font-family: var(--nq); line-height: 1.9; transform-origin: center; }
-  #headArt .calli, .dhead .calli, .tcard .calli {
-    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 85%);
-    mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 85%); }
+  #headArt .calli, .dhead .calli, .tcard .calli { -webkit-mask-image: none; mask-image: none; }
 
   /* header: layered script over washes, ember sparks, wordmark, tile band */
   .head { position: relative; isolation: isolate; padding: 30px 0 4px; }
@@ -471,7 +469,7 @@
   #pageArt { opacity: .20; }
   /* Lightweight static ornament: no glow filters or continuous motion. */
   #headArt .calli .lay, #pageArt .calli .lay, #blobs i { animation: none !important; will-change: auto; }
-  #headArt .calli span, #pageArt .calli span { text-shadow: none !important; }
+  #headArt .calli span, #pageArt .calli span { text-shadow: none !important; filter: none !important; }
   @media (prefers-reduced-motion: reduce) { .calli.live .lay, #blobs i { animation: none !important; } }
 
   /* the title: ink on parchment gold, no neon */
@@ -888,6 +886,7 @@
     SEED.forEach(function (w) { if (!live[keyOf(w.tr, w.meaning)]) map[w.id] = w; });
     stored.forEach(function (w) { if (w._meta) return; if (w._deleted) delete map[w.id]; else map[w.id] = w; });
     words = Object.keys(map).map(function (k) { return map[k]; });
+    if (typeof hayCache !== 'undefined' && hayCache) hayCache.clear();
   }
   function loadLocal() {
     try { var a = JSON.parse(lsGet(LS_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (w) { return w && w.id && (w.tr || w._deleted || w._meta); }) : []; }
@@ -1032,10 +1031,10 @@
   /* ---------- list ---------- */
   var hayCache = new Map(), keyCache = new Map(), COLL = new Intl.Collator();
   function hayOf(w) {
+    var cached = hayCache.get(w.id);
+    if (cached !== undefined) return cached;
     var raw = [w.fa, w.tr, w.meaning, (w.tags || []).join(' '), (w.syn || []).join(' '), (w.ant || []).join(' '), w.forms, w.ex, w.exTr, w.notes].join(' ');
-    var c = hayCache.get(w.id);
-    if (c && c.raw === raw) return c.h;
-    var h = norm(raw); hayCache.set(w.id, { raw: raw, h: h }); return h;
+    var h = norm(raw); hayCache.set(w.id, h); return h;
   }
   function sortKey(w) {
     var c = keyCache.get(w.id);
@@ -1066,7 +1065,7 @@
   var fillToken = 0;
   var fillIO = null;
   function fillRows(list, vis) {
-    var token = ++fillToken, i = 0, FIRST = 16, CHUNK = 24;
+    var token = ++fillToken, i = 0, FIRST = 12, CHUNK = 12;
     if (fillIO) { fillIO.disconnect(); fillIO = null; }
     var frag = document.createDocumentFragment();
     for (; i < Math.min(FIRST, vis.length); i++) frag.append(rowFor(vis[i]));
@@ -1080,10 +1079,10 @@
       for (; i < end; i++) f.append(rowFor(vis[i]));
       list.insertBefore(f, sent);
       if (i >= vis.length) { sent.remove(); if (fillIO) { fillIO.disconnect(); fillIO = null; } return; }
-      requestAnimationFrame(function () { if (token === fillToken && sent.parentNode && sent.getBoundingClientRect().top < window.innerHeight + 1400) more(); });
+      requestAnimationFrame(function () { if (token === fillToken && sent.parentNode && sent.getBoundingClientRect().top < window.innerHeight + 320) more(); });
     }
     if ('IntersectionObserver' in window) {
-      fillIO = new IntersectionObserver(function (e) { if (e[0].isIntersecting) more(); }, { rootMargin: '1400px 0px' });
+      fillIO = new IntersectionObserver(function (e) { if (e[0].isIntersecting) more(); }, { rootMargin: '320px 0px' });
       fillIO.observe(sent);
     } else { (function all() { more(); if (i < vis.length) requestAnimationFrame(all); })(); }
   }
@@ -1116,7 +1115,7 @@
     $('#sortAz').setAttribute('aria-pressed', String(ui.sort === 'az'));
     document.body.classList.toggle('selmode', ui.select);
     $('#selbar').hidden = !ui.select;
-    (function () {
+    if (!searchOnly) (function () {
       var m = srsMap(), n = Date.now(), d = 0;
       words.forEach(function (w) { var s = m[w.id]; if (s && s.due <= n) d++; });
       var b = $('#dueBadge'); b.textContent = d; b.hidden = !d;
@@ -1846,10 +1845,11 @@
   }
 
   /* ---------- wiring ---------- */
-  var searchFrame = 0;
+  var searchTimer = 0;
   $('#q').addEventListener('input', function (e) {
     ui.q = e.target.value;
-    if (!searchFrame) searchFrame = requestAnimationFrame(function () { searchFrame = 0; renderList(true); });
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { searchTimer = 0; renderList(true); }, 90);
   });
   $('#list').addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.row') : null;
@@ -1886,9 +1886,9 @@
   recompute();
   ready = true;
   render();
-  $('#headArt').append(calli(12, 'head', 'head'));
+  $('#headArt').append(calli(5, 'head', 'head'));
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
-  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(10, 'page', 'page')); document.body.prepend(pa);
+  var pa = document.createElement('div'); pa.id = 'pageArt'; pa.append(calli(4, 'page', 'page')); document.body.prepend(pa);
   var bl = document.createElement('div'); bl.id = 'blobs'; bl.setAttribute('aria-hidden', 'true'); bl.innerHTML = '<i></i><i></i><i></i><b></b><b></b><b></b>'; document.body.prepend(bl);
   (function () {
     var targets = [$('#headArt'), $('#pageArt'), $('#blobs')], t = 0, on = false;
@@ -1898,7 +1898,8 @@
   (function () {
     var tt = 0;
     document.addEventListener('focusin', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); document.body.classList.add('typing'); } });
-    document.addEventListener('focusout', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); tt = setTimeout(function () { document.body.classList.remove('typing'); }, 450); } });
+    document.addEventListener('focusout', function (e) { if (e.target && e.target.id === 'q') { clearTimeout(tt); tt = setTimeout(function () { if (document.activeElement !== $('#q')) document.body.classList.remove('typing'); }, 180); } });
+    document.addEventListener('visibilitychange', function () { if (document.hidden && document.activeElement !== $('#q')) document.body.classList.remove('typing'); });
   })();
   initCapabilities();
 })();
