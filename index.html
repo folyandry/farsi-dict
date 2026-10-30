@@ -679,6 +679,27 @@
   #artBackground { opacity: .34; }
   #headArt { opacity: .5; }
   .dhead > .calli, .tcard > .calli { opacity: .2; }
+
+  /* ещё темнее: фон не отвлекает от слов */
+  #artBackground { opacity: .2; }
+  #headArt { opacity: .32; }
+  .dhead > .calli, .tcard > .calli { opacity: .13; }
+  .sheet { background:
+      linear-gradient(rgba(12, 18, 17, .82), rgba(12, 18, 17, .82)),
+      radial-gradient(75% 45% at 15% 0%, rgba(88, 184, 173, .16), transparent 70%),
+      radial-gradient(70% 40% at 100% 55%, rgba(154, 123, 209, .12), transparent 70%),
+      var(--tile) 0 0 / 132px 132px,
+      var(--sparks) 0 0 / 180px 180px,
+      var(--bg); }
+  /* точное совпадение в поиске */
+  .row.best { border-color: rgba(208, 174, 104, .75); box-shadow: 0 0 0 1px rgba(208, 174, 104, .32), 0 0 24px rgba(208, 174, 104, .16); }
+  .row.best::before { opacity: 1; }
+  .row.isfav .tr::after { content: ' \2605'; color: var(--accent); font-size: .82em; }
+  .ibtn.on { color: var(--accent); }
+  .ibtn.on svg { fill: currentColor; }
+  .spk { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; background: none; border: 1px solid var(--gold-line); color: var(--accent); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+  .spk:active { background: rgba(208, 174, 104, .12); }
+  .spk svg { width: 18px; height: 18px; }
 </style>
 </head>
 <body>
@@ -1125,28 +1146,76 @@
     var cached = hayCache.get(w.id);
     if (cached !== undefined) return cached;
     var raw = [w.fa, w.tr, w.meaning, (w.tags || []).join(' '), (w.syn || []).join(' '), (w.ant || []).join(' '), w.forms, w.ex, w.exTr, w.notes].join(' ');
-    var h = norm(raw); hayCache.set(w.id, h); return h;
+    var h = sq(raw); hayCache.set(w.id, h); return h;
   }
   function sortKey(w) {
     var c = keyCache.get(w.id);
     if (c && c.tr === w.tr) return c.k;
     var k = norm(w.tr); keyCache.set(w.id, { tr: w.tr, k: k }); return k;
   }
+  /* поиск: без диакритики, дефисов, апострофов и полупробелов; арабские ي/ك = персидские ی/ک */
+  function sq(x) { return norm(x).replace(/\u064a/g, '\u06cc').replace(/\u0643/g, '\u06a9').replace(/[\u200c\u200d'\u2019\u2018\u02bc`\-]/g, ''); }
+  var rankCache = new Map();
+  function rankInfo(w) {
+    var sig = w.tr + '|' + w.fa + '|' + w.meaning, c = rankCache.get(w.id);
+    if (c && c.sig === sig) return c;
+    function parts(str, re) { return String(str || '').split(re).map(function (p) { return sq(p).replace(/\s+/g, ' ').trim(); }).filter(Boolean); }
+    c = { sig: sig, tr: parts(w.tr, /\s*\/\s*/), fa: parts(w.fa, /\s*\/\s*/), mn: parts(w.meaning, /\s*[\u00b7,;()\/]\s*/) };
+    rankCache.set(w.id, c); return c;
+  }
+  function hasWord(t, q) { return (' ' + t).indexOf(' ' + q) >= 0; }
+  function scoreWord(w, q) {
+    var r = rankInfo(w), sc = 0;
+    function up(v) { if (v > sc) sc = v; }
+    r.tr.forEach(function (t) { if (t === q) up(100); else if (t.indexOf(q) === 0) up(80); else if (hasWord(t, q)) up(65); else if (t.indexOf(q) >= 0) up(45); });
+    r.fa.forEach(function (t) { if (t === q) up(100); else if (t.indexOf(q) === 0) up(78); else if (hasWord(t, q)) up(62); else if (t.indexOf(q) >= 0) up(42); });
+    r.mn.forEach(function (t) { if (t === q) up(90); else if (t.indexOf(q) === 0) up(70); else if (hasWord(t, q)) up(58); else if (t.indexOf(q) >= 0) up(35); });
+    return sc || 10;
+  }
+  var bestIds = new Set();
   function visibleWords() {
-    var terms = norm(ui.q).split(/\s+/).filter(Boolean);
+    var q = sq(ui.q).replace(/\s+/g, ' ').trim();
+    var terms = q ? q.split(' ') : [];
+    var cmp = ui.sort === 'az'
+      ? function (x, y) { return COLL.compare(sortKey(x), sortKey(y)); }
+      : function (x, y) { return (y.created || 0) - (x.created || 0); };
     var a = words.filter(function (w) {
-      if (ui.tag && (w.tags || []).indexOf(ui.tag) < 0) return false;
+      if (ui.tag && (ui.tag === favTag() ? !isFav(w.id) : (w.tags || []).indexOf(ui.tag) < 0)) return false;
       if (!terms.length) return true;
       var hay = hayOf(w);
       return terms.every(function (t) { return hay.indexOf(t) >= 0; });
     });
-    a.sort(ui.sort === 'az'
-      ? function (x, y) { return COLL.compare(sortKey(x), sortKey(y)); }
-      : function (x, y) { return (y.created || 0) - (x.created || 0); });
+    bestIds = new Set();
+    if (!q) { a.sort(cmp); return a; }
+    var sc = new Map();
+    a.forEach(function (w) { sc.set(w.id, scoreWord(w, q)); });
+    a.sort(function (x, y) { return (sc.get(y.id) - sc.get(x.id)) || cmp(x, y); });
+    a.forEach(function (w) { if (sc.get(w.id) >= 100 && bestIds.size < 4) bestIds.add(w.id); });
     return a;
   }
+  /* ---------- избранное и озвучка ---------- */
+  var favSet;
+  function favTag() { return '\u2605 Избранное'; }
+  function favLoad() { if (!favSet) { try { favSet = new Set(JSON.parse(lsGet('fa-dict:fav') || '[]')); } catch (e) { favSet = new Set(); } } return favSet; }
+  function isFav(id) { return favLoad().has(id); }
+  function toggleFav(id) { var f = favLoad(); if (f.has(id)) f.delete(id); else f.add(id); lsSet('fa-dict:fav', JSON.stringify(Array.from(f))); }
+  function speak(text) {
+    var ss = window.speechSynthesis;
+    if (!ss || !window.SpeechSynthesisUtterance) { toast('Озвучка не поддерживается в этом браузере.'); return; }
+    var vs = ss.getVoices ? ss.getVoices() : [], v = null;
+    for (var i = 0; i < vs.length; i++) if (/^fa/i.test(vs[i].lang)) { v = vs[i]; break; }
+    if (vs.length && !v) { toast('На телефоне нет персидского голоса. Его можно скачать в настройках синтеза речи.'); return; }
+    ss.cancel();
+    var u = new SpeechSynthesisUtterance(String(text)); u.lang = 'fa-IR'; u.rate = .85; if (v) u.voice = v;
+    ss.speak(u);
+  }
+  function ensureIcons() {
+    if (ICONS.speaker) return;
+    ICONS.speaker = '<path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 6a9 9 0 010 12"/>';
+    ICONS.fav = '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.3l1.1-6.2L3 9.7l6.2-.9z"/>';
+  }
   function rowFor(w) {
-    return el('button', { 'class': 'row' + (ui.select && ui.sel.has(w.id) ? ' sel' : ''), type: 'button', 'data-id': w.id, style: '--h:' + hue((w.tags && w.tags[0]) || w.tr) },
+    return el('button', { 'class': 'row' + (ui.select && ui.sel.has(w.id) ? ' sel' : '') + (bestIds.has(w.id) ? ' best' : '') + (isFav(w.id) ? ' isfav' : ''), type: 'button', 'data-id': w.id, style: '--h:' + hue((w.tags && w.tags[0]) || w.tr) },
       el('div', { 'class': 'rowmain' },
         el('div', { 'class': 'rt' }, el('span', { 'class': 'tr', text: w.tr }), el('span', { 'class': 'mean', text: w.meaning })),
         w.fa ? el('span', { 'class': 'fa', lang: 'fa', dir: 'rtl', text: w.fa }) : null),
@@ -1180,17 +1249,23 @@
   function renderFilters() {
     var counts = {}, order = [];
     words.forEach(function (w) { (w.tags || []).forEach(function (t) { if (!(t in counts)) { counts[t] = 0; order.push(t); } counts[t]++; }); });
-    if (ui.tag && !(ui.tag in counts)) ui.tag = null;
+    if (ui.tag && ui.tag !== favTag() && !(ui.tag in counts)) ui.tag = null;
     order.sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ru'); });
     var box = $('#filters');
-    box.replaceChildren.apply(box, order.map(function (t) {
+    var favN = words.filter(function (w) { return isFav(w.id); }).length;
+    if (!favN && ui.tag === favTag()) ui.tag = null;
+    var favChip = favN ? el('button', {
+      type: 'button', 'class': 'fchip' + (ui.tag === favTag() ? ' on' : ''), 'aria-pressed': String(ui.tag === favTag()), style: '--h:42',
+      onclick: function () { ui.tag = ui.tag === favTag() ? null : favTag(); render(); }
+    }, favTag(), el('span', { 'class': 'n', text: favN })) : null;
+    box.replaceChildren.apply(box, (favChip ? [favChip] : []).concat(order.map(function (t) {
       var on = ui.tag === t;
       return el('button', {
         type: 'button', 'class': 'fchip' + (on ? ' on' : ''), 'aria-pressed': String(on), style: '--h:' + hue(t),
         onclick: function () { ui.tag = on ? null : t; render(); }
       }, t, el('span', { 'class': 'n', text: counts[t] }));
-    }));
-    box.hidden = !order.length;
+    })));
+    box.hidden = !order.length && !favChip;
   }
   function renderFoot() {
     var f = $('#foot');
@@ -1274,9 +1349,12 @@
     var old = detailRoot.firstElementChild;
     var top = (!reset && old) ? old.scrollTop : 0;
 
+    ensureIcons();
     var bar = el('div', { 'class': 'bar' },
       el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Назад', onclick: closeDetail }, icon('back')),
       el('span', { 'class': 'sp' }),
+      el('button', { type: 'button', 'class': 'ibtn' + (isFav(w.id) ? ' on' : ''), 'aria-label': 'В избранное', 'aria-pressed': String(isFav(w.id)), onclick: function () { toggleFav(w.id); render(); } }, icon('fav')),
+      el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Озвучить слово', onclick: function () { speak(w.fa || w.tr); } }, icon('speaker')),
             el('button', { type: 'button', 'class': 'tbtn', onclick: function () { openForm(w); } }, icon('edit'), 'Изменить'),
       el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Удалить слово', onclick: function () { confirmDelete(w); } }, icon('trash')));
 
@@ -1297,7 +1375,8 @@
     if (formsRest(w.forms)) secs.push(section('Формы', el('p', { 'class': 'txt', text: formsRest(w.forms) })));
     if (w.ex || w.exTr) secs.push(section('Пример', el('blockquote', { 'class': 'ex' },
       w.ex ? el('p', { 'class': 'extr', text: w.ex }) : null,
-      w.exTr ? el('p', { 'class': 'exm', text: w.exTr }) : null)));
+      w.exTr ? el('p', { 'class': 'exm', text: w.exTr }) : null,
+      w.ex ? el('button', { type: 'button', 'class': 'spk', onclick: function () { speak(w.ex); } }, icon('speaker'), 'Озвучить пример') : null)));
     if (w.notes) secs.push(section('Заметки', el('p', { 'class': 'txt', text: w.notes })));
     if (!secs.length) secs.push(el('p', { 'class': 'hintline', text: 'Синонимы, антонимы, пример и заметки можно добавить через «Изменить».' }));
 
@@ -1773,7 +1852,7 @@
   function uiCloseTrain() { ui.train = false; session = null; trainRoot.replaceChildren(); syncLock(); render(); }
   function openTrain() { ui.train = true; syncLock(); pushLayer('train', uiCloseTrain); trainSetup(); }
   function closeTrain() { popLayer('train'); }
-  function scopeWords() { return words.filter(function (w) { return !trainCfg.tag || (w.tags || []).indexOf(trainCfg.tag) >= 0; }); }
+  function scopeWords() { return words.filter(function (w) { return !trainCfg.tag || (trainCfg.tag === favTag() ? isFav(w.id) : (w.tags || []).indexOf(trainCfg.tag) >= 0); }); }
   function showTrain(children, actions) {
     var first = !trainRoot.firstElementChild;
     var sheet = el('div', { 'class': 'sheet form' + (first ? ' enter' : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Тренировка' },
@@ -1803,8 +1882,9 @@
     sc.forEach(function (w) { var s = map[w.id]; if (!s) fresh++; else if (s.due <= now) due++; });
     var n = trainCfg.mode === 'all' ? Math.min(trainCfg.size, sc.length) : (trainCfg.mode === 'hard' ? Math.min(trainCfg.size, sc.filter(function (w) { return isHard(map, w); }).length) : Math.min(trainCfg.size, due + fresh));
     var c = tagCounts();
-    var scopeList = [[null, 'Все слова']].concat(allTags().filter(function (t) { return c[t]; }).map(function (t) { return [t, t]; }));
-    if (trainCfg.tag && !c[trainCfg.tag]) trainCfg.tag = null;
+    var scopeList = [[null, 'Все слова']].concat(words.some(function (w) { return isFav(w.id); }) ? [[favTag(), favTag()]] : []).concat(allTags().filter(function (t) { return c[t]; }).map(function (t) { return [t, t]; }));
+    if (trainCfg.tag === favTag() && !words.some(function (w) { return isFav(w.id); })) trainCfg.tag = null;
+    if (trainCfg.tag && trainCfg.tag !== favTag() && !c[trainCfg.tag]) trainCfg.tag = null;
     function sec(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
     var start = el('button', { type: 'button', 'class': 'btn primary', text: n ? 'Начать: ' + n + ' ' + plural(n, 'карточка', 'карточки', 'карточек') : 'Нет карточек', disabled: !n, onclick: startSession });
     showTrain([
