@@ -697,9 +697,86 @@
   .row.isfav .tr::after { content: ' \2605'; color: var(--accent); font-size: .82em; }
   .ibtn.on { color: var(--accent); }
   .ibtn.on svg { fill: currentColor; }
-  .spk { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; background: none; border: 1px solid var(--gold-line); color: var(--accent); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
-  .spk:active { background: rgba(208, 174, 104, .12); }
-  .spk svg { width: 18px; height: 18px; }
+
+  /* плитки: 3 в ряд */
+  .tiles { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile { min-height: 78px; padding: 14px 4px 10px; }
+  .tile:nth-child(5) { --tw: rgba(224, 121, 79, .28); }
+  .tile:nth-child(6) { --tw: rgba(90, 160, 214, .30); }
+  .tile:nth-child(3) { --tw: rgba(88, 184, 173, .30); }
+  .tile:nth-child(4) { --tw: rgba(208, 174, 104, .30); }
+  /* панель фильтра */
+  #filters .pickbtn { border-color: var(--gold-line); color: var(--text); }
+  #filters .fchip.on .n { opacity: .8; }
+  /* выбор тегов и наборов */
+  .pksearch { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--gold-line); background: rgba(21, 30, 29, .8); color: var(--text); font: inherit; font-size: 16px; }
+  .pkseg { display: flex; gap: 8px; margin: 12px 0; }
+  .pktab { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(208, 174, 104, .2); background: rgba(21, 30, 29, .7); color: var(--mute); font: inherit; font-size: 15px; cursor: pointer; }
+  .pktab[aria-pressed="true"] { background: var(--g-gold); color: var(--accent-ink); border-color: transparent; }
+  .pkcards { display: flex; flex-direction: column; gap: 8px; }
+  .pkcard { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; text-align: left; width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(208, 174, 104, .2); background: rgba(21, 30, 29, .72); color: var(--text); font: inherit; cursor: pointer; }
+  .pkcard:active { background: rgba(27, 39, 38, .9); }
+  .pkcard.on { border-color: rgba(208, 174, 104, .75); box-shadow: 0 0 0 1px rgba(208, 174, 104, .3); }
+  .pkn { font-size: 16px; font-weight: 600; }
+  .pkc { grid-row: 1; grid-column: 2; align-self: center; font-size: 12px; color: var(--faint); white-space: nowrap; }
+  .pkd { grid-column: 1 / -1; font-size: 13px; color: var(--mute); margin-top: 2px; }
+  .pkchips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pkh { margin: 18px 0 8px; font-size: 13px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--mute); }
+  /* диалоги */
+  .dlg { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .dl { position: relative; padding: 12px 14px 12px 44px; border-radius: 14px; border: 1px solid rgba(208, 174, 104, .2); background: rgba(21, 30, 29, .72); cursor: pointer; }
+  .dl .who { position: absolute; left: 12px; top: 12px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; background: rgba(88, 184, 173, .22); color: var(--teal); }
+  .dl:nth-child(even) .who { background: rgba(224, 121, 79, .22); color: #e8a07f; }
+  .dl p { margin: 0; }
+  .dfa { font-family: var(--fa); font-size: 21px; line-height: 1.9; text-align: right; color: #f1e3bd; }
+  .dtr { font-size: 14px; color: var(--mute); margin-top: 2px; }
+  .dru { font-size: 15px; margin-top: 4px; }
+  .hidetr .dl:not(.rev) .dru { filter: blur(7px); }
+  .dnav { display: flex; gap: 10px; margin: 18px 0 8px; }
+  .dnav .btn { flex: 1; }
+
+  /* кнопка меню справа от поиска */
+  .searchrow { display: flex; align-items: center; gap: 10px; }
+  .searchrow .search { flex: 1; min-width: 0; }
+  .menubtn { position: relative; flex: none; width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--accent); background: var(--g-card); border: 1px solid rgba(208, 174, 104, .32); box-shadow: var(--rule); }
+  .menubtn:active { transform: scale(.95); }
+  .menubtn.active::after { content: ''; position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--bg), 0 0 8px rgba(208, 174, 104, .7); }
+  /* боковая панель */
+  .dscrim { position: fixed; inset: 0; z-index: 35; background: rgba(4, 8, 8, .6); opacity: 0; transition: opacity .22s ease; }
+  .dscrim.open { opacity: 1; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 36; width: min(88vw, 372px); display: flex; flex-direction: column; transform: translateX(104%); transition: transform .24s cubic-bezier(.2, .8, .2, 1); border-left: 1px solid rgba(208, 174, 104, .38); border-radius: 26px 0 0 26px; box-shadow: -18px 0 40px rgba(0, 0, 0, .5); overflow: hidden;
+    background: linear-gradient(rgba(12, 18, 17, .86), rgba(12, 18, 17, .86)), radial-gradient(90% 40% at 0% 0%, rgba(88, 184, 173, .16), transparent 70%), radial-gradient(80% 40% at 100% 100%, rgba(224, 121, 79, .12), transparent 70%), var(--tile) 0 0 / 132px 132px, var(--bg); }
+  .drawer.open { transform: translateX(0); }
+  @media (prefers-reduced-motion: reduce) { .drawer, .dscrim { transition: none; } }
+  .dtop { display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top, 0px) + 16px) 14px 4px 20px; }
+  .dtitle { display: flex; align-items: baseline; gap: 10px; }
+  .dt-fa { font: 400 26px/1.6 var(--nq); color: #f1e3bd; text-shadow: 0 0 14px rgba(208, 174, 104, .4); }
+  .dt-ru { font-size: 13px; color: var(--mute); letter-spacing: .06em; text-transform: uppercase; }
+  .dclose { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(208, 174, 104, .28); background: var(--g-card); color: var(--text); cursor: pointer; }
+  .dorn { height: 10px; margin: 0 20px; background: linear-gradient(90deg, transparent, rgba(208, 174, 104, .45), transparent) center / 100% 1px no-repeat; position: relative; }
+  .dorn::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; transform: rotate(45deg); background: var(--accent); box-shadow: 0 0 0 3px rgba(15, 22, 21, .9); }
+  .dfind { padding: 10px 16px 6px; }
+  .dsearch { width: 100%; box-sizing: border-box; height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(208, 174, 104, .26); background: var(--g-card); color: var(--text); font: inherit; font-size: 15px; outline: none; }
+  .dsearch:focus { border-color: var(--accent); }
+  .dbody { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 12px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .dsec { margin-top: 10px; }
+  .dhead2 { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 8px; background: none; border: 0; border-bottom: 1px solid rgba(208, 174, 104, .16); color: var(--text); font: inherit; cursor: pointer; text-align: left; }
+  .dh-t { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .dh-fa { font: 400 17px/1.4 var(--nq); color: var(--faint); flex: 1; text-align: left; }
+  .dh-ch { color: var(--mute); transition: transform .2s; }
+  .dsec.shut .dh-ch { transform: rotate(-90deg); }
+  .dsec.shut .dlist { display: none; }
+  .dlist { display: flex; flex-direction: column; padding-top: 4px; }
+  .drow { --d: hsl(var(--h, 42) 55% 64%); position: relative; display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 10px 10px 22px; border: 0; border-radius: 12px; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+  .drow::before { content: ''; position: absolute; left: 9px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--d); }
+  .drow:active { background: rgba(27, 39, 38, .9); }
+  .drow.on { background: rgba(208, 174, 104, .12); box-shadow: inset 0 0 0 1px rgba(208, 174, 104, .4); }
+  .drow.dlgrow::before { border-radius: 2px; transform: rotate(45deg); background: var(--teal); }
+  .dl-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .dl-n { font-size: 15px; }
+  .dl-s { font-size: 12px; color: var(--faint); margin-top: 1px; }
+  .dl-c { font-size: 12px; color: var(--mute); flex: none; }
+  .dmanage { display: block; width: 100%; margin-top: 22px; padding: 11px; border-radius: 999px; border: 1px dashed rgba(208, 174, 104, .35); background: none; color: var(--mute); font: inherit; font-size: 14px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -758,15 +835,17 @@
       <button type="button" class="tile" id="conjBtn"><span class="pw" lang="fa">صرف</span><span>Спряжения</span></button>
       <button type="button" class="tile" id="alphaBtn"><span class="pw" lang="fa">الفبا</span><span>Алфавит</span></button>
       <button type="button" class="tile" id="selBtn"><span class="pw" lang="fa">گزینش</span><span>Выбрать</span></button>
-      <button type="button" class="tile" id="tagsBtn"><span class="pw" lang="fa">برچسب</span><span>Теги</span></button>
     </div>
   </header>
   <div id="sentinel" aria-hidden="true"></div>
   <div class="toolbar">
+    <div class="searchrow">
     <label class="search">
       <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span>
       <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Поиск по слову, переводу, тегу" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Поиск">
     </label>
+    <button type="button" class="menubtn" id="menuBtn" aria-label="Теги, наборы и диалоги" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M8 12h12M4 17h16"/></svg></button>
+    </div>
     <div class="chips" id="filters" hidden></div>
   </div>
   <div class="meta">
@@ -856,6 +935,7 @@
   }
   var ICONS = {
     back: '<path d="M15 5l-7 7 7 7"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
     edit: '<path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13 7l4 4"/>',
     trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/>'
   };
@@ -1179,8 +1259,9 @@
     var cmp = ui.sort === 'az'
       ? function (x, y) { return COLL.compare(sortKey(x), sortKey(y)); }
       : function (x, y) { return (y.created || 0) - (x.created || 0); };
+    var match = tagMatcher(ui.tag);
     var a = words.filter(function (w) {
-      if (ui.tag && (ui.tag === favTag() ? !isFav(w.id) : (w.tags || []).indexOf(ui.tag) < 0)) return false;
+      if (!match(w)) return false;
       if (!terms.length) return true;
       var hay = hayOf(w);
       return terms.every(function (t) { return hay.indexOf(t) >= 0; });
@@ -1193,25 +1274,92 @@
     a.forEach(function (w) { if (sc.get(w.id) >= 100 && bestIds.size < 4) bestIds.add(w.id); });
     return a;
   }
-  /* ---------- избранное и озвучка ---------- */
+var SETS = [{"n":"Знакомство","d":"Представиться, спросить имя и специальность","tags":["знакомство"],"trs":["salām","man","to","shomā","u","mā","khubam","khodāhāfez","mamnun","mersi","ahl-e kojāyi?","kojā dars mikhāni?","chand sālet-e?"]},{"n":"Вежливость и ответы","d":"Спасибо, извините, пожалуйста, «да» и «нет»","tags":["вежливость"],"trs":["bale / are","heyr / ne"]},{"n":"Связки и союзы","d":"Но, и, потому что, ну, кстати: то, что делает речь живой","tags":["союз","частица","разговорное"],"trs":[]},{"n":"Вопросы","d":"Кто, что, где, когда, сколько","tags":["вопрос"],"trs":["ki","cherā","kodām","che / chi"]},{"n":"Местоимения","d":"Я, ты, он, этот, тот, все, никто","tags":["местоимение"],"trs":["in","ān","injā","ānjā"]},{"n":"Предлоги","d":"В, на, из, до, после, вместо, о","tags":["предлог"],"trs":[]},{"n":"Время и числа","d":"Сегодня, завтра, потом, часы, числа","tags":["время","числа"],"trs":[]},{"n":"Люди и семья","d":"Семья, друзья, профессии","tags":["люди","семья","профессии"],"trs":[]},{"n":"Университет","d":"Учёба, занятия, работа","tags":["учёба"],"trs":["dāneshgāh","dars","kelās","madreseh","ketāb-khāneh","kār","kār kardan","hamkār"]},{"n":"Еда и фрукты","d":"Еда, напитки, фрукты","tags":["еда","фрукты"],"trs":[]},{"n":"Город и места","d":"Дом, улица, здания, страны","tags":["места"],"trs":["khāneh","kheyābān","bimārestān","masjed"]},{"n":"Природа и погода","d":"Погода, природа, животные","tags":["природа","погода","животные"],"trs":[]},{"n":"Цвета и внешность","d":"Цвета, одежда, части тела","tags":["цвета","одежда","тело"],"trs":[]},{"n":"Глаголы","d":"Все глаголы словаря","tags":["глагол"],"trs":[]},{"n":"Готовые фразы","d":"Фразы целиком, которые можно сказать как есть","tags":["фраза"],"trs":[]}];
+  function setByName(n) { for (var i = 0; i < SETS.length; i++) if (SETS[i].n === n) return SETS[i]; return null; }
+  function setIdSet(name) {
+    var d = setByName(name), ids = new Set();
+    if (!d) return ids;
+    var trs = d.trs.map(norm);
+    words.forEach(function (w) {
+      if ((w.tags || []).some(function (t) { return d.tags.indexOf(t) >= 0; }) || trs.indexOf(norm(w.tr)) >= 0) ids.add(w.id);
+    });
+    return ids;
+  }
+  function tagMatcher(tag) {
+    if (!tag) return function () { return true; };
+    if (tag === favTag()) return function (w) { return isFav(w.id); };
+    if (tag.charAt(0) === '\u00a7') { var ids = setIdSet(tag.slice(1)); return function (w) { return ids.has(w.id); }; }
+    return function (w) { return (w.tags || []).indexOf(tag) >= 0; };
+  }
+  function tagLabel(tag) { return tag && tag.charAt(0) === '\u00a7' ? tag.slice(1) : tag; }
+  function tagValid(tag) {
+    if (!tag) return true;
+    if (tag === favTag()) return words.some(function (w) { return isFav(w.id); });
+    if (tag.charAt(0) === '\u00a7') return !!setByName(tag.slice(1));
+    return words.some(function (w) { return (w.tags || []).indexOf(tag) >= 0; });
+  }
+  var pickerTab = 'sets';
+  function openTagPicker(onPick) {
+    openSheet();
+    var cur = onPick ? (trainCfg.tag || null) : ui.tag;
+    function pick(v) { closeForm(); if (onPick) onPick(v); else { ui.tag = v; render(); window.scrollTo(0, 0); } }
+    var inp = el('input', { type: 'search', placeholder: 'Найти тег или набор', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Найти тег или набор', 'class': 'pksearch' });
+    var seg = el('div', { 'class': 'pkseg' });
+    var list = el('div', { 'class': 'pklist' });
+    function tabBtn(id, label) {
+      return el('button', { type: 'button', 'class': 'pktab', 'aria-pressed': String(pickerTab === id), text: label, onclick: function () { pickerTab = id; build(); } });
+    }
+    function card(label, sub, count, val) {
+      return el('button', { type: 'button', 'class': 'pkcard' + (cur === val ? ' on' : ''), onclick: function () { pick(val); } },
+        el('span', { 'class': 'pkn', text: label }),
+        sub ? el('span', { 'class': 'pkd', text: sub }) : null,
+        count != null ? el('span', { 'class': 'pkc', text: count + ' ' + plural(count, 'слово', 'слова', 'слов') }) : null);
+    }
+    function build() {
+      var q = sq(inp.value).replace(/\s+/g, ' ').trim();
+      seg.replaceChildren(tabBtn('sets', 'Наборы'), tabBtn('tags', 'Теги'));
+      var out = [];
+      var showSets = q || pickerTab === 'sets', showTags = q || pickerTab === 'tags';
+      if (showSets) {
+        var cards = [];
+        if (!q) {
+          cards.push(card('Все слова', 'Без фильтра', words.length, null));
+          var fn = words.filter(function (w) { return isFav(w.id); }).length;
+          if (fn) cards.push(card('\u2605 Избранное', 'Слова, которые вы отметили звёздой', fn, favTag()));
+        }
+        SETS.forEach(function (d) {
+          if (q && sq(d.n + ' ' + d.d).indexOf(q) < 0) return;
+          var n = setIdSet(d.n).size;
+          if (n) cards.push(card(d.n, d.d, n, '\u00a7' + d.n));
+        });
+        if (cards.length) { if (q) out.push(el('h3', { 'class': 'pkh', text: 'Наборы' })); out.push(el('div', { 'class': 'pkcards' }, cards)); }
+      }
+      if (showTags) {
+        var c = tagCounts(), tags = Object.keys(c).filter(function (t) { return !q || sq(t).indexOf(q) >= 0; })
+          .sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ru'); });
+        if (tags.length) {
+          if (q) out.push(el('h3', { 'class': 'pkh', text: 'Теги' }));
+          out.push(el('div', { 'class': 'pkchips' }, tags.map(function (t) {
+            return el('button', { type: 'button', 'class': 'fchip' + (cur === t ? ' on' : ''), style: '--h:' + hue(t), onclick: function () { pick(t); } }, t, el('span', { 'class': 'n', text: c[t] }));
+          })));
+        }
+      }
+      if (!out.length) out.push(el('p', { 'class': 'hint', text: 'Ничего не найдено.' }));
+      list.replaceChildren.apply(list, out);
+    }
+    inp.addEventListener('input', build);
+    build();
+    formRoot.replaceChildren(sheetShell('Теги и наборы', 'Закрыть', [inp, seg, list]));
+  }
+
+  /* ---------- избранное ---------- */
   var favSet;
   function favTag() { return '\u2605 Избранное'; }
   function favLoad() { if (!favSet) { try { favSet = new Set(JSON.parse(lsGet('fa-dict:fav') || '[]')); } catch (e) { favSet = new Set(); } } return favSet; }
   function isFav(id) { return favLoad().has(id); }
   function toggleFav(id) { var f = favLoad(); if (f.has(id)) f.delete(id); else f.add(id); lsSet('fa-dict:fav', JSON.stringify(Array.from(f))); }
-  function speak(text) {
-    var ss = window.speechSynthesis;
-    if (!ss || !window.SpeechSynthesisUtterance) { toast('Озвучка не поддерживается в этом браузере.'); return; }
-    var vs = ss.getVoices ? ss.getVoices() : [], v = null;
-    for (var i = 0; i < vs.length; i++) if (/^fa/i.test(vs[i].lang)) { v = vs[i]; break; }
-    if (vs.length && !v) { toast('На телефоне нет персидского голоса. Его можно скачать в настройках синтеза речи.'); return; }
-    ss.cancel();
-    var u = new SpeechSynthesisUtterance(String(text)); u.lang = 'fa-IR'; u.rate = .85; if (v) u.voice = v;
-    ss.speak(u);
-  }
   function ensureIcons() {
-    if (ICONS.speaker) return;
-    ICONS.speaker = '<path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 6a9 9 0 010 12"/>';
+    if (ICONS.fav) return;
     ICONS.fav = '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.3l1.1-6.2L3 9.7l6.2-.9z"/>';
   }
   function rowFor(w) {
@@ -1247,25 +1395,12 @@
     } else { (function all() { more(); if (i < vis.length) requestAnimationFrame(all); })(); }
   }
   function renderFilters() {
-    var counts = {}, order = [];
-    words.forEach(function (w) { (w.tags || []).forEach(function (t) { if (!(t in counts)) { counts[t] = 0; order.push(t); } counts[t]++; }); });
-    if (ui.tag && ui.tag !== favTag() && !(ui.tag in counts)) ui.tag = null;
-    order.sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ru'); });
     var box = $('#filters');
-    var favN = words.filter(function (w) { return isFav(w.id); }).length;
-    if (!favN && ui.tag === favTag()) ui.tag = null;
-    var favChip = favN ? el('button', {
-      type: 'button', 'class': 'fchip' + (ui.tag === favTag() ? ' on' : ''), 'aria-pressed': String(ui.tag === favTag()), style: '--h:42',
-      onclick: function () { ui.tag = ui.tag === favTag() ? null : favTag(); render(); }
-    }, favTag(), el('span', { 'class': 'n', text: favN })) : null;
-    box.replaceChildren.apply(box, (favChip ? [favChip] : []).concat(order.map(function (t) {
-      var on = ui.tag === t;
-      return el('button', {
-        type: 'button', 'class': 'fchip' + (on ? ' on' : ''), 'aria-pressed': String(on), style: '--h:' + hue(t),
-        onclick: function () { ui.tag = on ? null : t; render(); }
-      }, t, el('span', { 'class': 'n', text: counts[t] }));
-    })));
-    box.hidden = !order.length && !favChip;
+    if (ui.tag && !tagValid(ui.tag)) ui.tag = null;
+    $('#menuBtn').classList.toggle('active', !!ui.tag);
+    if (!ui.tag) { box.replaceChildren(); box.hidden = true; return; }
+    box.replaceChildren(el('button', { type: 'button', 'class': 'fchip on', style: '--h:' + hue(ui.tag), 'aria-label': 'Сбросить фильтр', onclick: function () { ui.tag = null; render(); } }, tagLabel(ui.tag), el('span', { 'class': 'n', text: '\u2715' })));
+    box.hidden = false;
   }
   function renderFoot() {
     var f = $('#foot');
@@ -1354,7 +1489,6 @@
       el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Назад', onclick: closeDetail }, icon('back')),
       el('span', { 'class': 'sp' }),
       el('button', { type: 'button', 'class': 'ibtn' + (isFav(w.id) ? ' on' : ''), 'aria-label': 'В избранное', 'aria-pressed': String(isFav(w.id)), onclick: function () { toggleFav(w.id); render(); } }, icon('fav')),
-      el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Озвучить слово', onclick: function () { speak(w.fa || w.tr); } }, icon('speaker')),
             el('button', { type: 'button', 'class': 'tbtn', onclick: function () { openForm(w); } }, icon('edit'), 'Изменить'),
       el('button', { type: 'button', 'class': 'ibtn', 'aria-label': 'Удалить слово', onclick: function () { confirmDelete(w); } }, icon('trash')));
 
@@ -1375,8 +1509,7 @@
     if (formsRest(w.forms)) secs.push(section('Формы', el('p', { 'class': 'txt', text: formsRest(w.forms) })));
     if (w.ex || w.exTr) secs.push(section('Пример', el('blockquote', { 'class': 'ex' },
       w.ex ? el('p', { 'class': 'extr', text: w.ex }) : null,
-      w.exTr ? el('p', { 'class': 'exm', text: w.exTr }) : null,
-      w.ex ? el('button', { type: 'button', 'class': 'spk', onclick: function () { speak(w.ex); } }, icon('speaker'), 'Озвучить пример') : null)));
+      w.exTr ? el('p', { 'class': 'exm', text: w.exTr }) : null)));
     if (w.notes) secs.push(section('Заметки', el('p', { 'class': 'txt', text: w.notes })));
     if (!secs.length) secs.push(el('p', { 'class': 'hintline', text: 'Синонимы, антонимы, пример и заметки можно добавить через «Изменить».' }));
 
@@ -1616,6 +1749,142 @@
   }
   $('#alphaBtn').addEventListener('click', openAlpha);
 
+  /* ---------- боковая панель: наборы, диалоги, теги ---------- */
+  var drawerEl = null, scrimEl = null;
+  function dsecOpen(k) { try { var o = JSON.parse(lsGet('fa-dict:dsec') || '{}'); return o[k] !== 0; } catch (e) { return true; } }
+  function dsecSet(k, v) { var o = {}; try { o = JSON.parse(lsGet('fa-dict:dsec') || '{}'); } catch (e) {} o[k] = v ? 1 : 0; lsSet('fa-dict:dsec', JSON.stringify(o)); }
+  function openDrawer() {
+    if (ui.drawer) return;
+    ui.drawer = true; document.documentElement.style.overflow = 'hidden';
+    pushLayer('drawer', uiCloseDrawer);
+    scrimEl = el('div', { 'class': 'dscrim', onclick: closeDrawer });
+    drawerEl = el('aside', { 'class': 'drawer', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Теги, наборы и диалоги' });
+    document.body.append(scrimEl, drawerEl);
+    buildDrawer('');
+    var sx = null, sy = null;
+    drawerEl.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    drawerEl.addEventListener('touchend', function (e) {
+      if (sx == null) return;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = Math.abs(t.clientY - sy); sx = null;
+      if (dx > 70 && dy < 50) closeDrawer();
+    }, { passive: true });
+    void drawerEl.offsetWidth;
+    drawerEl.classList.add('open'); scrimEl.classList.add('open');
+  }
+  function uiCloseDrawer() {
+    ui.drawer = false; syncLock();
+    var d = drawerEl, sc = scrimEl; drawerEl = scrimEl = null;
+    if (!d) return;
+    d.classList.remove('open'); sc.classList.remove('open');
+    setTimeout(function () { d.remove(); sc.remove(); }, 240);
+  }
+  function closeDrawer() { popLayer('drawer'); }
+  function buildDrawer(q0) {
+    var inp = el('input', { type: 'search', 'class': 'dsearch', placeholder: 'Найти набор, тег или диалог', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Поиск по панели', value: q0 || '' });
+    var body = el('div', { 'class': 'dbody' });
+    var closeBtn = el('button', { type: 'button', 'class': 'dclose', 'aria-label': 'Закрыть панель', onclick: closeDrawer }, icon('close'));
+    function pickFilter(v) { ui.tag = v; closeDrawer(); render(); window.scrollTo(0, 0); }
+    function later(fn) { closeDrawer(); setTimeout(fn, 150); }
+    function row(label, count, val, hueKey, sub) {
+      var on = ui.tag === val && val !== undefined;
+      return el('button', { type: 'button', 'class': 'drow' + (on ? ' on' : ''), style: hueKey ? '--h:' + hue(hueKey) : '', onclick: function () { pickFilter(val); } },
+        el('span', { 'class': 'dl-t' }, el('span', { 'class': 'dl-n', text: label }), sub ? el('span', { 'class': 'dl-s', text: sub }) : null),
+        count != null ? el('span', { 'class': 'dl-c', text: String(count) }) : null);
+    }
+    function section(key, title, fa, items, force) {
+      if (!items.length) return null;
+      var open = force || dsecOpen(key);
+      var head = el('button', { type: 'button', 'class': 'dhead2', 'aria-expanded': String(open) },
+        el('span', { 'class': 'dh-t', text: title }), el('span', { 'class': 'dh-fa', lang: 'fa', text: fa }), el('span', { 'class': 'dh-ch', text: '\u25be' }));
+      var list = el('div', { 'class': 'dlist' }, items);
+      var wrap = el('section', { 'class': 'dsec' + (open ? '' : ' shut') }, head, list);
+      head.addEventListener('click', function () {
+        var nowOpen = wrap.classList.contains('shut');
+        wrap.classList.toggle('shut', !nowOpen); head.setAttribute('aria-expanded', String(nowOpen));
+        if (!inp.value.trim()) dsecSet(key, nowOpen);
+      });
+      return wrap;
+    }
+    function fill() {
+      var q = sq(inp.value).replace(/\s+/g, ' ').trim(), force = !!q;
+      var out = [];
+      var setItems = [];
+      if (!q) {
+        if (ui.tag) setItems.push(row('Все слова', words.length, null, null, 'Сбросить фильтр'));
+        var fn = words.filter(function (w) { return isFav(w.id); }).length;
+        if (fn) setItems.push(row('\u2605 Избранное', fn, favTag(), null));
+      }
+      SETS.forEach(function (d) {
+        if (q && sq(d.n + ' ' + d.d).indexOf(q) < 0) return;
+        var n = setIdSet(d.n).size;
+        if (n) setItems.push(row(d.n, n, '\u00a7' + d.n, d.n, q ? '' : d.d));
+      });
+      var dlgItems = [];
+      DIALOGS.forEach(function (d, i) {
+        if (q && sq(d.t + ' ' + d.d).indexOf(q) < 0) return;
+        dlgItems.push(el('button', { type: 'button', 'class': 'drow dlgrow', onclick: function () { later(function () { openDialogs(i); }); } },
+          el('span', { 'class': 'dl-t' }, el('span', { 'class': 'dl-n', text: d.t }), el('span', { 'class': 'dl-s', text: d.d })),
+          el('span', { 'class': 'dl-c', text: '\u203a' })));
+      });
+      var c = tagCounts(), tagItems = Object.keys(c).filter(function (t) { return !q || sq(t).indexOf(q) >= 0; })
+        .sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ru'); })
+        .map(function (t) { return row(t, c[t], t, t); });
+      [section('tags', 'Теги', 'برچسب', tagItems, force), section('sets', 'Наборы', 'مجموعه', setItems, force), section('dlg', 'Диалоги', 'گفتگو', dlgItems, force)]
+        .forEach(function (x) { if (x) out.push(x); });
+      if (!out.length) out.push(el('p', { 'class': 'hint', text: 'Ничего не найдено.' }));
+      if (!q) out.push(el('button', { type: 'button', 'class': 'dmanage', text: 'Управление тегами', onclick: function () { later(openTagManager); } }));
+      body.replaceChildren.apply(body, out);
+    }
+    inp.addEventListener('input', fill);
+    drawerEl.replaceChildren(
+      el('div', { 'class': 'dtop' },
+        el('div', { 'class': 'dtitle' }, el('span', { 'class': 'dt-fa', lang: 'fa', text: 'فهرست' }), el('span', { 'class': 'dt-ru', text: 'Разделы' })),
+        closeBtn),
+      el('div', { 'class': 'dorn', 'aria-hidden': 'true' }),
+      el('div', { 'class': 'dfind' }, inp),
+      body);
+    fill();
+  }
+  $('#menuBtn').addEventListener('click', openDrawer);
+var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, специальность","l":[["А","سلام، حال شما چطور است؟","salām, hāl-e shomā chetor ast?","Здравствуйте, как у вас дела?"],["Б","سلام، خدا را شکر، خوبم. شما چطورید؟","salām, khodā rā shokr, khubam. shomā chetorid?","Здравствуйте, слава богу, хорошо. А у вас?"],["А","خوبم، ممنون. اسم من پروانه است. اسم شما چیست؟","khubam, mamnun. esm-e man parvāneh ast. esm-e shomā chist?","Хорошо, спасибо. Меня зовут Парване. А вас как зовут?"],["Б","اسم من علی است. از آشنایی با شما خوشبختم.","esm-e man ali ast. az āshenāyi bā shomā khoshbakhtam.","Меня зовут Али. Очень приятно с вами познакомиться."],["А","من هم خوشبختم. رشته‌ی شما چیست؟","man ham khoshbakhtam. reshte-ye shomā chist?","Мне тоже очень приятно. Какая у вас специальность?"],["Б","رشته‌ی من علوم سیاسی است. و رشته‌ی شما؟","reshte-ye man olum-e siyāsi ast. va reshte-ye shomā?","Моя специальность — политология. А ваша?"],["А","رشته‌ی من هم علوم سیاسی است. چه خوب!","reshte-ye man ham olum-e siyāsi ast. che khub!","У меня тоже политология. Как здорово!"]]},{"t":"В гостях","d":"Знакомство с супругом, угощение","l":[["А","خوش آمدید! بفرمایید بنشینید.","khosh āmadid! befarmāyid benshinid.","Добро пожаловать! Прошу, садитесь."],["Б","ممنون. ایشان همسر من هستند.","mamnun. ishān hamsar-e man hastand.","Спасибо. Это мой супруг (моя супруга)."],["А","خوشبختم. چای می‌خواهید؟","khoshbakhtam. chāy mikhāhid?","Очень приятно. Хотите чаю?"],["Б","بله، لطفاً.","bale, lotfan.","Да, пожалуйста."],["А","بفرمایید. نوش جان.","befarmāyid. nush-e jān.","Прошу. На здоровье."],["Б","دستتان درد نکند.","dastetān dard nakonad.","Спасибо вам за хлопоты."]]},{"t":"Где библиотека?","d":"Спросить дорогу, поблагодарить","l":[["А","ببخشید، کتابخانه کجاست؟","bebakhshid, ketāb-khāneh kojāst?","Извините, где библиотека?"],["Б","روبروی دانشگاه است.","ruberu-ye dāneshgāh ast.","Напротив университета."],["А","دور است؟","dur ast?","Далеко?"],["Б","نه، نزدیک است. پنج دقیقه راه است.","ne, nazdik ast. panj daghighe rāh ast.","Нет, близко. Пять минут пешком."],["А","خیلی ممنون.","kheyli mamnun.","Большое спасибо."],["Б","قابلی ندارد.","ghābeli nadāreh.","Не за что."]]},{"t":"Не понял","d":"Попросить повторить и объяснить","l":[["А","ببخشید، نمی‌فهمم. دوباره بگویید.","bebakhshid, nemifahmam. dobāreh beguyid.","Простите, не понимаю. Повторите, пожалуйста."],["Б","باشه. آهسته‌تر می‌گویم.","bāsheh. āheste-tar miguyam.","Хорошо. Скажу медленнее."],["А","«ایشان» یعنی چه؟","«ishān» ya'ni che?","Что значит «ишан»?"],["Б","«ایشان» یعنی «او»، اما محترمانه.","«ishān» ya'ni «u», ammā mohtaramāneh.","«Ишан» значит «он (она)», но уважительно."],["А","فهمیدم. ممنون.","fahmidam. mamnun.","Понял. Спасибо."]]},{"t":"Планы на завтра","d":"Но, может быть, кстати, потом, обязательно","l":[["А","فردا می‌آیی؟","fardā miyāyi?","Завтра придёшь?"],["Б","شاید. ولی باید کار کنم.","shāyad. vali bāyad kār konam.","Может быть. Но мне нужно работать."],["А","راستی، کی کار تمام می‌شود؟","rāsti, key kār tamām mishavad?","Кстати, когда заканчивается работа?"],["Б","ساعت شش. بعد می‌توانم بیایم.","sā'at-e shesh. ba'd mitavānam biyāyam.","В шесть. Потом смогу прийти."],["А","باشه، پس منتظرت هستم.","bāsheh, pas montazeret hastam.","Ладно, тогда жду тебя."],["Б","حتماً می‌آیم، ان‌شاءالله.","hatman miyām, inshāllāh.","Обязательно приду, если Бог даст."]]}];
+  function openDialogs(startIdx) {
+    openSheet();
+    var hideTr = lsGet('fa-dict:dlghide') === '1';
+    function list() {
+      formRoot.replaceChildren(sheetShell('Диалоги', 'Закрыть', [
+        banner('گفتگو'),
+        el('p', { 'class': 'hint', text: 'Короткие разговоры на словах из словаря. Читайте вслух, а перевод можно скрыть и проверять себя.' }),
+        el('div', { 'class': 'pkcards' }, DIALOGS.map(function (d, i) {
+          return el('button', { type: 'button', 'class': 'pkcard', onclick: function () { show(i); } },
+            el('span', { 'class': 'pkn', text: d.t }), el('span', { 'class': 'pkd', text: d.d }),
+            el('span', { 'class': 'pkc', text: d.l.length + ' ' + plural(d.l.length, 'реплика', 'реплики', 'реплик') }));
+        }))]));
+    }
+    function show(i) {
+      var d = DIALOGS[i];
+      var box = el('div', { 'class': 'dlg' + (hideTr ? ' hidetr' : '') });
+      d.l.forEach(function (ln) {
+        var row = el('div', { 'class': 'dl', onclick: function () { row.classList.toggle('rev'); } },
+          el('span', { 'class': 'who', text: ln[0] }),
+          el('p', { 'class': 'dfa', lang: 'fa', dir: 'rtl', text: ln[1] }),
+          el('p', { 'class': 'dtr', text: ln[2] }),
+          el('p', { 'class': 'dru', text: ln[3] }));
+        box.append(row);
+      });
+      var tog = el('button', { type: 'button', 'class': 'btn ghost', text: hideTr ? 'Показать перевод' : 'Скрыть перевод', onclick: function () {
+        hideTr = !hideTr; lsSet('fa-dict:dlghide', hideTr ? '1' : '0'); box.classList.toggle('hidetr', hideTr); tog.textContent = hideTr ? 'Показать перевод' : 'Скрыть перевод';
+        if (!hideTr) Array.prototype.forEach.call(box.children, function (r) { r.classList.remove('rev'); });
+      } });
+      var nav = el('div', { 'class': 'dnav' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Все диалоги', onclick: list }),
+        i + 1 < DIALOGS.length ? el('button', { type: 'button', 'class': 'btn primary', text: 'Дальше', onclick: function () { show(i + 1); } }) : null);
+      formRoot.replaceChildren(sheetShell(d.t, 'Закрыть', [banner('گفتگو'), tog, el('p', { 'class': 'hint', text: hideTr ? 'Нажмите на реплику, чтобы увидеть перевод.' : d.d }), box, nav]));
+      var fb = formRoot.querySelector('.fbody'); if (fb) fb.scrollTop = 0;
+    }
+    if (typeof startIdx === 'number') show(startIdx); else list();
+  }
+
+
 
   function openImport() {
     openSheet();
@@ -1852,7 +2121,7 @@
   function uiCloseTrain() { ui.train = false; session = null; trainRoot.replaceChildren(); syncLock(); render(); }
   function openTrain() { ui.train = true; syncLock(); pushLayer('train', uiCloseTrain); trainSetup(); }
   function closeTrain() { popLayer('train'); }
-  function scopeWords() { return words.filter(function (w) { return !trainCfg.tag || (trainCfg.tag === favTag() ? isFav(w.id) : (w.tags || []).indexOf(trainCfg.tag) >= 0); }); }
+  function scopeWords() { return words.filter(tagMatcher(trainCfg.tag)); }
   function showTrain(children, actions) {
     var first = !trainRoot.firstElementChild;
     var sheet = el('div', { 'class': 'sheet form' + (first ? ' enter' : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Тренировка' },
@@ -1883,8 +2152,7 @@
     var n = trainCfg.mode === 'all' ? Math.min(trainCfg.size, sc.length) : (trainCfg.mode === 'hard' ? Math.min(trainCfg.size, sc.filter(function (w) { return isHard(map, w); }).length) : Math.min(trainCfg.size, due + fresh));
     var c = tagCounts();
     var scopeList = [[null, 'Все слова']].concat(words.some(function (w) { return isFav(w.id); }) ? [[favTag(), favTag()]] : []).concat(allTags().filter(function (t) { return c[t]; }).map(function (t) { return [t, t]; }));
-    if (trainCfg.tag === favTag() && !words.some(function (w) { return isFav(w.id); })) trainCfg.tag = null;
-    if (trainCfg.tag && trainCfg.tag !== favTag() && !c[trainCfg.tag]) trainCfg.tag = null;
+    if (!tagValid(trainCfg.tag)) trainCfg.tag = null;
     function sec(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
     var start = el('button', { type: 'button', 'class': 'btn primary', text: n ? 'Начать: ' + n + ' ' + plural(n, 'карточка', 'карточки', 'карточек') : 'Нет карточек', disabled: !n, onclick: startSession });
     showTrain([
@@ -1893,7 +2161,7 @@
         el('b', { text: due }), ' к повторению · ', el('b', { text: fresh }), ' новых · ', el('b', { text: sc.length }), ' в подборке',
         streakCount() ? ' · серия ' : null, streakCount() ? el('b', { text: streakCount() }) : null, streakCount() ? ' дн.' : null),
       !n ? el('p', { 'class': 'hint', text: trainCfg.mode === 'due' ? 'На сегодня всё повторено. Выберите «Все подряд», чтобы позаниматься вне расписания.' : (trainCfg.mode === 'hard' ? 'Трудных слов пока нет: они появятся после ответов «Снова» и «Трудно».' : 'В подборке нет слов.') }) : null,
-      sec('Что учить', opts(scopeList, trainCfg.tag, function (v) { trainCfg.tag = v; trainSetup(); })),
+      sec('Что учить', el('button', { type: 'button', 'class': 'btn ghost', text: (trainCfg.tag ? tagLabel(trainCfg.tag) : 'Все слова') + '  \u00b7  выбрать', onclick: function () { openTagPicker(function (v) { trainCfg.tag = v; trainSetup(); }); } })),
       sec('Тип', opts([['flip', 'Карточки'], ['quiz', 'Тест']], trainCfg.type, function (v) { trainCfg.type = v; trainSetup(); })),
       sec('Режим', opts([['due', 'По расписанию'], ['hard', 'Трудные'], ['all', 'Все подряд']], trainCfg.mode, function (v) { trainCfg.mode = v; trainSetup(); })),
       sec('Направление', opts([['fwd', 'Слово → перевод'], ['rev', 'Перевод → слово'], ['mix', 'Вперемешку']], trainCfg.dir, function (v) { trainCfg.dir = v; trainSetup(); })),
@@ -2032,7 +2300,6 @@
   $('#sortAz').addEventListener('click', function () { ui.sort = 'az'; lsSet(LS_SORT, 'az'); renderList(); });
   $('#add').addEventListener('click', function () { openForm(null); });
   $('#trainBtn').addEventListener('click', openTrain);
-  $('#tagsBtn').addEventListener('click', openTagManager);
   $('#selBtn').addEventListener('click', function () { if (ui.select) popLayer('select'); else enterSelect(); });
   $('#selDone').addEventListener('click', function () { popLayer('select'); });
   $('#selTag').addEventListener('click', openBulkTags);
