@@ -861,8 +861,6 @@
   .dock [data-go="phr"]:active { transform: none; }
 
   /* Phrase vocabulary links: preserve the original gold palette and Persian glyph styling. */
-  .phword-link { color: inherit; font: inherit; text-decoration: underline; text-decoration-color: var(--gold-line); text-decoration-thickness: 1px; text-underline-offset: 3px; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
-  .phfa .phword-link { color: inherit; font: inherit; direction: rtl; }
   #detailRoot .sheet { z-index: 40; }
   .cj-wrap, .cjw { border-radius: 16px; overflow: hidden; }
   .cj { border-radius: 16px; overflow: hidden; }
@@ -1189,8 +1187,13 @@
     if (typeof hayCache !== 'undefined' && hayCache) hayCache.clear();
   }
   function loadLocal() {
-    try { var a = JSON.parse(lsGet(LS_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (w) { return w && w.id && (w.tr || w._deleted || w._meta); }) : []; }
-    catch (e) { return []; }
+    try {
+      var a = JSON.parse(lsGet(LS_KEY) || '[]');
+      if (!Array.isArray(a)) return [];
+      var clean = a.filter(function (w) { return w && w.id && !/^phrase_/i.test(String(w.id)) && (w.tr || w._deleted || w._meta); });
+      if (clean.length !== a.length) lsSet(LS_KEY, JSON.stringify(clean));
+      return clean;
+    } catch (e) { return []; }
   }
   function saveLocal() { lsSet(LS_KEY, JSON.stringify(stored)); }
   function dataOf(w) { var d = Object.assign({}, w); delete d.id; return d; }
@@ -1221,7 +1224,10 @@
 
   var decided = false;
   function onSnapshot(snap) {
-    var remote = snap.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; });
+    var allRemote = snap.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; });
+    var injected = allRemote.filter(function (w) { return /^phrase_/i.test(String(w.id || '')); });
+    var remote = allRemote.filter(function (w) { return !/^phrase_/i.test(String(w.id || '')); });
+    if (injected.length && col) injected.forEach(function (w) { col.doc(w.id).delete().catch(function () {}); });
     if (!snap.metadata.fromCache && !decided) {
       decided = true;
       var done = lsGet(LS_MIG) === '1';
@@ -2605,48 +2611,6 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   ];
   var LS_MYPH = 'fa-dict:myphrases', phState = { cat: 'Все' }, phBuild = null;
   function myPhrases() { try { var a = JSON.parse(lsGet(LS_MYPH) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
-  function phraseWordTarget(token, lang) {
-    var raw = String(token || '').trim();
-    if (!raw) return null;
-    var clean = raw.replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '');
-    if (!clean) return null;
-    var key = lang === 'fa' ? clean.replace(/[\u200c\u200d]/g, '') : sq(clean);
-    return words.find(function (w) {
-      if (lang === 'fa') return String(w.fa || '').split(/\s*\/\s*/).some(function (v) { return v.replace(/[\u200c\u200d]/g, '') === key; });
-      return String(w.tr || '').split(/\s*\/\s*/).some(function (v) { return sq(v) === key; });
-    }) || null;
-  }
-  function phraseLinkedText(value, lang) {
-    var str = String(value || ''), re = lang === 'fa' ? /[\u0600-\u06ff\u0750-\u077f]+(?:[\u200c\u200d][\u0600-\u06ff\u0750-\u077f]+)*/g : /[A-Za-zÀ-ž]+(?:['’][A-Za-zÀ-ž]+)*(?:-[A-Za-zÀ-ž]+)*/g;
-    var out = [], last = 0, m;
-    while ((m = re.exec(str))) {
-      if (m.index > last) out.push(str.slice(last, m.index));
-      var target = phraseWordTarget(m[0], lang);
-      out.push(target ? el('button', { type: 'button', 'class': 'phword-link', title: 'Открыть слово в словаре', onclick: function (e) { e.stopPropagation(); openDetail(target.id); } }, m[0]) : m[0]);
-      last = re.lastIndex;
-    }
-    if (last < str.length) out.push(str.slice(last));
-    return out;
-  }
-  function phraseEnsureDictionaryEntries() {
-    /* Add glossary headwords that are missing from the personal dictionary.\n       Their gloss is taken directly from the phrase explanation. */
-    var source = PH.concat(TPL), found = Object.create(null), additions = [];
-    source.forEach(function (group) {
-      var rows = Array.isArray(group[1]) ? group[1] : [group];
-      rows.forEach(function (p) {
-        if (!p || !p[3]) return;
-        p[3].split('|').slice(0, -1).forEach(function (line) {
-          var i = line.indexOf(' — '); if (i < 1) return;
-          var head = line.slice(0, i).trim(), gloss = line.slice(i + 3).trim();
-          if (!/^[A-Za-zÀ-ž][A-Za-zÀ-ž'’ -]*$/.test(head) || head.length > 36 || !gloss) return;
-          var key = sq(head); if (!key || found[key] || words.some(function (w) { return sq(w.tr) === key; })) return;
-          found[key] = true;
-          additions.push({ id: 'phrase_' + key.replace(/[^a-z0-9]/g, '').slice(0, 18) + '_' + additions.length, fa: '', tr: head, meaning: gloss, tags: ['лексика фраз'], syn: [], ant: [], forms: '', ex: '', exTr: '', notes: 'Добавлено из пояснения к готовой фразе.' });
-        });
-      });
-    });
-    if (additions.length) persistRecs(additions);
-  }
 
   function phCard(p, mi) {
     var ex = null;
@@ -2654,15 +2618,15 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       var parts = p[3].split('|'), note = parts.pop();
       ex = el('div', { 'class': 'phex' }, parts.map(function (l) {
         var i = l.indexOf(' — ');
-        return el('p', { 'class': 'phw' }, phraseLinkedText(l, 'tr'));
-      }), el('p', { 'class': 'phnote' }, el('b', { text: 'Почему так: ' }), phraseLinkedText(note, 'tr')));
+        return el('p', { 'class': 'phw', text: l });
+      }), el('p', { 'class': 'phnote' }, el('b', { text: 'Почему так: ' }), note));
     }
     var card = el('div', { 'class': 'phcard' + (ex ? ' has' : '') },
-      p[0] ? el('div', { 'class': 'phfa', lang: 'fa', dir: 'rtl' }, phraseLinkedText(p[0], 'fa')) : null, el('div', { 'class': 'phtr' }, phraseLinkedText(p[1], 'tr')), el('p', { 'class': 'phru', text: p[2] }), ex,
+      p[0] ? el('div', { 'class': 'phfa', lang: 'fa', dir: 'rtl', text: p[0] }) : null, el('div', { 'class': 'phtr', text: p[1] }), el('p', { 'class': 'phru', text: p[2] }), ex,
       mi != null ? el('button', { type: 'button', 'class': 'phdel', 'aria-label': 'Удалить фразу', text: '\u2715', onclick: function (e) {
         e.stopPropagation(); var l = myPhrases(); l.splice(mi, 1); lsSet(LS_MYPH, JSON.stringify(l)); phBuild();
       } }) : null);
-    if (ex) card.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.phword-link, .phdel')) return; card.classList.toggle('open'); });
+    if (ex) card.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.phdel')) return; card.classList.toggle('open'); });
     return card;
   }
   function addMyPhrase() {
@@ -2683,23 +2647,39 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     var inp = el('input', { type: 'search', 'class': 'pksearch', placeholder: 'Найти фразу', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Найти фразу' });
     var cats = el('div', { 'class': 'chips' }), tools = el('div', { 'class': 'picks' }), list = el('div', { 'class': 'phlist' });
     tools.append(el('button', { type: 'button', 'class': 'opt', text: '+ Своя фраза', onclick: addMyPhrase }));
-    phBuild = function () {
-      var cat = phState.cat, q = sq(inp.value), out = [];
+    formRoot.replaceChildren(sheetShell('Фразы', 'Закрыть', [banner('جمله‌ها'), inp, cats, tools, list]));
+
+    var buildToken = 0, searchTimer = 0;
+    function phBuild() {
+      var token = ++buildToken, cat = phState.cat, q = sq(inp.value), items = [];
       function ok(a) { return !q || sq(a.join(' ')).indexOf(q) >= 0; }
-      cats.replaceChildren.apply(cats, ['Все', 'Шаблоны'].concat(PH.map(function (c) { return c[0]; }), ['Мои фразы']).map(function (c) {
+      var categoryNames = ['Все', 'Шаблоны'].concat(PH.map(function (c) { return c[0]; }), ['Мои фразы']);
+      cats.replaceChildren.apply(cats, categoryNames.map(function (c) {
         return el('button', { type: 'button', 'class': 'fchip' + (cat === c ? ' on' : ''), style: '--h:' + hue(c), 'aria-pressed': String(cat === c), onclick: function () { phState.cat = c; phBuild(); } }, c);
       }));
-      if (cat === 'Все' || cat === 'Шаблоны') TPL.forEach(function (t) { if (ok([t[1], t[2]])) out.push(phCard(t)); });
-      PH.forEach(function (c) { if (cat === 'Все' || cat === c[0]) c[1].forEach(function (p) { if (ok([p[1], p[2]])) out.push(phCard(p)); }); });
-      if (cat === 'Все' || cat === 'Мои фразы') myPhrases().forEach(function (p, i) { if (ok([p[1], p[2]])) out.push(phCard(p, i)); });
-      list.replaceChildren.apply(list, out.length ? out : [el('p', { 'class': 'hint', text: cat === 'Мои фразы' ? 'Здесь появятся ваши фразы.' : 'Ничего не найдено.' })]);
-    };
-    var phraseSearchTimer = 0;
-    inp.addEventListener('input', function () { clearTimeout(phraseSearchTimer); phraseSearchTimer = setTimeout(phBuild, 70); });
-    formRoot.replaceChildren(sheetShell('Фразы', 'Закрыть', [banner('جمله‌ها'), inp, cats, tools, list]));
-    /* Render the phrase list immediately. Dictionary mutations must not block first paint. */
-    phBuild();
+      if (cat === 'Все' || cat === 'Шаблоны') TPL.forEach(function (t) { if (ok([t[1], t[2]])) items.push(t); });
+      PH.forEach(function (c) { if (cat === 'Все' || cat === c[0]) c[1].forEach(function (v) { if (ok([v[1], v[2]])) items.push(v); }); });
+      if (cat === 'Все' || cat === 'Мои фразы') myPhrases().forEach(function (v, i) { if (ok([v[1], v[2]])) items.push({ phrase: v, index: i }); });
+      list.replaceChildren();
+      if (!items.length) { list.append(el('p', { 'class': 'hint', text: cat === 'Мои фразы' ? 'Здесь появятся ваши фразы.' : 'Ничего не найдено.' })); return; }
+      var at = 0;
+      function appendBatch() {
+        if (token !== buildToken || !ui.formOpen || !formRoot.contains(list)) return;
+        var frag = document.createDocumentFragment(), stop = Math.min(at + 8, items.length);
+        for (; at < stop; at++) {
+          var item = items[at];
+          frag.appendChild(item && item.phrase ? phCard(item.phrase, item.index) : phCard(item));
+        }
+        list.appendChild(frag);
+        if (at < items.length) window.setTimeout(appendBatch, 0);
+      }
+      appendBatch();
+    }
+    inp.addEventListener('input', function () { clearTimeout(searchTimer); searchTimer = setTimeout(phBuild, 60); });
+    /* Let the sheet paint before building categories and phrase cards. */
+    window.requestAnimationFrame(function () { window.setTimeout(phBuild, 0); });
   }
+
   $('#selTrain').addEventListener('click', function () { if (!ui.sel.size) return; trainCfg.ids = Array.from(ui.sel); trainCfg.tag = null; if (trainCfg.type === 'stems' && !scopeWords().length) trainCfg.type = 'flip'; popLayer('select'); openTrain(); });
 
   /* ---------- wiring ---------- */
