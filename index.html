@@ -811,6 +811,55 @@
   body.typing .dock, body.keyboard-open .dock, body.search-active .dock, body.selmode .dock, body.sheet-open > .dock { display: none !important; }
   body.selmode .selwrap { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   .row { -webkit-touch-callout: none; }
+  /* ---------- motion ---------- */
+  .sheet.enter { animation: slide .22s cubic-bezier(.2, .8, .2, 1); }
+  .sheet.form.enter { animation: rise .26s cubic-bezier(.2, .8, .2, 1); }
+  .sheet.leave { animation: sheetOut .17s ease-in forwards; pointer-events: none; }
+  .sheet.form.leave { animation: sink .17s ease-in forwards; }
+  @keyframes rise { from { transform: translate3d(0, 28px, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes sheetOut { to { transform: translate3d(24px, 0, 0); opacity: 0; } }
+  @keyframes sink { to { transform: translate3d(0, 28px, 0); opacity: 0; } }
+  @keyframes fadeIn { from { opacity: 0; } }
+  @keyframes fadeOut { to { opacity: 0; } }
+  @keyframes pop { from { transform: scale(.94); opacity: 0; } }
+  @keyframes rowIn { from { opacity: 0; transform: translate3d(0, 8px, 0); } }
+  .scrim { animation: fadeIn .18s ease-out; }
+  .scrim .dialog { animation: pop .2s cubic-bezier(.2, .9, .3, 1.15); }
+  .scrim.leave { animation: fadeOut .15s ease-in forwards; pointer-events: none; }
+  .row:nth-child(-n+12) { animation: rowIn .24s ease-out backwards; }
+  .row:nth-child(2) { animation-delay: .03s; } .row:nth-child(3) { animation-delay: .06s; } .row:nth-child(4) { animation-delay: .09s; }
+  .row:nth-child(5) { animation-delay: .12s; } .row:nth-child(6) { animation-delay: .15s; }
+  body.typing .row, body.selmode .row { animation: none; }
+  button, .row, .drow { transition: transform .12s ease, background-color .15s ease, box-shadow .15s ease, opacity .15s ease; }
+  button:not(:disabled):active, .row:active, .drow:active { transform: scale(.97); }
+  .qedit { padding-left: 14px; padding-right: 14px; } .qedit::before { display: none; }
+  .favgrid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 44vh; overflow-y: auto; margin: 8px 0 16px; }
+  @media (prefers-reduced-motion: reduce) { .sheet.enter, .sheet.form.enter, .scrim, .scrim .dialog, .row { animation: none !important; } }
+  /* phrases + pickers */
+  .phlist { margin-top: 6px; }
+
+  .phword-link { display: inline; padding: 0; margin: 0; border: 0; border-bottom: 1px dotted rgba(88,184,173,.8); border-radius: 0; background: none; color: var(--teal); font: inherit; cursor: pointer; }
+  .phword-link:active { color: var(--accent); }
+  .phcard { position: relative; margin-bottom: 10px; padding: 14px 16px; border-radius: 20px 20px 20px 8px; background: var(--g-card); border: 1px solid rgba(208, 174, 104, .22); cursor: pointer; }
+  .phfa { font: 600 24px/1.55 var(--fa-d); text-align: right; color: var(--text); }
+  .phtr { margin-top: 2px; color: var(--accent); overflow-wrap: anywhere; }
+  .phru { margin: 4px 0 0; color: var(--mute); }
+  .phcard.hid .phru { visibility: hidden; }
+  .phbadge { display: inline-block; margin-bottom: 4px; font-size: 11px; color: var(--teal); }
+  .phslots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .phslot { display: inline-flex; gap: 6px; }
+  .phdel { position: absolute; top: 8px; left: 10px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--mute); cursor: pointer; }
+  .wlist { display: flex; flex-direction: column; gap: 6px; max-height: 42vh; overflow-y: auto; margin-top: 6px; }
+  .wpick { display: block; width: 100%; text-align: left; border-radius: 14px; }
+  .wpick span { opacity: .75; }
+  .selin { flex-wrap: wrap; row-gap: 8px; }
+  .phex { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(208, 174, 104, .2); }
+  .phcard.open .phex { display: block; }
+  .phcard.has { cursor: pointer; }
+  .phw { margin: 3px 0; color: var(--mute); }
+  .phw b { color: var(--text); font-weight: 600; }
+  .phnote { margin: 8px 0 0; color: var(--text); }
+  .phnote b { color: var(--teal); }
 </style>
 </head>
 <body>
@@ -902,7 +951,7 @@
 </div></div>
 
 <nav class="dock" aria-label="Разделы"><div class="dockin">
-  <button type="button" data-go="top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M9 8h5M9 12h5"/></svg><span>Словарь</span></button>
+  <button type="button" data-go="phr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 3v-3H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M8 10h8M8 13h5"/></svg><span>Фразы</span></button>
   <button type="button" data-go="train"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="13" height="13" rx="2.5"/><path d="M8 4h11a1 1 0 0 1 1 1v11"/></svg><span>Тренировка</span><i class="dbadge" id="dockBadge" hidden></i></button>
   <button type="button" class="dplus" data-go="add" aria-label="Добавить слово"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-go="conj"><b class="gl" lang="fa">ص</b><span>Спряжения</span></button>
@@ -913,6 +962,7 @@
   <span class="sc" id="selCount"></span>
   <button type="button" class="btn ghost" id="selAll">Все</button>
   <button type="button" class="btn primary" id="selTag">Тег</button>
+  <button type="button" class="btn ghost" id="selTrain">Повторить</button>
   <button type="button" class="btn ghost" id="selDone">Готово</button>
 </div></div>
 <div id="detailRoot"></div>
@@ -1438,13 +1488,36 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     } else { (function all() { more(); if (i < vis.length) requestAnimationFrame(all); })(); }
   }
   var QUICK = ['глагол', 'существительное', 'прилагательное', 'наречие', 'фраза', 'еда', 'время'];
+  var LS_FAV = 'fa-dict:favtags';
+  function favList() {
+    var a = null, c = tagCounts();
+    try { a = JSON.parse(lsGet(LS_FAV) || 'null'); } catch (e) {}
+    if (!Array.isArray(a)) a = QUICK;
+    return a.filter(function (t) { return c[t]; });
+  }
+  function pickFavTags() {
+    var c = tagCounts(), cur = favList().slice();
+    var all = Object.keys(c).sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, 'ru'); });
+    var grid = el('div', { 'class': 'favgrid' });
+    function paint() {
+      grid.replaceChildren.apply(grid, all.map(function (t) {
+        var on = cur.indexOf(t) >= 0;
+        return el('button', { type: 'button', 'class': 'fchip' + (on ? ' on' : ''), style: '--h:' + hue(t), 'aria-pressed': String(on), onclick: function () { var i = cur.indexOf(t); if (i >= 0) cur.splice(i, 1); else cur.push(t); paint(); } }, t, el('span', { 'class': 'n', text: c[t] }));
+      }));
+    }
+    paint();
+    showDialog([el('p', { 'class': 'dt', text: 'Теги на главном экране' }), el('p', { 'class': 'dd', text: 'Отмеченные теги появятся под строкой поиска.' }), grid,
+      el('div', { 'class': 'dact' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Сбросить', onclick: function () { cur = QUICK.filter(function (t) { return c[t]; }); paint(); } }),
+        el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: function () { lsSet(LS_FAV, JSON.stringify(cur)); popLayer('dialog'); renderFilters(); } }))]);
+  }
   function renderQuick() {
-    var qb = $('#quick'), c = tagCounts(), list = QUICK.filter(function (t) { return c[t]; });
-    qb.hidden = !list.length;
+    var qb = $('#quick'), c = tagCounts(), list = favList();
+    qb.hidden = false;
     qb.replaceChildren.apply(qb, list.map(function (t) {
       var on = ui.tag === t;
       return el('button', { type: 'button', 'class': 'fchip' + (on ? ' on' : ''), style: '--h:' + hue(t), 'aria-pressed': String(on), onclick: function () { ui.tag = on ? null : t; render(); } }, t, el('span', { 'class': 'n', text: c[t] }));
-    }));
+    }).concat([el('button', { type: 'button', 'class': 'fchip qedit', 'aria-label': 'Выбрать теги для главного экрана', onclick: pickFavTags }, '\u270E')]));
   }
   function renderFilters() {
     var box = $('#filters');
@@ -1453,7 +1526,7 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     $('#menuBtn').classList.toggle('active', !!ui.tag);
     if (!ui.tag) { box.replaceChildren(); box.hidden = true; return; }
     box.replaceChildren(el('button', { type: 'button', 'class': 'fchip on', style: '--h:' + hue(ui.tag), 'aria-label': 'Сбросить фильтр', onclick: function () { ui.tag = null; render(); } }, tagLabel(ui.tag), el('span', { 'class': 'n', text: '\u2715' })));
-    box.hidden = QUICK.indexOf(ui.tag) >= 0;
+    box.hidden = favList().indexOf(ui.tag) >= 0;
   }
   function renderFoot() {
     var f = $('#foot');
@@ -1512,7 +1585,33 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
 
   function findByTr(text) { var k = norm(text); return words.find(function (w) { return norm(w.tr) === k; }); }
 
-  function uiCloseDetail() { ui.detailId = null; detailRoot.replaceChildren(); syncLock(); }
+  function phraseWordLinks(text, lang) {
+    var out = document.createDocumentFragment();
+    String(text || '').split(/(\s+)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\s+$/.test(part)) { out.append(document.createTextNode(part)); return; }
+      var clean = part.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      var target = clean ? words.find(function (w) {
+        return norm(w.tr) === norm(clean) || (lang === 'fa' && norm(w.fa) === norm(clean));
+      }) : null;
+      if (!target) { out.append(document.createTextNode(part)); return; }
+      var start = part.indexOf(clean), end = start + clean.length;
+      if (start) out.append(document.createTextNode(part.slice(0, start)));
+      var link = el('button', { type: 'button', 'class': 'phword-link', title: 'Открыть слово в словаре: ' + target.tr,
+        text: clean, onclick: function (e) { e.stopPropagation(); openDetail(target.id); } });
+      out.append(link);
+      if (end < part.length) out.append(document.createTextNode(part.slice(end)));
+    });
+    return out;
+  }
+
+  function outAnim(root) {
+    var kids = Array.prototype.slice.call(root.children);
+    if (!kids.length || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { root.replaceChildren(); return; }
+    kids.forEach(function (k) { k.classList.add('leave'); });
+    setTimeout(function () { kids.forEach(function (k) { if (k.parentNode === root) k.remove(); }); }, 180);
+  }
+  function uiCloseDetail() { ui.detailId = null; outAnim(detailRoot); syncLock(); }
   function openDetail(id) {
     var first = !ui.detailId;
     ui.detailId = id; syncLock();
@@ -1530,6 +1629,50 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     return el('span', { 'class': 'wchip', text: text });
   }
   function section(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
+
+  function wordFormsTable(w) {
+    var pronouns = [['man', 'я'], ['to', 'ты'], ['u', 'он / она'], ['mā', 'мы'], ['shomā', 'вы'], ['ānhā', 'они']];
+    var st = stemsOf(w);
+    if (st && st.past && st.pres) {
+      var pastEnd = ['am', 'i', '', 'im', 'id', 'and'];
+      var presEnd = ['am', 'i', 'ad', 'im', 'id', 'and'];
+      var rows = pronouns.map(function (p, i) {
+        var past = st.past + pastEnd[i];
+        var present = 'mi-' + st.pres + presEnd[i];
+        return el('tr', null,
+          el('th', null, el('b', { text: p[0] }), el('span', { text: p[1] })),
+          el('td', null, el('span', { 'class': 'f', text: past })),
+          el('td', null, el('span', { 'class': 'f', text: present })));
+      });
+      return section('Спряжение', el('div', { 'class': 'cjw' },
+        el('table', { 'class': 'cj' },
+          el('tr', null, el('th'), el('th', null, el('b', { text: 'Прошедшее' }), el('span', { text: 'простое' })),
+            el('th', null, el('b', { text: 'Настоящее' }), el('span', { text: 'длительное' }))),
+          rows),
+        el('p', { 'class': 'hint', text: 'Формы построены по основам, указанным в карточке. У отдельных глаголов возможны особенности и разговорные варианты.' })));
+    }
+    if ((w.tags || []).indexOf('существительное') >= 0) {
+      var base = String(w.tr || '').trim(), fa = String(w.fa || '').trim();
+      var suffixes = [['-am', 'мой', 'م'], ['-at', 'твой', 'ت'], ['-ash', 'его / её', 'ش'], ['-emān', 'наш', 'مان'], ['-etān', 'ваш', 'تان'], ['-eshān', 'их', 'شان']];
+      var rows = [el('tr', null,
+        el('th', null, el('b', { text: 'мн. число' }), el('span', { text: 'обычная форма' })),
+        el('td', null, el('span', { 'class': 'f', text: base ? base + '-hā' : '—' })),
+        el('td', null, el('span', { 'class': 'f', text: fa ? fa + 'ها' : '—' })))];
+      suffixes.forEach(function (s) {
+        rows.push(el('tr', null,
+          el('th', null, el('b', { text: s[0] }), el('span', { text: s[1] })),
+          el('td', null, el('span', { 'class': 'f', text: base ? base + s[0] : '—' })),
+          el('td', null, el('span', { 'class': 'f', text: fa ? fa + s[2] : '—' }))));
+      });
+      return section('Формы существительного', el('div', { 'class': 'cjw' },
+        el('table', { 'class': 'cj' },
+          el('tr', null, el('th'), el('th', null, el('b', { text: 'Транслитерация' })),
+            el('th', null, el('b', { text: 'Персидское письмо' }))),
+          rows),
+        el('p', { 'class': 'hint', text: 'В персидском нет падежных окончаний. Здесь показаны притяжательные суффиксы; множественное число обычно образуется с помощью -hā.' })));
+    }
+    return null;
+  }
 
   function renderDetail(reset) {
     var w = words.find(function (x) { return x.id === ui.detailId; });
@@ -1557,6 +1700,8 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     var secs = [];
     var st = stemsOf(w);
     if (st) secs.push(section('Основы глагола', stemGrid(st, true)));
+    var inflection = wordFormsTable(w);
+    if (inflection) secs.push(inflection);
     if (w.syn && w.syn.length) secs.push(section('Синонимы', el('div', { 'class': 'wchips' }, w.syn.map(function (s) { return wordChip(s, w.id); }))));
     if (w.ant && w.ant.length) secs.push(section('Антонимы', el('div', { 'class': 'wchips' }, w.ant.map(function (s) { return wordChip(s, w.id); }))));
     if (formsRest(w.forms)) secs.push(section('Формы', el('p', { 'class': 'txt', text: formsRest(w.forms) })));
@@ -1581,7 +1726,7 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
   }
 
   function showDialog(children) {
-    function uiClose() { dialogRoot.replaceChildren(); }
+    function uiClose() { outAnim(dialogRoot); }
     dialogRoot.replaceChildren(el('div', { 'class': 'scrim', onclick: function (e) { if (e.target === e.currentTarget) popLayer('dialog'); } },
       el('div', { 'class': 'dialog', role: 'alertdialog', 'aria-modal': 'true' }, children)));
     pushLayer('dialog', uiClose);
@@ -1609,7 +1754,7 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
   }
 
   /* ---------- form ---------- */
-  function uiCloseForm() { ui.formOpen = false; formRoot.replaceChildren(); syncLock(); }
+  function uiCloseForm() { ui.formOpen = false; outAnim(formRoot); syncLock(); }
   function closeForm() { popLayer('form'); }
   function openSheet() { ui.formOpen = true; syncLock(); pushLayer('form', uiCloseForm); }
 
@@ -2137,7 +2282,7 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   }
 
   /* ---------- select mode ---------- */
-  function updateSelBar() { $('#selCount').textContent = 'Выбрано: ' + ui.sel.size; $('#selTag').disabled = !ui.sel.size; }
+  function updateSelBar() { $('#selCount').textContent = 'Выбрано: ' + ui.sel.size; $('#selTag').disabled = !ui.sel.size; $('#selTrain').disabled = !ui.sel.size; }
   function applySelectUi() { document.body.classList.toggle('selmode', ui.select); $('#selbar').hidden = !ui.select; if (!ui.select) document.querySelectorAll('#list .row.sel').forEach(function (r) { r.classList.remove('sel'); }); }
   function exitSelectUi() { ui.select = false; ui.sel.clear(); applySelectUi(); }
   function enterSelect() {
@@ -2154,7 +2299,7 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
 
   /* ---------- training (spaced repetition) ---------- */
   var DAY = 86400000;
-  var trainCfg = { tag: null, mode: 'due', dir: 'mix', size: 20, type: 'flip' };
+  var trainCfg = { tag: null, ids: null, mode: 'due', dir: 'mix', size: 20, type: 'flip' };
   var trainRoot = $('#trainRoot');
   var session = null;
   function srsMap() { var m = getMeta('_srs'); return (m && m.m) ? m.m : {}; }
@@ -2171,10 +2316,48 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   function fmtIvl(d) { return d < 7 ? d + ' д.' : (d < 30 ? Math.round(d / 7) + ' нед.' : Math.round(d / 30) + ' мес.'); }
   function gradeHint(st, g) { return g === 0 ? '10 мин' : fmtIvl(schedule(st, g).ivl); }
 
-  function uiCloseTrain() { ui.train = false; session = null; trainRoot.replaceChildren(); syncLock(); render(); }
+  function uiCloseTrain() { ui.train = false; trainCfg.ids = null; session = null; outAnim(trainRoot); syncLock(); render(); }
   function openTrain() { ui.train = true; syncLock(); pushLayer('train', uiCloseTrain); trainSetup(); }
   function closeTrain() { popLayer('train'); }
-  function scopeWords() { return words.filter(tagMatcher(trainCfg.tag)); }
+  function scopeWords() {
+    var ids = trainCfg.ids && trainCfg.ids.length ? new Set(trainCfg.ids) : null, m = tagMatcher(trainCfg.tag);
+    return words.filter(function (w) {
+      if (ids ? !ids.has(w.id) : !m(w)) return false;
+      if (trainCfg.type !== 'stems') return true;
+      var x = stemsOf(w); return !!(x && x.past && x.pres);
+    });
+  }
+  function trainWordsPick() {
+    var n = trainCfg.ids ? trainCfg.ids.length : 0;
+    return el('div', { 'class': 'picks' },
+      el('button', { type: 'button', 'class': 'opt' + (n ? ' on' : ''), text: n ? 'Выбрано слов: ' + n : 'Выбрать слова вручную', onclick: function () {
+        wordDialog({ title: 'Слова для повторения', multi: true, init: trainCfg.ids, base: trainCfg.type === 'stems' ? words.filter(function (w) { return stemsOf(w); }) : words,
+          onDone: function (ids) { trainCfg.ids = ids.length ? ids : null; trainSetup(); } });
+      } }),
+      n ? el('button', { type: 'button', 'class': 'opt', text: 'Сбросить', onclick: function () { trainCfg.ids = null; trainSetup(); } }) : null);
+  }
+  function stemQuiz(card, w, s, fa, trEl, mean, sx) {
+    if (!card.opts) {
+      var pool = scopeWords().filter(function (x) { return x.id !== w.id; });
+      if (pool.length < 3) pool = words.filter(function (x) { var t = stemsOf(x); return x.id !== w.id && t && t.pres; });
+      var seen = {}; seen[sx.pres] = 1; var picks = [];
+      shuffle(pool).forEach(function (x) { var t = stemsOf(x); if (picks.length < 3 && t && t.pres && !seen[t.pres]) { seen[t.pres] = 1; picks.push(x); } });
+      if (!picks.length) return false;
+      card.opts = shuffle([w].concat(picks)).map(function (x) { return x.id; });
+    }
+    var answered = card.choice != null;
+    var list = el('div', { 'class': 'qopts' }, card.opts.map(function (id) {
+      var x = words.find(function (y) { return y.id === id; });
+      var cls = 'qopt' + (answered ? (id === w.id ? ' ok' : (id === card.choice ? ' bad' : '')) : '');
+      return el('button', { type: 'button', 'class': cls, onclick: function () { if (card.choice != null) return; card.choice = id; showCard(); } }, el('span', { text: stemsOf(x).pres }));
+    }));
+    var face = el('div', { 'class': 'tcard quiz' }, calli(9, w.id, 'card'), el('span', { 'class': 'crest' }), fa, trEl, mean,
+      el('p', { 'class': 'tsub' }, 'Основа прошедшего: ', el('b', { text: sx.past })), el('p', { 'class': 'tsub', text: 'Какая основа настоящего времени?' }),
+      el('hr', { 'class': 'thr' }), list);
+    var actions = answered ? el('button', { type: 'button', 'class': 'btn primary', text: card.choice === w.id ? 'Верно, дальше' : 'Дальше: ' + sx.pres, onclick: function () { grade(card.choice === w.id ? 2 : 0); } }) : null;
+    showTrain([trainBar('Осталось ' + s.queue.length), el('div', { 'class': 'tprog', style: '--p:' + (s.done / s.total) }, el('i')), face], actions);
+    return true;
+  }
   function showTrain(children, actions) {
     var first = !trainRoot.firstElementChild;
     var sheet = el('div', { 'class': 'sheet form' + (first ? ' enter' : ''), role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Тренировка' },
@@ -2215,7 +2398,8 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
         streakCount() ? ' · серия ' : null, streakCount() ? el('b', { text: streakCount() }) : null, streakCount() ? ' дн.' : null),
       !n ? el('p', { 'class': 'hint', text: trainCfg.mode === 'due' ? 'На сегодня всё повторено. Выберите «Все подряд», чтобы позаниматься вне расписания.' : (trainCfg.mode === 'hard' ? 'Трудных слов пока нет: они появятся после ответов «Снова» и «Трудно».' : 'В подборке нет слов.') }) : null,
       sec('Что учить', el('button', { type: 'button', 'class': 'btn ghost', text: (trainCfg.tag ? tagLabel(trainCfg.tag) : 'Все слова') + '  \u00b7  выбрать', onclick: function () { openTagPicker(function (v) { trainCfg.tag = v; trainSetup(); }); } })),
-      sec('Тип', opts([['flip', 'Карточки'], ['quiz', 'Тест']], trainCfg.type, function (v) { trainCfg.type = v; trainSetup(); })),
+      sec('Или выбрать вручную', trainWordsPick()),
+      sec('Тип', opts([['flip', 'Карточки'], ['quiz', 'Тест'], ['stems', 'Основы глаголов']], trainCfg.type, function (v) { trainCfg.type = v; trainSetup(); })),
       sec('Режим', opts([['due', 'По расписанию'], ['hard', 'Трудные'], ['all', 'Все подряд']], trainCfg.mode, function (v) { trainCfg.mode = v; trainSetup(); })),
       sec('Направление', opts([['fwd', 'Слово → перевод'], ['rev', 'Перевод → слово'], ['mix', 'Вперемешку']], trainCfg.dir, function (v) { trainCfg.dir = v; trainSetup(); })),
       sec('Карточек за раз', opts([[10, '10'], [20, '20'], [50, '50']], trainCfg.size, function (v) { trainCfg.size = v; trainSetup(); })),
@@ -2273,6 +2457,7 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     var mean = el('div', { 'class': 'tmean', text: w.meaning });
     var sx = stemsOf(w), fr = formsRest(w.forms);
     var extra = [sx ? stemGrid(sx, false) : null, fr ? el('p', { 'class': 'tsub', text: fr }) : null, w.notes ? el('p', { 'class': 'tsub', text: w.notes }) : null];
+    if (trainCfg.type === 'stems' && sx && sx.past && sx.pres && stemQuiz(card, w, s, fa, trEl, mean, sx)) return;
     if (trainCfg.type === 'quiz' && quizCard(card, w, s, tags, fa, trEl, mean)) return;
     var front = card.dir === 'fwd' ? [fa, trEl, tags] : [mean, tags];
     var back = card.dir === 'fwd' ? [mean, extra] : [fa, trEl, extra];
@@ -2335,6 +2520,158 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       }
     } catch (e) { if (!e || e.code !== 'declined') toast('Не удалось сохранить файл.'); }
   }
+
+  /* ---------- word picker + phrases ---------- */
+  function ruShort(w) { return String(w.meaning || '').split(' · ').pop().split(/[;,]/)[0].trim(); }
+  function wordDialog(o) {
+    var sel = new Set(o.init || []), q = '';
+    var inp = el('input', { type: 'search', 'class': 'dlg-input', placeholder: 'Найти слово', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Найти слово' });
+    var cnt = el('p', { 'class': 'dd', style: 'margin:6px 0' }), list = el('div', { 'class': 'wlist' });
+    function build() {
+      var qq = sq(q), r = o.base.filter(function (w) { return !qq || sq(w.tr + ' ' + w.meaning + ' ' + (w.fa || '')).indexOf(qq) >= 0; });
+      cnt.textContent = (o.multi ? 'Выбрано: ' + sel.size : 'Найдено: ' + r.length) + (r.length > 60 ? ' · показаны первые 60' : '');
+      list.replaceChildren.apply(list, r.slice(0, 60).map(function (w) {
+        var on = sel.has(w.id);
+        return el('button', { type: 'button', 'class': 'opt wpick' + (on ? ' on' : ''), 'aria-pressed': String(on), onclick: function () {
+          if (!o.multi) { popLayer('dialog'); o.onDone(w); return; }
+          if (sel.has(w.id)) sel.delete(w.id); else sel.add(w.id); build();
+        } }, el('b', { text: w.tr }), el('span', { text: '  ' + ruShort(w) }));
+      }));
+    }
+    inp.addEventListener('input', function () { q = inp.value; build(); });
+    build();
+    showDialog([el('p', { 'class': 'dt', text: o.title }), inp, cnt, list, o.multi ? el('div', { 'class': 'dact', style: 'margin-top:12px' },
+      el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: function () { popLayer('dialog'); } }),
+      el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: function () { popLayer('dialog'); o.onDone(Array.from(sel)); } })) : null]);
+  }
+  var PH = [
+    ['Приветствия', [
+      ['سلام', 'salām', 'Привет; здравствуйте', 'salām — «мир»; приветствие на любое время и для «ты», и для «вы»|одно слово, без глагола и без форм по лицам'],
+      ['صبح بخیر', 'sobh bekheyr', 'Доброе утро', 'sobh — утро|be — в, с|kheyr — добро, благо|буквально «утро в добре»; глагола нет. Так же строятся shab bekheyr и asr bekheyr'],
+      ['شب بخیر', 'shab bekheyr', 'Добрый вечер; спокойной ночи', 'shab — ночь, вечер|be kheyr — в добре|та же схема, что у sobh bekheyr; вечером это приветствие, на ночь — пожелание'],
+      ['حال شما چطور است؟', 'hāl-e shomā chetor ast?', 'Как ваши дела?', 'hāl — состояние, дела|-e — изафет, связывает слова|shomā — вы (вежливо)|chetor — как|ast — есть|изафет -e присоединяет определение к определяемому: «состояние вас». Вопросительное слово стоит перед глаголом, порядок слов как в утверждении'],
+      ['خوبم، ممنون', 'khubam, mamnun', 'Хорошо, спасибо', 'khub — хороший|-am — «я есть» (окончание-связка)|mamnun — благодарен|связка слита с прилагательным: khub + am = khubam «я хорош(о)». Слово man не нужно, окончание уже значит «я»'],
+      ['خداحافظ', 'khodāhāfez', 'До свидания', 'khodā — Бог|hāfez — хранитель|буквально «Бог — хранитель»; пожелание быть под защитой, одно слово'],
+      ['ببخشید', 'bebakhshid', 'Извините', 'be- — приставка повеления|bakhsh — основа глагола bakhshidan «прощать»|-id — «вы»|повелительная форма на «вы»: be + основа + -id. На «ты» было бы bebakhsh'],
+      ['خواهش می‌کنم', 'khāhesh mikonam', 'Пожалуйста; не за что', 'khāhesh — просьба|mi- — приставка настоящего времени|kon — основа kardan «делать»|-am — «я»|khāhesh kardan «просить» — составной глагол: существительное + kardan. Буквально «прошу»'],
+      ['متشکرم', 'moteshakkeram', 'Благодарю', 'moteshakker — благодарный|-am — «я есть»|связка слита с прилагательным, как в khubam. Книжная форма; в речи чаще mamnun или mersi']]],
+    ['Знакомство', [
+      ['اسم من ... است', 'esm-e man ... ast', 'Меня зовут ...', 'esm — имя|-e — изафет|man — я, мой|... — ваше имя|ast — есть|«имя моё ... есть». Отдельного слова «мой» нет: man после изафета значит «мой»'],
+      ['اسم شما چیست؟', 'esm-e shomā chist?', 'Как вас зовут?', 'esm-e shomā — ваше имя|chi — что|-st — сокращённое ast «есть»|chi + ast = chist, буквально «что есть?». Зеркально фразе «esm-e man ... ast»'],
+      ['از دیدن شما خوشحالم', 'az didan-e shomā khoshhālam', 'Рад(а) вас видеть', 'az — от, из|didan — видеть, «видение»|-e shomā — вас|khoshhāl — радостный|-am — я есть|инфинитив didan работает как существительное: «от видения вас я рад». Предлог az вводит причину радости'],
+      ['من از ارمنستان هستم', 'man az armanestān hastam', 'Я из Армении', 'man — я|az — из|armanestān — Армения|hastam — я есть|страна идёт после az, связка в конце. Меняйте страну: man az irān hastam. -stān — «страна»'],
+      ['من دانشجو هستم', 'man dāneshju hastam', 'Я студент(ка)', 'dāneshju — студент|hastam — я есть|рода и артикля нет: dāneshju значит и «студент», и «студентка». Профессия стоит прямо перед hastam'],
+      ['شما اهل کجا هستید؟', 'shomā ahl-e kojā hastid?', 'Вы откуда родом?', 'shomā — вы|ahl — житель, уроженец|-e — изафет|kojā — где|hastid — вы есть|ahl-e + место = «родом из». Буквально «вы житель где?»'],
+      ['کمی فارسی بلدم', 'kami fārsi baladam', 'Я немного знаю персидский', 'kami — немного|fārsi — персидский язык|balad — знающий|-am — я есть|balad budan — «уметь, знать»; связка слита: baladam «я умею». Слово kami ставится перед тем, что оно уменьшает']]],
+    ['Просьбы и вопросы', [
+      ['ببخشید، ... کجاست؟', 'bebakhshid, ... kojāst?', 'Извините, где ...?', 'bebakhshid — извините|... — место|kojā — где|-st — ast|вежливое вступление и вопрос. kojā + ast сливаются в kojāst'],
+      ['می‌توانید کمک کنید؟', 'mitavānid komak konid?', 'Вы можете помочь?', 'mi- — настоящее время|tavān — основа tavānestan «мочь»|-id — вы|komak — помощь|konid — сделайте (kardan)|после «мочь» второй глагол стоит в сослагательном наклонении. komak kardan — «помогать». Вопрос задаётся только интонацией'],
+      ['لطفاً آهسته‌تر صحبت کنید', 'lotfan āheste-tar sohbat konid', 'Говорите медленнее, пожалуйста', 'lotfan — пожалуйста|āheste — медленно|-tar — «более»|sohbat — разговор|konid — делайте|sohbat kardan — «говорить». Суффикс -tar образует сравнительную степень от любого прилагательного: āhestetar «медленнее»'],
+      ['دوباره بگویید', 'dobāre beguyid', 'Повторите, пожалуйста', 'dobāre — снова|be- — приставка повеления|guy — основа goftan «говорить»|-id — вы|повеление на «вы»: be + основа + -id'],
+      ['نمی‌فهمم', 'nemifahmam', 'Я не понимаю', 'ne- — не|mi- — настоящее|fahm — основа fahmidan «понимать»|-am — я|отрицание ne- стоит перед mi-: ne + mi = nemi. Man не нужно, окончание уже «я»'],
+      ['این به فارسی چه می‌شود؟', 'in be fārsi che mishavad?', 'Как это по-персидски?', 'in — это|be — на, в|fārsi — персидский|che — что|mishavad — становится|буквально «это на персидском что становится?». shodan — «становиться, делаться»; -ad — «он, оно»'],
+      ['چه معنی دارد؟', 'che ma\'ni dārad?', 'Что это значит?', 'che — что|ma\'ni — значение|dārad — имеет (dār + -ad «он»)|буквально «какое значение имеет?». «Иметь значение» — ma\'ni dāshtan']]],
+    ['В городе', [
+      ['این چند است؟', 'in chand ast?', 'Сколько это стоит?', 'in — это|chand — сколько|ast — есть|буквально «это сколько есть?». Отдельного слова «стоить» не нужно'],
+      ['خیلی گران است', 'kheili gerān ast', 'Очень дорого', 'kheili — очень|gerān — дорогой|ast — есть|наречие kheili ставится перед прилагательным, связка ast — в конце'],
+      ['تخفیف می‌دهید؟', 'takhfif midahid?', 'Скидку сделаете?', 'takhfif — скидка|mi- — настоящее|dah — основа dādan «давать»|-id — вы|takhfif dādan — «делать скидку», буквально «давать скидку». Вопрос — интонация'],
+      ['ایستگاه مترو کجاست؟', 'istgāh-e metro kojāst?', 'Где станция метро?', 'istgāh — станция|-e — изафет|metro — метро|kojā + ast — где есть|«станция метро» — определяемое первым, затем изафет и определение'],
+      ['من گم شده‌ام', 'man gom shode-am', 'Я заблудился', 'gom — потерянный|shode — ставший|-am — я|gom shodan — «теряться, пропадать». Причастие shode + окончание -am даёт прошедшее время: «я потерялся»']]],
+    ['Еда', [
+      ['گرسنه‌ام', 'gorosneam', 'Я голоден', 'gorosne — голодный|-am — я есть|прилагательное + окончание-связка, как khubam'],
+      ['تشنه‌ام', 'teshneam', 'Я хочу пить', 'teshne — жаждущий|-am — я есть|как gorosneam: «я жаждущий»'],
+      ['یک چای لطفاً', 'yek chāy lotfan', 'Один чай, пожалуйста', 'yek — один|chāy — чай|lotfan — пожалуйста|глагола нет: числительное + существительное, просьба в конце'],
+      ['صورت‌حساب لطفاً', 'surat-hesāb lotfan', 'Счёт, пожалуйста', 'surat — список, форма|hesāb — счёт|lotfan — пожалуйста|surat-hesāb — составное слово «счёт». Просьба без глагола'],
+      ['خیلی خوشمزه است', 'kheili khoshmaze ast', 'Очень вкусно', 'kheili — очень|khoshmaze — вкусный|ast — есть|khosh «приятный» + maze «вкус». Порядок такой же, как в kheili gerān ast'],
+      ['نوش جان', 'nush-e jān', 'Приятного аппетита', 'nush — нектар, угощение|-e jān — душе|пожелание тому, кто ест; буквально «нектар для души». Изафет связывает слова']]],
+    ['Состояние', [
+      ['گرمم است', 'garmam ast', 'Мне жарко', 'garm — жаркий|-am — мне, мой|ast — есть|«жар мой есть». Здесь -am значит «мне, мой», а не «я есть»: поэтому ast остаётся. Так же sardam ast'],
+      ['سردم است', 'sardam ast', 'Мне холодно', 'sard — холодный|-am — мне|ast — есть|как garmam ast'],
+      ['خسته‌ام', 'khastam', 'Я устал(а)', 'khaste — усталый|-am — я есть|прилагательное + «я есть» слитно, как khubam. Род не различается'],
+      ['حالم خوب نیست', 'hālam khub nist', 'Мне нехорошо', 'hāl — состояние|-am — моё|khub — хороший|nist — нет, не есть|«состояние моё хорошее не есть». nist — отрицательная связка вместо ast'],
+      ['خوشحالم', 'khoshhālam', 'Я рад(а)', 'khoshhāl — радостный|-am — я есть|khosh «хороший» + hāl «состояние», затем окончание-связка']]],
+    ['Связки и реплики', [
+      ['البته', 'albatte', 'Конечно', 'albatte — конечно, разумеется|арабское наречие, не изменяется. Ставится в начале ответа'],
+      ['شاید', 'shāyad', 'Возможно', 'shāyad — возможно|после него глагол стоит в сослагательном наклонении: shāyad biyāyad «возможно, придёт»'],
+      ['حتماً', 'hatman', 'Обязательно', 'hatman — непременно|арабское наречие с окончанием -an, не изменяется. Ставится перед глаголом'],
+      ['به نظر من', 'be nazar-e man', 'По-моему', 'be — по|nazar — мнение, взгляд|-e man — моё|буквально «по мнению моему». Изафет связывает nazar и man'],
+      ['مثلاً', 'masalan', 'Например', 'masalan — например|арабское наречие с окончанием -an, как hatman. Не изменяется'],
+      ['یعنی', 'ya\'ni', 'То есть; значит', 'ya\'ni — то есть|арабское слово от «означать»; вводит уточнение или пересказ. Не изменяется'],
+      ['درست است', 'dorost ast', 'Верно', 'dorost — верный|ast — есть|буквально «верно есть». В ответе часто одно dorost'],
+      ['مشکلی نیست', 'moshkeli nist', 'Нет проблем', 'moshkel — трудность|-i — суффикс неопределённости|nist — нет|-i делает слово неопределённым: «никакой трудности нет»'],
+      ['ان‌شاءالله', 'enshāllāh', 'Если будет на то воля Бога', 'in — если|shā — захочет|allāh — Бог|«если захочет Бог». Говорят о планах на будущее, как «даст бог»']]]
+  ];
+  var TPL = [
+    ['من ... دوست دارم', 'man ... dust dāram', 'Я люблю ...', 'man — я|... — сюда ставится существительное: то, что любите|dust dāram — люблю: dust «друг» + dāram «имею», буквально «имею в друзьях»|порядок: подлежащее, дополнение, глагол в конце. Окончание -am в dāram — «я». Пример: man qārch dust dāram'],
+    ['من ... می‌خواهم', 'man ... mikhāham', 'Я хочу ...', 'man — я|... — то, что хотите|mi- — приставка настоящего времени|khāh — основа khāstan «хотеть»|-am — «я»|окончание уже показывает «я», поэтому man можно опустить: mikhāham ...'],
+    ['من ... دارم', 'man ... dāram', 'У меня есть ...', 'man — я|... — предмет|dāram — имею (dār + -am)|«У меня есть» по-персидски — «я имею». dāshtan в настоящем обычно без приставки mi-'],
+    ['... کجاست؟', '... kojāst?', 'Где ...?', 'kojā — где|-st — сокращённое ast «есть»|... — предмет, о котором спрашиваем|kojā + ast сливаются в kojāst. Порядок: предмет, затем kojāst'],
+    ['... چند است؟', '... chand ast?', 'Сколько стоит ...?', 'chand — сколько|ast — есть|... — предмет|буквально «... сколько есть?». Связка ast стоит в конце'],
+    ['آیا ... دارید؟', 'āyā ... dārid?', 'У вас есть ...?', 'āyā — частица вопроса «ли», ставится в начало|... — предмет|dārid — вы имеете (dār + -id «вы»)|āyā можно опустить: тогда вопрос выдаст только интонация'],
+    ['لطفاً ... را به من بدهید', 'lotfan ... rā be man bedahid', 'Дайте мне, пожалуйста, ...', 'lotfan — пожалуйста|... — предмет|rā — показатель прямого дополнения|be man — мне|bedahid — дайте (be- + dah «давать» + -id «вы»)|rā ставится сразу после дополнения, глагол — в самом конце'],
+    ['این ... خیلی ... است', 'in ... kheili ... ast', 'Этот ... очень ...', 'in — этот, это|... — существительное|kheili — очень|... — прилагательное|ast — есть|прилагательное здесь сказуемое, поэтому стоит перед ast. Рода и падежей нет, in одинаково для любого слова'],
+    ['من ... هستم', 'man ... hastam', 'Я ...', 'man — я|... — прилагательное или название (кто, какой)|hastam — я есть (hast + -am)|связка hastam вместо ast, потому что подлежащее «я». man можно опустить'],
+    ['هوا ... است', 'havā ... ast', 'Погода ...', 'havā — воздух, погода|... — прилагательное (garm, sard)|ast — есть|по-русски «погода тёплая», по-персидски «воздух тёплый есть». Связка в конце']
+  ];
+  var LS_MYPH = 'fa-dict:myphrases', phState = { cat: 'Все' }, phBuild = null;
+  function myPhrases() { try { var a = JSON.parse(lsGet(LS_MYPH) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function phCard(p, mi) {
+    var ex = null;
+    if (p[3]) {
+      var parts = p[3].split('|'), note = parts.pop();
+      ex = el('div', { 'class': 'phex' }, parts.map(function (l) {
+        var i = l.indexOf(' \u2014 ');
+        return i > 0
+          ? el('p', { 'class': 'phw' }, el('b', null, phraseWordLinks(l.slice(0, i), 'fa')), ' \u2014 ', phraseWordLinks(l.slice(i + 3), 'tr'))
+          : el('p', { 'class': 'phw' }, phraseWordLinks(l, 'tr'));
+      }), el('p', { 'class': 'phnote' }, el('b', { text: 'Почему так: ' }), phraseWordLinks(note, 'tr')));
+    }
+    var card = el('div', { 'class': 'phcard' + (ex ? ' has' : '') },
+      p[0] ? el('div', { 'class': 'phfa', lang: 'fa', dir: 'rtl' }, phraseWordLinks(p[0], 'fa')) : null,
+      el('div', { 'class': 'phtr' }, phraseWordLinks(p[1], 'tr')), el('p', { 'class': 'phru', text: p[2] }), ex,
+      mi != null ? el('button', { type: 'button', 'class': 'phdel', 'aria-label': 'Удалить фразу', text: '\u2715', onclick: function (e) {
+        e.stopPropagation(); var l = myPhrases(); l.splice(mi, 1); lsSet(LS_MYPH, JSON.stringify(l)); phBuild();
+      } }) : null);
+    if (ex) card.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('button')) return;
+      card.classList.toggle('open');
+    });
+    return card;
+  }
+  function addMyPhrase() {
+    function inp(ph) { return el('input', { type: 'text', 'class': 'dlg-input', placeholder: ph, autocomplete: 'off', autocapitalize: 'off', style: 'margin-bottom:8px' }); }
+    var fa = inp('Персидское написание (можно пропустить)'), tr = inp('Транслитерация'), ru = inp('Перевод');
+    fa.setAttribute('dir', 'rtl'); fa.setAttribute('lang', 'fa');
+    showDialog([el('p', { 'class': 'dt', text: 'Своя фраза' }), fa, tr, ru, el('div', { 'class': 'dact', style: 'margin-top:8px' },
+      el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: function () { popLayer('dialog'); } }),
+      el('button', { type: 'button', 'class': 'btn primary', text: 'Добавить', onclick: function () {
+        var a = tr.value.trim(), b = ru.value.trim(); if (!a || !b) { toast('Нужны транслитерация и перевод'); return; }
+        var l = myPhrases(); l.push([fa.value.trim(), a, b]); lsSet(LS_MYPH, JSON.stringify(l));
+        popLayer('dialog'); phState.cat = 'Мои фразы'; phBuild();
+      } }))]);
+    tr.focus();
+  }
+  function openPhrases() {
+    openSheet();
+    var inp = el('input', { type: 'search', 'class': 'pksearch', placeholder: 'Найти фразу', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Найти фразу' });
+    var cats = el('div', { 'class': 'chips' }), tools = el('div', { 'class': 'picks' }), list = el('div', { 'class': 'phlist' });
+    tools.append(el('button', { type: 'button', 'class': 'opt', text: '+ Своя фраза', onclick: addMyPhrase }));
+    phBuild = function () {
+      var cat = phState.cat, q = sq(inp.value), out = [];
+      function ok(a) { return !q || sq(a.join(' ')).indexOf(q) >= 0; }
+      cats.replaceChildren.apply(cats, ['Все', 'Шаблоны'].concat(PH.map(function (c) { return c[0]; }), ['Мои фразы']).map(function (c) {
+        return el('button', { type: 'button', 'class': 'fchip' + (cat === c ? ' on' : ''), style: '--h:' + hue(c), 'aria-pressed': String(cat === c), onclick: function () { phState.cat = c; phBuild(); } }, c);
+      }));
+      if (cat === 'Все' || cat === 'Шаблоны') TPL.forEach(function (t) { if (ok([t[1], t[2]])) out.push(phCard(t)); });
+      PH.forEach(function (c) { if (cat === 'Все' || cat === c[0]) c[1].forEach(function (p) { if (ok([p[1], p[2]])) out.push(phCard(p)); }); });
+      if (cat === 'Все' || cat === 'Мои фразы') myPhrases().forEach(function (p, i) { if (ok([p[1], p[2]])) out.push(phCard(p, i)); });
+      list.replaceChildren.apply(list, out.length ? out : [el('p', { 'class': 'hint', text: cat === 'Мои фразы' ? 'Здесь появятся ваши фразы.' : 'Ничего не найдено.' })]);
+    };
+    inp.addEventListener('input', function () { phBuild(); });
+    phBuild();
+    formRoot.replaceChildren(sheetShell('Фразы', 'Закрыть', [banner('جمله‌ها'), inp, cats, tools, list]));
+  }
+  $('#selTrain').addEventListener('click', function () { if (!ui.sel.size) return; trainCfg.ids = Array.from(ui.sel); trainCfg.tag = null; if (trainCfg.type === 'stems' && !scopeWords().length) trainCfg.type = 'flip'; popLayer('select'); openTrain(); });
 
   /* ---------- wiring ---------- */
   var searchTimer = 0;
@@ -2441,7 +2778,7 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   })();
   (function () { var last = window.scrollY, fab = $('#add'); window.addEventListener('scroll', function () { var y = window.scrollY; fab.classList.toggle('mini', y > last && y > 160); last = y; }, { passive: true }); })();
   (function () {
-    var go = { top: function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }, train: function () { $('#trainBtn').click(); }, add: function () { $('#add').click(); }, conj: function () { $('#conjBtn').click(); }, alpha: function () { $('#alphaBtn').click(); } };
+    var go = { phr: function () { openPhrases(); }, train: function () { $('#trainBtn').click(); }, add: function () { $('#add').click(); }, conj: function () { $('#conjBtn').click(); }, alpha: function () { $('#alphaBtn').click(); } };
     document.querySelector('.dock').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b && go[b.dataset.go]) go[b.dataset.go](); });
   })();
   var lpT = 0, lpX = 0, lpY = 0, lpFired = false, listEl = $('#list');
