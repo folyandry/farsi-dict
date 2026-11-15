@@ -1628,6 +1628,42 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
   }
   function section(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
 
+  function wordFormsTable(w) {
+    var pronouns = [['man', 'я'], ['to', 'ты'], ['u', 'он / она'], ['mā', 'мы'], ['shomā', 'вы'], ['ānhā', 'они']];
+    var st = stemsOf(w);
+    if (st && st.past && st.pres) {
+      var pastEnd = ['am', 'i', '', 'im', 'id', 'and'];
+      var presEnd = ['am', 'i', 'ad', 'im', 'id', 'and'];
+      var rows = pronouns.map(function (p, i) {
+        return el('tr', null,
+          el('th', null, el('b', { text: p[0] }), el('span', { text: p[1] })),
+          el('td', null, el('span', { 'class': 'f', text: st.past + pastEnd[i] })),
+          el('td', null, el('span', { 'class': 'f', text: 'mi-' + st.pres + presEnd[i] })));
+      });
+      return section('Спряжение', el('div', { 'class': 'cjw' },
+        el('table', { 'class': 'cj' },
+          el('tr', null, el('th'), el('th', null, el('b', { text: 'Прошедшее' }), el('span', { text: 'простое' })),
+            el('th', null, el('b', { text: 'Настоящее' }), el('span', { text: 'длительное' }))), rows)));
+    }
+    if ((w.tags || []).indexOf('существительное') >= 0) {
+      var base = String(w.tr || '').trim(), fa = String(w.fa || '').trim();
+      var suffixes = [['-am', 'мой', 'م'], ['-at', 'твой', 'ت'], ['-ash', 'его / её', 'ش'], ['-emān', 'наш', 'مان'], ['-etān', 'ваш', 'تان'], ['-eshān', 'их', 'شان']];
+      var rows = [el('tr', null,
+        el('th', null, el('b', { text: 'мн. число' }), el('span', { text: 'обычная форма' })),
+        el('td', null, el('span', { 'class': 'f', text: base ? base + '-hā' : '—' })),
+        el('td', null, el('span', { 'class': 'f', text: fa ? fa + 'ها' : '—' })))];
+      suffixes.forEach(function (v) { rows.push(el('tr', null,
+        el('th', null, el('b', { text: v[0] }), el('span', { text: v[1] })),
+        el('td', null, el('span', { 'class': 'f', text: base ? base + v[0] : '—' })),
+        el('td', null, el('span', { 'class': 'f', text: fa ? fa + v[2] : '—' })))); });
+      return section('Формы существительного', el('div', { 'class': 'cjw' },
+        el('table', { 'class': 'cj' },
+          el('tr', null, el('th'), el('th', null, el('b', { text: 'Транслитерация' })),
+            el('th', null, el('b', { text: 'Персидское письмо' }))), rows)));
+    }
+    return null;
+  }
+
   function renderDetail(reset) {
     var w = words.find(function (x) { return x.id === ui.detailId; });
     if (!w) { closeDetail(); return; }
@@ -1654,6 +1690,8 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     var secs = [];
     var st = stemsOf(w);
     if (st) secs.push(section('Основы глагола', stemGrid(st, true)));
+    var inflection = wordFormsTable(w);
+    if (inflection) secs.push(inflection);
     if (w.syn && w.syn.length) secs.push(section('Синонимы', el('div', { 'class': 'wchips' }, w.syn.map(function (s) { return wordChip(s, w.id); }))));
     if (w.ant && w.ant.length) secs.push(section('Антонимы', el('div', { 'class': 'wchips' }, w.ant.map(function (s) { return wordChip(s, w.id); }))));
     if (formsRest(w.forms)) secs.push(section('Формы', el('p', { 'class': 'txt', text: formsRest(w.forms) })));
@@ -2659,7 +2697,8 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     var phraseSearchTimer = 0;
     inp.addEventListener('input', function () { clearTimeout(phraseSearchTimer); phraseSearchTimer = setTimeout(phBuild, 70); });
     formRoot.replaceChildren(sheetShell('Фразы', 'Закрыть', [banner('جمله‌ها'), inp, cats, tools, list]));
-    window.setTimeout(function () { phraseEnsureDictionaryEntries(); phBuild(); }, 0);
+    /* Render the phrase list immediately. Dictionary mutations must not block first paint. */
+    phBuild();
   }
   $('#selTrain').addEventListener('click', function () { if (!ui.sel.size) return; trainCfg.ids = Array.from(ui.sel); trainCfg.tag = null; if (trainCfg.type === 'stems' && !scopeWords().length) trainCfg.type = 'flip'; popLayer('select'); openTrain(); });
 
