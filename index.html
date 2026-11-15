@@ -837,9 +837,6 @@
   @media (prefers-reduced-motion: reduce) { .sheet.enter, .sheet.form.enter, .scrim, .scrim .dialog, .row { animation: none !important; } }
   /* phrases + pickers */
   .phlist { margin-top: 6px; }
-
-  .phword-link { display: inline; padding: 0; margin: 0; border: 0; border-bottom: 1px dotted rgba(88,184,173,.8); border-radius: 0; background: none; color: var(--teal); font: inherit; cursor: pointer; }
-  .phword-link:active { color: var(--accent); }
   .phcard { position: relative; margin-bottom: 10px; padding: 14px 16px; border-radius: 20px 20px 20px 8px; background: var(--g-card); border: 1px solid rgba(208, 174, 104, .22); cursor: pointer; }
   .phfa { font: 600 24px/1.55 var(--fa-d); text-align: right; color: var(--text); }
   .phtr { margin-top: 2px; color: var(--accent); overflow-wrap: anywhere; }
@@ -859,7 +856,25 @@
   .phw { margin: 3px 0; color: var(--mute); }
   .phw b { color: var(--text); font-weight: 600; }
   .phnote { margin: 8px 0 0; color: var(--text); }
-  .phnote b { color: var(--teal); }
+  .phnote b { color: inherit; }
+  .dock [data-go="phr"] { transition: background-color .12s ease, opacity .12s ease; }
+  .dock [data-go="phr"]:active { transform: none; }
+
+  /* Phrase vocabulary links: preserve the original gold palette and Persian glyph styling. */
+  .phword-link { color: inherit; font: inherit; text-decoration: underline; text-decoration-color: var(--gold-line); text-decoration-thickness: 1px; text-underline-offset: 3px; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
+  .phfa .phword-link { color: inherit; font: inherit; direction: rtl; }
+  #detailRoot .sheet { z-index: 40; }
+  .cj-wrap, .cjw { border-radius: 16px; overflow: hidden; }
+  .cj { border-radius: 16px; overflow: hidden; }
+  .cj td:first-child { border-radius: 12px 0 0 12px; }
+  .cj td:last-child { border-radius: 0 12px 12px 0; }
+  .cj tr:first-child th:first-child { border-radius: 12px 0 0 0; }
+  .cj tr:first-child th:last-child { border-radius: 0 12px 0 0; }
+  .phw, .phex, .phcard, .dialog, .tile, .vc, .wchip { border-radius: 14px; }
+
+
+  table { border-radius: 14px; overflow: hidden; }
+  .cjw { border: 1px solid rgba(208, 174, 104, .18); }
 </style>
 </head>
 <body>
@@ -1585,26 +1600,6 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
 
   function findByTr(text) { var k = norm(text); return words.find(function (w) { return norm(w.tr) === k; }); }
 
-  function phraseWordLinks(text, lang) {
-    var out = document.createDocumentFragment();
-    String(text || '').split(/(\s+)/).forEach(function (part) {
-      if (!part) return;
-      if (/^\s+$/.test(part)) { out.append(document.createTextNode(part)); return; }
-      var clean = part.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
-      var target = clean ? words.find(function (w) {
-        return norm(w.tr) === norm(clean) || (lang === 'fa' && norm(w.fa) === norm(clean));
-      }) : null;
-      if (!target) { out.append(document.createTextNode(part)); return; }
-      var start = part.indexOf(clean), end = start + clean.length;
-      if (start) out.append(document.createTextNode(part.slice(0, start)));
-      var link = el('button', { type: 'button', 'class': 'phword-link', title: 'Открыть слово в словаре: ' + target.tr,
-        text: clean, onclick: function (e) { e.stopPropagation(); openDetail(target.id); } });
-      out.append(link);
-      if (end < part.length) out.append(document.createTextNode(part.slice(end)));
-    });
-    return out;
-  }
-
   function outAnim(root) {
     var kids = Array.prototype.slice.call(root.children);
     if (!kids.length || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { root.replaceChildren(); return; }
@@ -1614,9 +1609,12 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
   function uiCloseDetail() { ui.detailId = null; outAnim(detailRoot); syncLock(); }
   function openDetail(id) {
     var first = !ui.detailId;
+    /* A phrase sheet is a form-layer (z-index 30). Keep it mounted underneath,
+       but put the detail sheet above it and register detail as the top history layer. */
     ui.detailId = id; syncLock();
     if (first) pushLayer('detail', uiCloseDetail);
     renderDetail(true);
+    detailRoot.style.zIndex = '45';
   }
   function closeDetail() { popLayer('detail'); }
 
@@ -1629,50 +1627,6 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     return el('span', { 'class': 'wchip', text: text });
   }
   function section(title, content) { return el('section', { 'class': 'sec' }, el('h3', { text: title }), content); }
-
-  function wordFormsTable(w) {
-    var pronouns = [['man', 'я'], ['to', 'ты'], ['u', 'он / она'], ['mā', 'мы'], ['shomā', 'вы'], ['ānhā', 'они']];
-    var st = stemsOf(w);
-    if (st && st.past && st.pres) {
-      var pastEnd = ['am', 'i', '', 'im', 'id', 'and'];
-      var presEnd = ['am', 'i', 'ad', 'im', 'id', 'and'];
-      var rows = pronouns.map(function (p, i) {
-        var past = st.past + pastEnd[i];
-        var present = 'mi-' + st.pres + presEnd[i];
-        return el('tr', null,
-          el('th', null, el('b', { text: p[0] }), el('span', { text: p[1] })),
-          el('td', null, el('span', { 'class': 'f', text: past })),
-          el('td', null, el('span', { 'class': 'f', text: present })));
-      });
-      return section('Спряжение', el('div', { 'class': 'cjw' },
-        el('table', { 'class': 'cj' },
-          el('tr', null, el('th'), el('th', null, el('b', { text: 'Прошедшее' }), el('span', { text: 'простое' })),
-            el('th', null, el('b', { text: 'Настоящее' }), el('span', { text: 'длительное' }))),
-          rows),
-        el('p', { 'class': 'hint', text: 'Формы построены по основам, указанным в карточке. У отдельных глаголов возможны особенности и разговорные варианты.' })));
-    }
-    if ((w.tags || []).indexOf('существительное') >= 0) {
-      var base = String(w.tr || '').trim(), fa = String(w.fa || '').trim();
-      var suffixes = [['-am', 'мой', 'م'], ['-at', 'твой', 'ت'], ['-ash', 'его / её', 'ش'], ['-emān', 'наш', 'مان'], ['-etān', 'ваш', 'تان'], ['-eshān', 'их', 'شان']];
-      var rows = [el('tr', null,
-        el('th', null, el('b', { text: 'мн. число' }), el('span', { text: 'обычная форма' })),
-        el('td', null, el('span', { 'class': 'f', text: base ? base + '-hā' : '—' })),
-        el('td', null, el('span', { 'class': 'f', text: fa ? fa + 'ها' : '—' })))];
-      suffixes.forEach(function (s) {
-        rows.push(el('tr', null,
-          el('th', null, el('b', { text: s[0] }), el('span', { text: s[1] })),
-          el('td', null, el('span', { 'class': 'f', text: base ? base + s[0] : '—' })),
-          el('td', null, el('span', { 'class': 'f', text: fa ? fa + s[2] : '—' }))));
-      });
-      return section('Формы существительного', el('div', { 'class': 'cjw' },
-        el('table', { 'class': 'cj' },
-          el('tr', null, el('th'), el('th', null, el('b', { text: 'Транслитерация' })),
-            el('th', null, el('b', { text: 'Персидское письмо' }))),
-          rows),
-        el('p', { 'class': 'hint', text: 'В персидском нет падежных окончаний. Здесь показаны притяжательные суффиксы; множественное число обычно образуется с помощью -hā.' })));
-    }
-    return null;
-  }
 
   function renderDetail(reset) {
     var w = words.find(function (x) { return x.id === ui.detailId; });
@@ -1700,8 +1654,6 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     var secs = [];
     var st = stemsOf(w);
     if (st) secs.push(section('Основы глагола', stemGrid(st, true)));
-    var inflection = wordFormsTable(w);
-    if (inflection) secs.push(inflection);
     if (w.syn && w.syn.length) secs.push(section('Синонимы', el('div', { 'class': 'wchips' }, w.syn.map(function (s) { return wordChip(s, w.id); }))));
     if (w.ant && w.ant.length) secs.push(section('Антонимы', el('div', { 'class': 'wchips' }, w.ant.map(function (s) { return wordChip(s, w.id); }))));
     if (formsRest(w.forms)) secs.push(section('Формы', el('p', { 'class': 'txt', text: formsRest(w.forms) })));
@@ -2615,27 +2567,64 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   ];
   var LS_MYPH = 'fa-dict:myphrases', phState = { cat: 'Все' }, phBuild = null;
   function myPhrases() { try { var a = JSON.parse(lsGet(LS_MYPH) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function phraseWordTarget(token, lang) {
+    var raw = String(token || '').trim();
+    if (!raw) return null;
+    var clean = raw.replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '');
+    if (!clean) return null;
+    var key = lang === 'fa' ? clean.replace(/[\u200c\u200d]/g, '') : sq(clean);
+    return words.find(function (w) {
+      if (lang === 'fa') return String(w.fa || '').split(/\s*\/\s*/).some(function (v) { return v.replace(/[\u200c\u200d]/g, '') === key; });
+      return String(w.tr || '').split(/\s*\/\s*/).some(function (v) { return sq(v) === key; });
+    }) || null;
+  }
+  function phraseLinkedText(value, lang) {
+    var str = String(value || ''), re = lang === 'fa' ? /[\u0600-\u06ff\u0750-\u077f]+(?:[\u200c\u200d][\u0600-\u06ff\u0750-\u077f]+)*/g : /[A-Za-zÀ-ž]+(?:['’][A-Za-zÀ-ž]+)*(?:-[A-Za-zÀ-ž]+)*/g;
+    var out = [], last = 0, m;
+    while ((m = re.exec(str))) {
+      if (m.index > last) out.push(str.slice(last, m.index));
+      var target = phraseWordTarget(m[0], lang);
+      out.push(target ? el('button', { type: 'button', 'class': 'phword-link', title: 'Открыть слово в словаре', onclick: function (e) { e.stopPropagation(); openDetail(target.id); } }, m[0]) : m[0]);
+      last = re.lastIndex;
+    }
+    if (last < str.length) out.push(str.slice(last));
+    return out;
+  }
+  function phraseEnsureDictionaryEntries() {
+    /* Add glossary headwords that are missing from the personal dictionary.\n       Their gloss is taken directly from the phrase explanation. */
+    var source = PH.concat(TPL), found = Object.create(null), additions = [];
+    source.forEach(function (group) {
+      var rows = Array.isArray(group[1]) ? group[1] : [group];
+      rows.forEach(function (p) {
+        if (!p || !p[3]) return;
+        p[3].split('|').slice(0, -1).forEach(function (line) {
+          var i = line.indexOf(' — '); if (i < 1) return;
+          var head = line.slice(0, i).trim(), gloss = line.slice(i + 3).trim();
+          if (!/^[A-Za-zÀ-ž][A-Za-zÀ-ž'’ -]*$/.test(head) || head.length > 36 || !gloss) return;
+          var key = sq(head); if (!key || found[key] || words.some(function (w) { return sq(w.tr) === key; })) return;
+          found[key] = true;
+          additions.push({ id: 'phrase_' + key.replace(/[^a-z0-9]/g, '').slice(0, 18) + '_' + additions.length, fa: '', tr: head, meaning: gloss, tags: ['лексика фраз'], syn: [], ant: [], forms: '', ex: '', exTr: '', notes: 'Добавлено из пояснения к готовой фразе.' });
+        });
+      });
+    });
+    if (additions.length) persistRecs(additions);
+  }
+
   function phCard(p, mi) {
     var ex = null;
     if (p[3]) {
       var parts = p[3].split('|'), note = parts.pop();
       ex = el('div', { 'class': 'phex' }, parts.map(function (l) {
-        var i = l.indexOf(' \u2014 ');
-        return i > 0
-          ? el('p', { 'class': 'phw' }, el('b', null, phraseWordLinks(l.slice(0, i), 'fa')), ' \u2014 ', phraseWordLinks(l.slice(i + 3), 'tr'))
-          : el('p', { 'class': 'phw' }, phraseWordLinks(l, 'tr'));
-      }), el('p', { 'class': 'phnote' }, el('b', { text: 'Почему так: ' }), phraseWordLinks(note, 'tr')));
+        var i = l.indexOf(' — ');
+        return el('p', { 'class': 'phw' }, phraseLinkedText(l, 'tr'));
+      }), el('p', { 'class': 'phnote' }, el('b', { text: 'Почему так: ' }), phraseLinkedText(note, 'tr')));
     }
     var card = el('div', { 'class': 'phcard' + (ex ? ' has' : '') },
-      p[0] ? el('div', { 'class': 'phfa', lang: 'fa', dir: 'rtl' }, phraseWordLinks(p[0], 'fa')) : null,
-      el('div', { 'class': 'phtr' }, phraseWordLinks(p[1], 'tr')), el('p', { 'class': 'phru', text: p[2] }), ex,
+      p[0] ? el('div', { 'class': 'phfa', lang: 'fa', dir: 'rtl' }, phraseLinkedText(p[0], 'fa')) : null, el('div', { 'class': 'phtr' }, phraseLinkedText(p[1], 'tr')), el('p', { 'class': 'phru', text: p[2] }), ex,
       mi != null ? el('button', { type: 'button', 'class': 'phdel', 'aria-label': 'Удалить фразу', text: '\u2715', onclick: function (e) {
         e.stopPropagation(); var l = myPhrases(); l.splice(mi, 1); lsSet(LS_MYPH, JSON.stringify(l)); phBuild();
       } }) : null);
-    if (ex) card.addEventListener('click', function (e) {
-      if (e.target.closest && e.target.closest('button')) return;
-      card.classList.toggle('open');
-    });
+    if (ex) card.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.phword-link, .phdel')) return; card.classList.toggle('open'); });
     return card;
   }
   function addMyPhrase() {
@@ -2667,9 +2656,10 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       if (cat === 'Все' || cat === 'Мои фразы') myPhrases().forEach(function (p, i) { if (ok([p[1], p[2]])) out.push(phCard(p, i)); });
       list.replaceChildren.apply(list, out.length ? out : [el('p', { 'class': 'hint', text: cat === 'Мои фразы' ? 'Здесь появятся ваши фразы.' : 'Ничего не найдено.' })]);
     };
-    inp.addEventListener('input', function () { phBuild(); });
-    phBuild();
+    var phraseSearchTimer = 0;
+    inp.addEventListener('input', function () { clearTimeout(phraseSearchTimer); phraseSearchTimer = setTimeout(phBuild, 70); });
     formRoot.replaceChildren(sheetShell('Фразы', 'Закрыть', [banner('جمله‌ها'), inp, cats, tools, list]));
+    window.setTimeout(function () { phraseEnsureDictionaryEntries(); phBuild(); }, 0);
   }
   $('#selTrain').addEventListener('click', function () { if (!ui.sel.size) return; trainCfg.ids = Array.from(ui.sel); trainCfg.tag = null; if (trainCfg.type === 'stems' && !scopeWords().length) trainCfg.type = 'flip'; popLayer('select'); openTrain(); });
 
