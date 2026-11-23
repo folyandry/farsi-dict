@@ -2981,53 +2981,90 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    /* Android WebView may resize both innerHeight and VisualViewport when
-       the IME opens, or resize only VisualViewport (adjustPan). Comparing
-       those two values alone misses the first case. Keep the largest known
-       closed-keyboard height and compare both viewport readings against it. */
-    var tt = 0, q = $('#q');
-    var vv = window.visualViewport;
-    var maxViewportHeight = Math.max(window.innerHeight || 0, vv ? vv.height : 0);
-    /* Lock the background to the full, closed-keyboard viewport. */
-    document.documentElement.style.setProperty('--bg-lock-height', maxViewportHeight + 'px');
-    function setKeyboardState() {
-      var currentInner = window.innerHeight || 0;
-      var currentVisual = vv ? vv.height : currentInner;
-      var current = Math.min(currentInner || currentVisual, currentVisual || currentInner);
-      if (!document.body.classList.contains('keyboard-open') && current > maxViewportHeight) {
-        maxViewportHeight = current;
+    /* Keep keyboard handling cheap and predictable in Android WebView.
+       Resize events from the layout and visual viewports are coalesced into
+       one animation-frame update. VisualViewport scroll is intentionally not
+       observed: panning while the IME is open must not trigger layout work. */
+    var tt = 0;
+    var q = $('#q');
+    var vv = window.visualViewport || null;
+    var root = document.documentElement;
+    var body = document.body;
+    var rafPending = false;
+    var lastWidth = window.innerWidth || 0;
+    var closedHeight = Math.max(
+      window.innerHeight || 0,
+      vv ? vv.height : 0,
+      root.clientHeight || 0
+    );
+
+    function readViewportHeight() {
+      var layoutHeight = window.innerHeight || root.clientHeight || 0;
+      var visualHeight = vv && vv.height ? vv.height : layoutHeight;
+      if (!layoutHeight) return visualHeight;
+      if (!visualHeight) return layoutHeight;
+      return Math.min(layoutHeight, visualHeight);
+    }
+
+    function writeBackgroundHeight(height) {
+      if (height > 0) root.style.setProperty('--bg-lock-height', Math.round(height) + 'px');
+    }
+
+    /* The background is sized once to the closed-keyboard viewport. */
+    writeBackgroundHeight(closedHeight);
+
+    function updateKeyboardState() {
+      rafPending = false;
+      var width = window.innerWidth || lastWidth;
+      var current = readViewportHeight();
+
+      /* A width change usually means rotation or a real window resize, not
+         the keyboard. Rebase after that change to avoid a false IME state. */
+      if (width && lastWidth && Math.abs(width - lastWidth) > 80) {
+        lastWidth = width;
+        closedHeight = current;
+        writeBackgroundHeight(closedHeight);
+        body.classList.remove('keyboard-open');
+        return;
       }
-      var reduced = maxViewportHeight - current > 120;
-      document.body.classList.toggle('keyboard-open', !!reduced);
-      /* Keep the largest closed-keyboard viewport height. Android WebView can
-         emit intermediate resize events while the IME is closing; treating one
-         of those as the new baseline permanently shrinks the background. Only
-         grow the lock when a genuinely larger viewport is observed. */
-      if (!reduced && current > maxViewportHeight) {
-        maxViewportHeight = current;
-        document.documentElement.style.setProperty('--bg-lock-height', maxViewportHeight + 'px');
+      lastWidth = width;
+
+      var keyboardOpen = closedHeight - current > 140;
+      body.classList.toggle('keyboard-open', keyboardOpen);
+
+      /* Never lower the closed-height baseline during IME animations. Android
+         WebView can report several temporary heights while the keyboard closes. */
+      if (!keyboardOpen && current > closedHeight + 24) {
+        closedHeight = current;
+        writeBackgroundHeight(closedHeight);
       }
     }
+
+    function scheduleKeyboardUpdate() {
+      if (rafPending) return;
+      rafPending = true;
+      window.requestAnimationFrame(updateKeyboardState);
+    }
+
     if (q) {
       q.addEventListener('pointerdown', function () {
-        document.body.classList.add('typing', 'search-active');
+        body.classList.add('typing', 'search-active');
       }, { passive: true });
       q.addEventListener('focus', function () {
-        document.body.classList.add('typing', 'search-active');
+        body.classList.add('typing', 'search-active');
       });
       q.addEventListener('input', function () {
-        document.body.classList.add('typing', 'search-active');
+        body.classList.add('typing', 'search-active');
       });
       q.addEventListener('touchstart', function () {
-        document.body.classList.add('typing');
-        document.body.classList.add('search-active');
+        body.classList.add('typing', 'search-active');
       }, { passive: true });
     }
+
     document.addEventListener('focusin', function (e) {
       if (e.target && e.target.id === 'q') {
         clearTimeout(tt);
-        document.body.classList.add('typing');
-        document.body.classList.add('search-active');
+        body.classList.add('typing', 'search-active');
       }
     });
     document.addEventListener('focusout', function (e) {
@@ -3035,20 +3072,20 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
         clearTimeout(tt);
         tt = setTimeout(function () {
           if (document.activeElement !== q) {
-            document.body.classList.remove('typing');
-            document.body.classList.remove('search-active');
+            body.classList.remove('typing', 'search-active');
           }
         }, 180);
       }
     });
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setKeyboardState, { passive: true });
-      window.visualViewport.addEventListener('scroll', setKeyboardState, { passive: true });
-    }
-    window.addEventListener('resize', setKeyboardState, { passive: true });
+
+    window.addEventListener('resize', scheduleKeyboardUpdate, { passive: true });
+    if (vv) vv.addEventListener('resize', scheduleKeyboardUpdate, { passive: true });
+
     document.addEventListener('visibilitychange', function () {
       if (document.hidden && document.activeElement !== q) {
-        document.body.classList.remove('typing', 'search-active', 'keyboard-open');
+        body.classList.remove('typing', 'search-active', 'keyboard-open');
+      } else {
+        scheduleKeyboardUpdate();
       }
     });
   })();
