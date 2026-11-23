@@ -627,51 +627,32 @@
   .row:active, .selmode .row.sel { background-image: radial-gradient(70% 140% at 100% 50%, hsl(var(--h) 55% 55% / .2), transparent 70%); background-size: auto; }
 
   /* =====================================================================
-     Round 7: keyboard. Decor rests while typing; blobs sized by width only
+     Round 8: keyboard without relayout.
+     Принцип: пока клавиатура открывается и закрывается (а это десяток resize-событий
+     подряд), НИЧЕГО в раскладке не меняется. Нет переключения sticky/relative,
+     нет content-visibility, нет display:none, нет :has(). Единственное, что
+     происходит при фокусе на поиске, это visibility у плавающих кнопок внизу.
      ===================================================================== */
   #blobs i { width: 115vw; height: 115vw; }
   #blobs i:nth-child(1) { left: -52vw; top: -35vw; }
   #blobs i:nth-child(2) { right: -55vw; top: 24vw; }
-  /* Keep decorative background visible while search is focused; pause motion only. */
-  body.typing .lay, body.typing #blobs i { animation-play-state: paused !important; }
 
-  /* Unified lightweight background: one static SVG instead of several independent layers. */
-  /* Prevent browser scroll anchoring from moving the page as Android resizes the viewport for the keyboard. */
   html, body { overflow-anchor: none; }
   html { scroll-behavior: auto; }
-  #artBackground { position: fixed; top: 0; right: 0; bottom: auto; left: 0; z-index: 0; display: block; width: 100%; height: var(--bg-lock-height, 100vh); pointer-events: none; contain: strict; }
+  /* Фон лежит на собственном композитном слое: один раз растеризуется и дальше
+     только двигается/обрезается GPU, на resize его не перерисовывают. Высота
+     фиксируется в px из JS (--bg-lock-height), чтобы клавиатура её не трогала. */
+  #artBackground { position: fixed; top: 0; right: 0; bottom: auto; left: 0; z-index: 0; display: block; width: 100%; height: var(--bg-lock-height, 100vh); pointer-events: none; contain: strict; transform: translateZ(0); will-change: transform; }
   #pageArt, #blobs { display: none !important; }
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
 
-  /* Hard fallback: when the search itself has focus, never let the floating
-     add button cover it, even if WebView focus events/classes are delayed. */
-  body:has(#q:focus) .fabwrap { display: none !important; }
-  body.search-active .fabwrap { display: none !important; }
-  /* Keyboard stability: hide bottom overlays as soon as search is touched,
-     not after the virtual keyboard finishes opening. Disable sticky positioning
-     while typing because WebView viewport changes can make sticky elements jump. */
+  /* Нижние плавающие элементы прячем визуально, без изменения раскладки.
+     visibility не вызывает reflow и не пересоздаёт слои. */
   body.typing .fabwrap,
   body.typing .selwrap,
-  body.typing #toast { display: none !important; }
-  body.typing { scroll-behavior: auto !important; }
-  body.typing .toolbar { position: relative !important; top: auto !important; }
-  body.typing .toolbar,
-  body.typing .bar,
-  body.typing .head { animation: none !important; transition: none !important; }
-  body.keyboard-open .fabwrap,
-  body.keyboard-open .selwrap,
-  body.keyboard-open #toast { display: none !important; }
-  body.keyboard-open .toolbar { position: relative !important; top: auto !important; }
-  /* Android WebView can temporarily miscalculate content-visibility after
-     an IME resize. Render the word cards normally while the keyboard is up. */
-  body.typing .row,
-  body.keyboard-open .row { content-visibility: visible !important; contain-intrinsic-size: auto !important; }
-  /* Keep the decorative SVG at the closed-keyboard height. WebView may shrink its viewport for the IME; the art must not scale or jump with it. */
-  #artBackground { height: var(--bg-lock-height, 100vh) !important; }
-  @media (max-height: 520px) {
-    body.typing .head { padding-top: 4px; }
-  }
+  body.typing #toast,
+  body.typing .dock { visibility: hidden !important; }
 
   /* карточка слова и формы: узор на фоне вместо сплошного цвета */
   :root { --tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132' viewBox='0 0 132 132'%3E%3Cg transform='translate(66 66)' fill='none' stroke='%23d0ae68' stroke-opacity='0.34' stroke-width='1'%3E%3Ccircle r='22'/%3E%3Ccircle r='15.8' stroke-opacity='0.24'/%3E%3Cellipse cx='0' cy='-11.0' rx='4.4' ry='8.4' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-11.0' rx='4.4' ry='8.4' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-11.0' rx='4.4' ry='8.4' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-11.0' rx='4.4' ry='8.4' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-10.1' rx='3.1' ry='6.6' stroke='%2358b8ad' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-10.1' rx='3.1' ry='6.6' stroke='%2358b8ad' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-10.1' rx='3.1' ry='6.6' stroke='%2358b8ad' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-10.1' rx='3.1' ry='6.6' stroke='%2358b8ad' transform='rotate(315)'/%3E%3Ccircle r='3.1' fill='%23e0794f' fill-opacity='0.34' stroke='none'/%3E%3C/g%3E%3Cg transform='translate(0 0)' fill='none' stroke='%2358b8ad' stroke-opacity='0.28' stroke-width='1'%3E%3Ccircle r='11'/%3E%3Ccircle r='7.9' stroke-opacity='0.20'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(315)'/%3E%3Ccircle r='1.5' fill='%23e0794f' fill-opacity='0.28' stroke='none'/%3E%3C/g%3E%3Cg transform='translate(132 0)' fill='none' stroke='%2358b8ad' stroke-opacity='0.28' stroke-width='1'%3E%3Ccircle r='11'/%3E%3Ccircle r='7.9' stroke-opacity='0.20'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(315)'/%3E%3Ccircle r='1.5' fill='%23e0794f' fill-opacity='0.28' stroke='none'/%3E%3C/g%3E%3Cg transform='translate(0 132)' fill='none' stroke='%2358b8ad' stroke-opacity='0.28' stroke-width='1'%3E%3Ccircle r='11'/%3E%3Ccircle r='7.9' stroke-opacity='0.20'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(315)'/%3E%3Ccircle r='1.5' fill='%23e0794f' fill-opacity='0.28' stroke='none'/%3E%3C/g%3E%3Cg transform='translate(132 132)' fill='none' stroke='%2358b8ad' stroke-opacity='0.28' stroke-width='1'%3E%3Ccircle r='11'/%3E%3Ccircle r='7.9' stroke-opacity='0.20'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(180)'/%3E%3Cellipse cx='0' cy='-5.5' rx='2.2' ry='4.2' transform='rotate(270)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(225)'/%3E%3Cellipse cx='0' cy='-5.1' rx='1.5' ry='3.3' stroke='%2358b8ad' transform='rotate(315)'/%3E%3Ccircle r='1.5' fill='%23e0794f' fill-opacity='0.28' stroke='none'/%3E%3C/g%3E%3Cpath d='M66 6l4 4-4 4-4-4z M66 118l4 4-4 4-4-4z M6 66l4 4-4 4-4-4z M118 66l4 4-4 4-4-4z' fill='%239a7bd1' fill-opacity='.34'/%3E%3Cpath d='M22 22Q44 44 66 40Q88 44 110 22M22 110Q44 88 66 92Q88 88 110 110' fill='none' stroke='%23d0ae68' stroke-opacity='.16' stroke-width='.9'/%3E%3C/svg%3E"); }
@@ -817,7 +798,7 @@
   .dockin .dplus { width: 58px; height: 58px; margin: -30px auto 0; padding: 0; justify-content: center; border-radius: 50%; color: var(--accent-ink); background: var(--g-gold); box-shadow: var(--rule2), 0 8px 22px rgba(224, 121, 79, .32); }
   .dockin .dplus svg { width: 28px; height: 28px; stroke: var(--accent-ink); stroke-width: 2.3; }
   .dbadge { position: absolute; top: 0; left: 50%; margin-left: 6px; min-width: 18px; padding: 1px 5px; border-radius: 999px; font: 600 11px/1.5 var(--sans); font-style: normal; text-align: center; color: #fff; background: linear-gradient(135deg, #e8946a, #c4584c); box-shadow: 0 0 0 2px #1a2423; }
-  body.typing .dock, body.keyboard-open .dock, body.search-active .dock, body.selmode .dock, body.sheet-open > .dock { display: none !important; }
+  body.selmode .dock, body.sheet-open > .dock { display: none !important; }
   body.selmode .selwrap { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   .row { -webkit-touch-callout: none; }
   /* ---------- motion ---------- */
@@ -2981,112 +2962,53 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    /* Keep keyboard handling cheap and predictable in Android WebView.
-       Resize events from the layout and visual viewports are coalesced into
-       one animation-frame update. VisualViewport scroll is intentionally not
-       observed: panning while the IME is open must not trigger layout work. */
-    var tt = 0;
+    /* Клавиатура и поиск. Всё, что тут происходит, дёшево и не трогает раскладку:
+       1) на focus/blur поиска переключается ОДИН класс 'typing' (прячет плавающие кнопки);
+       2) высота фонового слоя замеряется один раз и пересчитывается только при
+          повороте экрана. На resize от клавиатуры никакой работы нет. */
     var q = $('#q');
-    var vv = window.visualViewport || null;
     var root = document.documentElement;
     var body = document.body;
-    var rafPending = false;
-    var lastWidth = window.innerWidth || 0;
-    var closedHeight = Math.max(
-      window.innerHeight || 0,
-      vv ? vv.height : 0,
-      root.clientHeight || 0
-    );
+    var tt = 0, raf = 0, lock = 0;
+    var lastW = window.innerWidth || 0;
 
-    function readViewportHeight() {
-      var layoutHeight = window.innerHeight || root.clientHeight || 0;
-      var visualHeight = vv && vv.height ? vv.height : layoutHeight;
-      if (!layoutHeight) return visualHeight;
-      if (!visualHeight) return layoutHeight;
-      return Math.min(layoutHeight, visualHeight);
+    function setLock(h) {
+      h = Math.round(h);
+      if (h > 0 && h !== lock) { lock = h; root.style.setProperty('--bg-lock-height', h + 'px'); }
     }
+    setLock(Math.max(window.innerHeight || 0, root.clientHeight || 0));
 
-    function writeBackgroundHeight(height) {
-      if (height > 0) root.style.setProperty('--bg-lock-height', Math.round(height) + 'px');
-    }
-
-    /* The background is sized once to the closed-keyboard viewport. */
-    writeBackgroundHeight(closedHeight);
-
-    function updateKeyboardState() {
-      rafPending = false;
-      var width = window.innerWidth || lastWidth;
-      var current = readViewportHeight();
-
-      /* A width change usually means rotation or a real window resize, not
-         the keyboard. Rebase after that change to avoid a false IME state. */
-      if (width && lastWidth && Math.abs(width - lastWidth) > 80) {
-        lastWidth = width;
-        closedHeight = current;
-        writeBackgroundHeight(closedHeight);
-        body.classList.remove('keyboard-open');
-        return;
-      }
-      lastWidth = width;
-
-      var keyboardOpen = closedHeight - current > 140;
-      body.classList.toggle('keyboard-open', keyboardOpen);
-
-      /* Never lower the closed-height baseline during IME animations. Android
-         WebView can report several temporary heights while the keyboard closes. */
-      if (!keyboardOpen && current > closedHeight + 24) {
-        closedHeight = current;
-        writeBackgroundHeight(closedHeight);
+    function onResize() {
+      raf = 0;
+      var w = window.innerWidth || lastW, h = window.innerHeight || 0;
+      if (w && lastW && Math.abs(w - lastW) > 80) {
+        /* поворот экрана или реальное изменение окна: замеряем заново */
+        lastW = w;
+        setLock(h);
+      } else if (!body.classList.contains('typing') && h > lock) {
+        /* клавиатуры нет, окно выросло (например, спрятались панели браузера) */
+        setLock(h);
       }
     }
-
-    function scheduleKeyboardUpdate() {
-      if (rafPending) return;
-      rafPending = true;
-      window.requestAnimationFrame(updateKeyboardState);
-    }
+    window.addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(onResize); }, { passive: true });
 
     if (q) {
-      q.addEventListener('pointerdown', function () {
-        body.classList.add('typing', 'search-active');
-      }, { passive: true });
       q.addEventListener('focus', function () {
-        body.classList.add('typing', 'search-active');
+        clearTimeout(tt);
+        body.classList.add('typing');
       });
-      q.addEventListener('input', function () {
-        body.classList.add('typing', 'search-active');
+      q.addEventListener('blur', function () {
+        clearTimeout(tt);
+        /* небольшая задержка: клавиатура ещё уезжает вниз, кнопки не должны
+           на это время всплыть над ней */
+        tt = setTimeout(function () {
+          if (document.activeElement !== q) body.classList.remove('typing');
+        }, 220);
       });
-      q.addEventListener('touchstart', function () {
-        body.classList.add('typing', 'search-active');
-      }, { passive: true });
     }
 
-    document.addEventListener('focusin', function (e) {
-      if (e.target && e.target.id === 'q') {
-        clearTimeout(tt);
-        body.classList.add('typing', 'search-active');
-      }
-    });
-    document.addEventListener('focusout', function (e) {
-      if (e.target && e.target.id === 'q') {
-        clearTimeout(tt);
-        tt = setTimeout(function () {
-          if (document.activeElement !== q) {
-            body.classList.remove('typing', 'search-active');
-          }
-        }, 180);
-      }
-    });
-
-    window.addEventListener('resize', scheduleKeyboardUpdate, { passive: true });
-    if (vv) vv.addEventListener('resize', scheduleKeyboardUpdate, { passive: true });
-
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden && document.activeElement !== q) {
-        body.classList.remove('typing', 'search-active', 'keyboard-open');
-      } else {
-        scheduleKeyboardUpdate();
-      }
+      if (document.hidden && document.activeElement !== q) body.classList.remove('typing');
     });
   })();
   (function () { var last = window.scrollY, fab = $('#add'); window.addEventListener('scroll', function () { var y = window.scrollY; fab.classList.toggle('mini', y > last && y > 160); last = y; }, { passive: true }); })();
