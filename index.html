@@ -2999,9 +2999,12 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       }
       var reduced = maxViewportHeight - current > 120;
       document.body.classList.toggle('keyboard-open', !!reduced);
-      /* Re-measure only with the keyboard closed; never resize the art during IME animation. */
-      if (!reduced) {
-        maxViewportHeight = Math.max(currentInner, currentVisual);
+      /* Keep the largest closed-keyboard viewport height. Android WebView can
+         emit intermediate resize events while the IME is closing; treating one
+         of those as the new baseline permanently shrinks the background. Only
+         grow the lock when a genuinely larger viewport is observed. */
+      if (!reduced && current > maxViewportHeight) {
+        maxViewportHeight = current;
         document.documentElement.style.setProperty('--bg-lock-height', maxViewportHeight + 'px');
       }
     }
