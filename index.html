@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1615">
 <link rel="manifest" href="manifest.webmanifest">
@@ -639,16 +639,16 @@
 
   html, body { overflow-anchor: none; }
   html { scroll-behavior: auto; }
-  /* Фон лежит на собственном композитном слое: один раз растеризуется и дальше
-     только двигается/обрезается GPU, на resize его не перерисовывают. Высота
-     фиксируется в px из JS (--bg-lock-height), чтобы клавиатура её не трогала. */
-  #artBackground { position: fixed; top: 0; right: 0; bottom: auto; left: 0; z-index: 0; display: block; width: 100%; height: var(--bg-lock-height, 100vh); pointer-events: none; contain: strict; transform: translateZ(0); will-change: transform; }
+  /* Main artwork is a single SVG layer, sized independently from keyboard events. */
   #pageArt, #blobs { display: none !important; }
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
 
   /* Нижние плавающие элементы прячем визуально, без изменения раскладки.
      visibility не вызывает reflow и не пересоздаёт слои. */
+  /* Пока идёт поиск, высота списка не схлопывается: иначе короткая выдача
+     укорачивает документ, браузер зажимает scrollTop и страница прыгает. */
+
   body.typing .fabwrap,
   body.typing .selwrap,
   body.typing #toast,
@@ -924,6 +924,75 @@
   .bkrow { display: flex; flex-direction: column; gap: 8px; }
   .bktext { width: 100%; min-height: 150px; margin: 8px 0; padding: 10px 12px; box-sizing: border-box; border-radius: 12px; border: 1px solid var(--line2); background: var(--surface); color: var(--text); font: 12px/1.4 ui-monospace, monospace; resize: vertical; }
   .setbox { max-height: 62vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ================================================================
+     Golvaze WebView stability pass
+     One page-wide SVG background, no keyboard-driven layout logic.
+     ================================================================ */
+  html {
+    background: var(--bg) !important;
+    overflow-anchor: none;
+    scroll-behavior: auto;
+  }
+
+  #artBackground {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100lvh !important;
+    min-height: 100vh !important;
+    opacity: .22 !important;
+    pointer-events: none !important;
+    contain: paint !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  /* No second, independently rendered header/page/blob background layers. */
+  #headArt, #pageArt, #blobs { display: none !important; }
+  body.sheet-open > #artBackground { visibility: visible !important; }
+
+  /* Keep overlays at the large viewport size. They scroll internally instead
+     of being resized by JavaScript when the software keyboard appears. */
+  .sheet {
+    top: 0 !important;
+    bottom: auto !important;
+    height: 100lvh !important;
+    max-height: 100lvh !important;
+    padding-bottom: 0 !important;
+    background: rgba(12, 18, 17, .91) !important;
+  }
+  .scrim {
+    top: 0 !important;
+    bottom: auto !important;
+    height: 100lvh !important;
+    max-height: 100lvh !important;
+    padding-bottom: 20px !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .drawer {
+    top: 0 !important;
+    bottom: auto !important;
+    height: 100lvh !important;
+    max-height: 100lvh !important;
+    padding-bottom: 0 !important;
+    background: rgba(12, 18, 17, .93) !important;
+  }
+
+  #list.searching { min-height: 72lvh; }
+  .tcard { min-height: min(54lvh, 480px); }
+  .favgrid { max-height: 44lvh; }
+  .wlist { max-height: 42lvh; }
+  .scrim .dialog { max-height: 88lvh; }
+  .setbox { max-height: 62lvh; }
+
+  /* Keyboard geometry is deliberately not fed back into the page. */
+
 </style>
 </head>
 <body>
@@ -969,7 +1038,6 @@
 </svg>
 <div class="wrap">
   <header class="head">
-    <div id="headArt" aria-hidden="true"></div>
     <div class="brand">
       <div class="tileband" aria-hidden="true"></div>
       <div class="wm"><i class="esl" aria-hidden="true"></i><svg class="wordmark" viewBox="-39 -1514 2384 1647" role="img" aria-label="گلواژه"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbefc8"/><stop offset="0.55" stop-color="#d9b46a"/><stop offset="1" stop-color="#e0794f"/></linearGradient></defs><path fill="url(#wg)" d="M114 17Q64 17 32.5 -13.0Q1 -43 1 -92Q1 -149 20.0 -204.5Q39 -260 95 -327Q89 -333 89 -346Q89 -362 98.5 -387.0Q108 -412 123.0 -437.5Q138 -463 156.5 -480.5Q175 -498 193 -498Q222 -498 250.0 -483.5Q278 -469 305 -440Q332 -411 345.5 -371.0Q359 -331 359 -281Q359 -225 341.0 -172.0Q323 -119 290.5 -76.0Q258 -33 213.0 -8.0Q168 17 114 17ZM163 -104Q210 -104 244.0 -122.0Q278 -140 278 -183Q278 -212 260.0 -237.5Q242 -263 212.0 -281.0Q182 -299 145 -306Q112 -279 97.0 -243.0Q82 -207 82 -179Q82 -142 104.0 -123.0Q126 -104 163 -104Z M673 -594Q646 -620 631 -634L606 -656Q596 -665 581 -675V-685Q589 -697 603.0 -713.5Q617 -730 633.0 -746.5Q649 -763 661.5 -775.5Q674 -788 679 -791H689Q712 -776 728.5 -762.5Q745 -749 755 -737Q776 -762 797.0 -782.5Q818 -803 827 -809H837Q882 -781 901.5 -760.5Q921 -740 921 -717Q921 -692 892.5 -664.0Q864 -636 829 -612H821Q800 -632 786.5 -644.5Q773 -657 761 -667Q739 -633 681 -594ZM745 -777Q731 -791 721.0 -800.5Q711 -810 699.5 -820.5Q688 -831 667 -848V-856Q676 -869 692.5 -887.5Q709 -906 725.0 -922.0Q741 -938 750 -944H758Q801 -916 816.5 -899.5Q832 -883 832 -869Q832 -854 814.0 -832.0Q796 -810 754 -777Z M328 80 320 55Q347 36 386.5 6.5Q426 -23 470.5 -59.5Q515 -96 557.5 -133.5Q600 -171 633.5 -206.0Q667 -241 684 -268Q702 -298 715.0 -321.0Q728 -344 738.5 -366.5Q749 -389 760.5 -417.5Q772 -446 787 -486L823 -481Q811 -427 790.5 -360.5Q770 -294 743.5 -229.0Q717 -164 687.0 -110.5Q657 -57 627 -28Q619 -21 592.0 -9.0Q565 3 528.5 16.0Q492 29 453.0 42.0Q414 55 380.5 65.0Q347 75 328 80Z M983 -101 957 -107Q961 -126 968.0 -179.5Q975 -233 979 -334L992 -621Q995 -677 999.5 -718.0Q1004 -759 1013.0 -795.0Q1022 -831 1037.5 -869.5Q1053 -908 1077 -958L1102 -950Q1095 -927 1087.0 -876.5Q1079 -826 1074 -730L1058 -433Q1054 -347 1034.5 -261.0Q1015 -175 983 -101Z M1204 93 1196 68Q1221 56 1246.5 41.5Q1272 27 1298.0 11.0Q1324 -5 1351.5 -23.0Q1379 -41 1407 -60Q1463 -99 1494.5 -135.0Q1526 -171 1533 -205Q1513 -204 1492.5 -202.0Q1472 -200 1452 -200Q1425 -200 1397.5 -210.5Q1370 -221 1351.5 -242.0Q1333 -263 1333 -294Q1333 -312 1339.0 -336.0Q1345 -360 1358 -388L1398 -469Q1428 -530 1485 -530Q1529 -530 1555.5 -499.0Q1582 -468 1593.5 -419.5Q1605 -371 1605 -317Q1605 -265 1591.5 -213.5Q1578 -162 1558.5 -119.5Q1539 -77 1520.5 -48.5Q1502 -20 1491 -12Q1477 -3 1441.5 12.5Q1406 28 1361.5 44.5Q1317 61 1274.5 74.0Q1232 87 1204 93Z M1501 -207Q1482 -207 1471.5 -221.0Q1461 -235 1461 -262Q1461 -300 1482.0 -320.5Q1503 -341 1544 -345Q1604 -350 1640.0 -384.5Q1676 -419 1693.5 -476.5Q1711 -534 1715 -607Q1717 -649 1720.0 -690.5Q1723 -732 1725.5 -774.0Q1728 -816 1731.5 -857.5Q1735 -899 1738.0 -940.5Q1741 -982 1745 -1024Q1748 -1058 1754.5 -1090.0Q1761 -1122 1771.5 -1154.5Q1782 -1187 1796 -1222L1822 -1216Q1814 -1171 1808.0 -1111.0Q1802 -1051 1798.5 -985.0Q1795 -919 1793.0 -855.5Q1791 -792 1791 -740Q1791 -680 1801.5 -633.5Q1812 -587 1840.5 -561.0Q1869 -535 1922 -535Q1948 -535 1957.0 -513.0Q1966 -491 1966 -448Q1966 -400 1953.0 -368.5Q1940 -337 1918.5 -322.0Q1897 -307 1873 -307Q1816 -307 1784.0 -336.0Q1752 -365 1735 -425Q1713 -341 1674.0 -293.5Q1635 -246 1589.5 -226.5Q1544 -207 1501 -207Z  M1873 -307Q1854 -307 1841.0 -330.0Q1828 -353 1828 -408Q1828 -451 1840.0 -479.0Q1852 -507 1873.0 -521.0Q1894 -535 1922 -535Q1974 -535 2003.0 -546.0Q2032 -557 2044.5 -573.5Q2057 -590 2057 -604Q2057 -624 2038.0 -643.5Q2019 -663 1988.5 -675.5Q1958 -688 1924 -688Q1872 -688 1837.0 -668.0Q1802 -648 1793 -610Q1789 -593 1783.0 -584.0Q1777 -575 1769 -575Q1743 -575 1743 -603Q1743 -635 1755.0 -674.5Q1767 -714 1785.0 -753.5Q1803 -793 1821.5 -826.5Q1840 -860 1852 -879Q1865 -899 1891.0 -931.5Q1917 -964 1949.5 -1001.5Q1982 -1039 2014.5 -1075.5Q2047 -1112 2074.0 -1142.0Q2101 -1172 2115 -1189Q2150 -1230 2186.0 -1271.0Q2222 -1312 2256 -1354Q2266 -1367 2275.0 -1381.5Q2284 -1396 2294 -1409L2304 -1405Q2305 -1401 2305 -1399V-1392Q2305 -1360 2294.5 -1330.0Q2284 -1300 2263 -1272Q2245 -1248 2215.5 -1212.5Q2186 -1177 2152.5 -1138.0Q2119 -1099 2087.5 -1063.0Q2056 -1027 2033 -1002L1917 -875L1920 -871Q1930 -877 1944.5 -880.0Q1959 -883 1979 -883Q2031 -883 2064.5 -856.5Q2098 -830 2114.5 -783.0Q2131 -736 2131 -673Q2131 -645 2124.0 -605.0Q2117 -565 2102.5 -521.0Q2088 -477 2064.5 -435.5Q2041 -394 2008 -363Q1978 -335 1944.5 -321.0Q1911 -307 1873 -307ZM1983 -1095 1959 -1106Q1967 -1131 1985.0 -1159.5Q2003 -1188 2034.5 -1226.5Q2066 -1265 2113 -1321Q2126 -1336 2138.5 -1351.0Q2151 -1366 2164.0 -1381.0Q2177 -1396 2189.5 -1411.5Q2202 -1427 2214 -1442Q2221 -1450 2227.0 -1458.0Q2233 -1466 2240 -1474L2256 -1469Q2254 -1453 2249.5 -1438.0Q2245 -1423 2237 -1407Q2226 -1385 2204.5 -1357.0Q2183 -1329 2146 -1288L2071 -1204Q2064 -1197 2051.0 -1181.0Q2038 -1165 2023.5 -1147.5Q2009 -1130 1997.5 -1115.5Q1986 -1101 1983 -1095Z"/></svg><i class="esl r" aria-hidden="true"></i></div>
@@ -1629,6 +1697,7 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
       var b = $('#dueBadge'); b.textContent = d; b.hidden = !d; var db = $('#dockBadge'); db.textContent = d; db.hidden = !d;
     })();
     var filtered = ui.q.trim() || ui.tag;
+    list.classList.toggle('searching', !!filtered);
     $('#count').textContent = filtered
       ? 'Найдено: ' + vis.length + ' из ' + total
       : total + ' ' + plural(total, 'слово', 'слова', 'слов');
@@ -2954,64 +3023,41 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   recompute();
   ready = true;
   render();
-  $('#headArt').append(calli(5, 'head', 'head'));
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
   (function () {
-    var targets = [$('#headArt')], t = 0, on = false;
-    function set(v) { on = v; targets.forEach(function (n) { if (n) n.classList.toggle('paused', v); }); }
-    window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
-  })();
-  (function () {
-    /* Клавиатура и поиск. Всё, что тут происходит, дёшево и не трогает раскладку:
-       1) на focus/blur поиска переключается ОДИН класс 'typing' (прячет плавающие кнопки);
-       2) высота фонового слоя замеряется один раз и пересчитывается только при
-          повороте экрана. На resize от клавиатуры никакой работы нет. */
+    /* Keyboard-independent page mode:
+       - no viewport listeners;
+       - no keyboard-height measurements;
+       - no JS scrolling of focused fields;
+       - only hide floating controls while the search field is focused. */
+    try {
+      if (navigator.virtualKeyboard) navigator.virtualKeyboard.overlaysContent = true;
+    } catch (e) {}
+
     var q = $('#q');
-    var root = document.documentElement;
     var body = document.body;
-    var tt = 0, raf = 0, lock = 0;
-    var lastW = window.innerWidth || 0;
-
-    function setLock(h) {
-      h = Math.round(h);
-      if (h > 0 && h !== lock) { lock = h; root.style.setProperty('--bg-lock-height', h + 'px'); }
-    }
-    setLock(Math.max(window.innerHeight || 0, root.clientHeight || 0));
-
-    function onResize() {
-      raf = 0;
-      var w = window.innerWidth || lastW, h = window.innerHeight || 0;
-      if (w && lastW && Math.abs(w - lastW) > 80) {
-        /* поворот экрана или реальное изменение окна: замеряем заново */
-        lastW = w;
-        setLock(h);
-      } else if (!body.classList.contains('typing') && h > lock) {
-        /* клавиатуры нет, окно выросло (например, спрятались панели браузера) */
-        setLock(h);
-      }
-    }
-    window.addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(onResize); }, { passive: true });
+    var blurTimer = 0;
 
     if (q) {
       q.addEventListener('focus', function () {
-        clearTimeout(tt);
+        clearTimeout(blurTimer);
         body.classList.add('typing');
       });
+
       q.addEventListener('blur', function () {
-        clearTimeout(tt);
-        /* небольшая задержка: клавиатура ещё уезжает вниз, кнопки не должны
-           на это время всплыть над ней */
-        tt = setTimeout(function () {
+        clearTimeout(blurTimer);
+        blurTimer = setTimeout(function () {
           if (document.activeElement !== q) body.classList.remove('typing');
-        }, 220);
+        }, 180);
       });
     }
 
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden && document.activeElement !== q) body.classList.remove('typing');
+      if (document.hidden && document.activeElement !== q) {
+        body.classList.remove('typing');
+      }
     });
   })();
-  (function () { var last = window.scrollY, fab = $('#add'); window.addEventListener('scroll', function () { var y = window.scrollY; fab.classList.toggle('mini', y > last && y > 160); last = y; }, { passive: true }); })();
   (function () {
     var go = { phr: function () { openPhrases(); }, train: function () { $('#trainBtn').click(); }, add: function () { $('#add').click(); }, conj: function () { $('#conjBtn').click(); }, alpha: function () { $('#alphaBtn').click(); }, rules: function () { openGrammar(); } };
     document.querySelector('.dock').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b && go[b.dataset.go]) go[b.dataset.go](); });
