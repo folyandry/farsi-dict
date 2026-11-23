@@ -1,0 +1,35 @@
+plugins {
+    id("com.android.application")
+}
+
+android {
+    namespace = "com.golvaze.app"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.golvaze.app"
+        minSdk = 23
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+}
+
+dependencies {
+    implementation("androidx.webkit:webkit:1.12.1")
+}
