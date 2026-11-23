@@ -639,7 +639,7 @@
   /* Prevent browser scroll anchoring from moving the page as Android resizes the viewport for the keyboard. */
   html, body { overflow-anchor: none; }
   html { scroll-behavior: auto; }
-  #artBackground { position: fixed; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; pointer-events: none; contain: strict; }
+  #artBackground { position: fixed; top: 0; right: 0; bottom: auto; left: 0; z-index: 0; display: block; width: 100%; height: var(--bg-lock-height, 100vh); pointer-events: none; contain: strict; }
   #pageArt, #blobs { display: none !important; }
   .wrap { position: relative; z-index: 1; }
   body.sheet-open > #artBackground { visibility: hidden; }
@@ -667,7 +667,8 @@
      an IME resize. Render the word cards normally while the keyboard is up. */
   body.typing .row,
   body.keyboard-open .row { content-visibility: visible !important; contain-intrinsic-size: auto !important; }
-  #artBackground { height: 100%; }
+  /* Keep the decorative SVG at the closed-keyboard height. WebView may shrink its viewport for the IME; the art must not scale or jump with it. */
+  #artBackground { height: var(--bg-lock-height, 100vh) !important; }
   @media (max-height: 520px) {
     body.typing .head { padding-top: 4px; }
   }
@@ -2987,6 +2988,8 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     var tt = 0, q = $('#q');
     var vv = window.visualViewport;
     var maxViewportHeight = Math.max(window.innerHeight || 0, vv ? vv.height : 0);
+    /* Lock the background to the full, closed-keyboard viewport. */
+    document.documentElement.style.setProperty('--bg-lock-height', maxViewportHeight + 'px');
     function setKeyboardState() {
       var currentInner = window.innerHeight || 0;
       var currentVisual = vv ? vv.height : currentInner;
@@ -2996,7 +2999,11 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       }
       var reduced = maxViewportHeight - current > 120;
       document.body.classList.toggle('keyboard-open', !!reduced);
-      if (!reduced && current > maxViewportHeight) maxViewportHeight = current;
+      /* Re-measure only with the keyboard closed; never resize the art during IME animation. */
+      if (!reduced) {
+        maxViewportHeight = Math.max(currentInner, currentVisual);
+        document.documentElement.style.setProperty('--bg-lock-height', maxViewportHeight + 'px');
+      }
     }
     if (q) {
       q.addEventListener('pointerdown', function () {
