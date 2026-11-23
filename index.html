@@ -948,7 +948,9 @@
     opacity: .22 !important;
     pointer-events: none !important;
     contain: paint !important;
-    transform: none !important;
+    /* Android WebView may pan the visual viewport for the IME.
+       Counter only that visual-viewport offset; do not resize or animate the artwork. */
+    transform: translate3d(0, var(--art-vv-offset, 0px), 0) !important;
     will-change: auto !important;
   }
 
@@ -3025,8 +3027,22 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   render();
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { $('.toolbar').classList.toggle('stuck', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe($('#sentinel'));
   (function () {
+    /* Keep the artwork pinned to the visible screen if Android WebView pans
+       the visual viewport while the keyboard opens/closes. This reads only
+       offsetTop and transforms one SVG; it never changes page/layout geometry. */
+    var artwork = document.getElementById('artBackground');
+    var vv = window.visualViewport;
+    function pinArtworkToVisualViewport() {
+      if (!artwork || !vv) return;
+      artwork.style.setProperty('--art-vv-offset', vv.offsetTop + 'px');
+    }
+    if (vv) {
+      pinArtworkToVisualViewport();
+      vv.addEventListener('scroll', pinArtworkToVisualViewport, { passive: true });
+      vv.addEventListener('resize', pinArtworkToVisualViewport, { passive: true });
+    }
+
     /* Keyboard-independent page mode:
-       - no viewport listeners;
        - no keyboard-height measurements;
        - no JS scrolling of focused fields;
        - only hide floating controls while the search field is focused. */
