@@ -663,6 +663,10 @@
   body.keyboard-open .selwrap,
   body.keyboard-open #toast { display: none !important; }
   body.keyboard-open .toolbar { position: relative !important; top: auto !important; }
+  /* Android WebView can temporarily miscalculate content-visibility after
+     an IME resize. Render the word cards normally while the keyboard is up. */
+  body.typing .row,
+  body.keyboard-open .row { content-visibility: visible !important; contain-intrinsic-size: auto !important; }
   #artBackground { height: 100%; }
   @media (max-height: 520px) {
     body.typing .head { padding-top: 4px; }
@@ -2976,14 +2980,23 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
     window.addEventListener('scroll', function () { if (!on) set(true); clearTimeout(t); t = setTimeout(function () { set(false); }, 220); }, { passive: true });
   })();
   (function () {
-    /* Never force scroll restoration here: Android/WebView owns IME panning.
-       Hide the floating add button immediately on touch, and detect actual
-       keyboard viewport reduction when VisualViewport is available. */
-    var tt = 0, q = $('#q'), initialHeight = window.innerHeight;
+    /* Android WebView may resize both innerHeight and VisualViewport when
+       the IME opens, or resize only VisualViewport (adjustPan). Comparing
+       those two values alone misses the first case. Keep the largest known
+       closed-keyboard height and compare both viewport readings against it. */
+    var tt = 0, q = $('#q');
+    var vv = window.visualViewport;
+    var maxViewportHeight = Math.max(window.innerHeight || 0, vv ? vv.height : 0);
     function setKeyboardState() {
-      var vv = window.visualViewport;
-      var reduced = vv ? (window.innerHeight - vv.height > 120) : (initialHeight - window.innerHeight > 150);
+      var currentInner = window.innerHeight || 0;
+      var currentVisual = vv ? vv.height : currentInner;
+      var current = Math.min(currentInner || currentVisual, currentVisual || currentInner);
+      if (!document.body.classList.contains('keyboard-open') && current > maxViewportHeight) {
+        maxViewportHeight = current;
+      }
+      var reduced = maxViewportHeight - current > 120;
       document.body.classList.toggle('keyboard-open', !!reduced);
+      if (!reduced && current > maxViewportHeight) maxViewportHeight = current;
     }
     if (q) {
       q.addEventListener('pointerdown', function () {
