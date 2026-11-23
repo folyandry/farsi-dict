@@ -1,0 +1,58 @@
+name: Build Golvaze APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "android/**"
+      - "index.html"
+      - "sw.js"
+      - "manifest.webmanifest"
+      - "icon-192.png"
+      - "icon-512.png"
+      - ".github/workflows/build-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare app files
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp index.html android/app/src/main/assets/www/
+          cp sw.js android/app/src/main/assets/www/
+          cp manifest.webmanifest android/app/src/main/assets/www/
+          cp icon-192.png android/app/src/main/assets/www/
+          cp icon-512.png android/app/src/main/assets/www/
+
+      - name: Install Gradle
+        run: |
+          wget https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q gradle-8.9-bin.zip
+
+      - name: Build APK
+        run: |
+          ./gradle-8.9/bin/gradle -p android assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Golvaze-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
