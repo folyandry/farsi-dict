@@ -12,7 +12,7 @@
  */
 
 const CACHE_PREFIX = 'fa-dict-';
-const CACHE_VERSION = 'v67';
+const CACHE_VERSION = 'v68';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 const APP_SHELL = [
