@@ -994,6 +994,13 @@
 
   /* Keyboard geometry is deliberately not fed back into the page. */
 
+  /* редактор таблиц */
+  .tbed input { width: 100%; min-width: 120px; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(208, 174, 104, .22); background: var(--bg); color: var(--text); font: 500 15px var(--sans); }
+  .tbed input:focus { outline: none; border-color: var(--accent); }
+  .tbed th, .tbed td { padding: 6px; }
+  .tbed th:first-child { width: auto; }
+  .tbed th .ibtn { width: 28px; height: 28px; margin-top: 2px; }
+  .tbact { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 </style>
 </head>
 <body>
@@ -1774,40 +1781,127 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
     return lead + (s === 'āy' ? 'mi-y' : 'mi-') + s + end;
   }
 
-  function wordFormsTable(w) {
+  /* ---------- таблицы слов: автоматические или свои (w.tbl) ---------- */
+  function splitLab(t) { t = String(t == null ? '' : t); var i = t.indexOf(' \u00b7 '); return i < 0 ? [t, ''] : [t.slice(0, i), t.slice(i + 3)]; }
+  function autoTable(w) {
     var pronouns = [['man', 'я'], ['to', 'ты'], ['u', 'он / она'], ['mā', 'мы'], ['shomā', 'вы'], ['ānhā', 'они']];
     var st = stemsOf(w);
     if (st && st.past && st.pres) {
       var pastEnd = ['am', 'i', '', 'im', 'id', 'and'];
       var presEnd = ['am', 'i', 'ad', 'im', 'id', 'and'];
-      var rows = pronouns.map(function (p, i) {
-        return el('tr', null,
-          el('th', null, el('b', { text: p[0] }), el('span', { text: p[1] })),
-          el('td', null, el('span', { 'class': 'f', text: st.past + pastEnd[i] })),
-          el('td', null, el('span', { 'class': 'f', text: presForm(st.pres, presEnd[i], i) })));
-      });
-      return section('Спряжение', el('div', { 'class': 'cjw' },
-        el('table', { 'class': 'cj' },
-          el('tr', null, el('th'), el('th', null, el('b', { text: 'Прошедшее' }), el('span', { text: 'простое' })),
-            el('th', null, el('b', { text: 'Настоящее' }), el('span', { text: 'длительное' }))), rows)));
+      return {
+        title: 'Спряжение', cols: ['Прошедшее \u00b7 простое', 'Настоящее \u00b7 длительное'],
+        rows: pronouns.map(function (p, i) { return { l: p[0] + ' \u00b7 ' + p[1], c: [st.past + pastEnd[i], presForm(st.pres, presEnd[i], i)] }; })
+      };
     }
     if ((w.tags || []).indexOf('существительное') >= 0) {
       var base = String(w.tr || '').trim(), fa = String(w.fa || '').trim();
       var suffixes = [['-am', 'мой', 'م'], ['-at', 'твой', 'ت'], ['-ash', 'его / её', 'ش'], ['-emān', 'наш', 'مان'], ['-etān', 'ваш', 'تان'], ['-eshān', 'их', 'شان']];
-      var rows = [el('tr', null,
-        el('th', null, el('b', { text: 'мн. число' }), el('span', { text: 'обычная форма' })),
-        el('td', null, el('span', { 'class': 'f', text: base ? base + '-hā' : '—' })),
-        el('td', null, el('span', { 'class': 'f', text: fa ? fa + 'ها' : '—' })))];
-      suffixes.forEach(function (v) { rows.push(el('tr', null,
-        el('th', null, el('b', { text: v[0] }), el('span', { text: v[1] })),
-        el('td', null, el('span', { 'class': 'f', text: base ? base + v[0] : '—' })),
-        el('td', null, el('span', { 'class': 'f', text: fa ? fa + v[2] : '—' })))); });
-      return section('Формы существительного', el('div', { 'class': 'cjw' },
-        el('table', { 'class': 'cj' },
-          el('tr', null, el('th'), el('th', null, el('b', { text: 'Транслитерация' })),
-            el('th', null, el('b', { text: 'Персидское письмо' }))), rows)));
+      var rows = [{ l: 'мн. число \u00b7 обычная форма', c: [base ? base + '-hā' : '—', fa ? fa + 'ها' : '—'] }];
+      suffixes.forEach(function (v) { rows.push({ l: v[0] + ' \u00b7 ' + v[1], c: [base ? base + v[0] : '—', fa ? fa + v[2] : '—'] }); });
+      return { title: 'Формы существительного', cols: ['Транслитерация', 'Персидское письмо'], rows: rows };
     }
     return null;
+  }
+  function tableOf(w) {
+    if (w.tbl && Array.isArray(w.tbl.cols) && Array.isArray(w.tbl.rows)) return { model: w.tbl, custom: true };
+    var a = autoTable(w);
+    return a ? { model: a, custom: false } : null;
+  }
+  function wordFormsTable(w) {
+    var t = tableOf(w);
+    if (!t) return null;
+    var m = t.model, n = m.cols.length;
+    var head = el('tr', null, el('th'), m.cols.map(function (c) {
+      var p = splitLab(c);
+      return el('th', null, el('b', { text: p[0] }), p[1] ? el('span', { text: p[1] }) : null);
+    }));
+    var rows = m.rows.map(function (r) {
+      var p = splitLab(r.l), cells = [];
+      for (var i = 0; i < n; i++) cells.push(el('td', null, el('span', { 'class': 'f', dir: 'auto', text: (r.c && r.c[i]) || '' })));
+      return el('tr', null, el('th', null, el('b', { text: p[0] }), p[1] ? el('span', { text: p[1] }) : null), cells);
+    });
+    return section(m.title || 'Таблица', el('div', { 'class': 'cjw' }, el('table', { 'class': 'cj' }, head, rows)));
+  }
+
+  /* редактор таблицы живёт внутри формы «Изменить» и сохраняется вместе со словом */
+  function tableField(w, getBase) {
+    var st = { open: false, dirty: false, reset: false, m: null };
+    var box = el('div', { 'class': 'tbfield' });
+    function curTable() { return (w && w.tbl && Array.isArray(w.tbl.cols) && Array.isArray(w.tbl.rows)) ? w.tbl : null; }
+    function autoNow() { try { return autoTable(getBase()); } catch (e) { return null; } }
+    function startModel() {
+      var src = curTable() || autoNow() || { title: 'Таблица', cols: ['', ''], rows: [{ l: '', c: ['', ''] }, { l: '', c: ['', ''] }] };
+      var m = JSON.parse(JSON.stringify(src));
+      m.rows.forEach(function (r) { r.c = r.c || []; while (r.c.length < m.cols.length) r.c.push(''); });
+      return m;
+    }
+    function inp(val, ph, on) {
+      var i = el('input', { type: 'text', value: val, placeholder: ph, dir: 'auto', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' });
+      i.addEventListener('input', function () { st.dirty = true; on(i.value); });
+      return i;
+    }
+    function xbtn(label, fn) { return el('button', { type: 'button', 'class': 'ibtn', 'aria-label': label, onclick: fn }, icon('close')); }
+    function paint() {
+      var cur = curTable(), auto = autoNow();
+      if (st.reset) {
+        box.replaceChildren(el('p', { 'class': 'hint', style: 'text-align:left', text: auto ? 'При сохранении слова вернётся автоматическая таблица.' : 'При сохранении слова таблица будет удалена.' }),
+          el('button', { type: 'button', 'class': 'btn ghost', text: 'Отменить', onclick: function () { st.reset = false; paint(); } }));
+        return;
+      }
+      if (!st.open) {
+        box.replaceChildren(
+          el('p', { 'class': 'hint', style: 'text-align:left;margin:0 0 8px', text: cur ? 'У слова своя таблица.' : (auto ? 'Таблица строится автоматически.' : 'Таблицы пока нет.') }),
+          el('button', { type: 'button', 'class': 'btn ghost', text: (cur || auto) ? 'Изменить таблицу' : 'Добавить таблицу', onclick: function () { st.m = startModel(); st.dirty = false; st.open = true; paint(); } }));
+        return;
+      }
+      var m = st.m;
+      var titleIn = inp(m.title || '', 'Название таблицы', function (v) { m.title = v; });
+      titleIn.setAttribute('aria-label', 'Название таблицы');
+      var grid = el('div', { 'class': 'cjw' });
+      function build() {
+        var head = el('tr', null, el('th'), m.cols.map(function (c, ci) {
+          return el('th', null, inp(c, 'Заголовок', function (v) { m.cols[ci] = v; }), xbtn('Удалить столбец', function () {
+            if (m.cols.length <= 1) { toast('Нужен хотя бы один столбец'); return; }
+            st.dirty = true; m.cols.splice(ci, 1); m.rows.forEach(function (r) { r.c.splice(ci, 1); }); build();
+          }));
+        }), el('th'));
+        var rows = m.rows.map(function (r, ri) {
+          return el('tr', null,
+            el('th', null, inp(r.l, 'Строка', function (v) { r.l = v; })),
+            r.c.map(function (c, ci) { return el('td', null, inp(c, '', function (v) { r.c[ci] = v; })); }),
+            el('td', null, xbtn('Удалить строку', function () {
+              if (m.rows.length <= 1) { toast('Нужна хотя бы одна строка'); return; }
+              st.dirty = true; m.rows.splice(ri, 1); build();
+            })));
+        });
+        grid.replaceChildren(el('table', { 'class': 'cj tbed' }, head, rows));
+      }
+      build();
+      var tools = el('div', { 'class': 'tbact' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: '+ Строка', onclick: function () { st.dirty = true; m.rows.push({ l: '', c: m.cols.map(function () { return ''; }) }); build(); } }),
+        el('button', { type: 'button', 'class': 'btn ghost', text: '+ Столбец', onclick: function () { st.dirty = true; m.cols.push(''); m.rows.forEach(function (r) { r.c.push(''); }); build(); } }));
+      var foot = [];
+      if (cur) foot.push(el('button', { type: 'button', 'class': 'btn ghost', text: auto ? 'Вернуть автоматическую таблицу' : 'Удалить таблицу', onclick: function () { st.reset = true; st.open = false; st.dirty = false; paint(); } }));
+      foot.push(el('button', { type: 'button', 'class': 'btn ghost', text: 'Свернуть без изменений', onclick: function () { st.open = false; st.dirty = false; paint(); } }));
+      box.replaceChildren(
+        (!cur && auto) ? el('p', { 'class': 'hint', style: 'text-align:left', text: 'После сохранения таблица перестанет подстраиваться под основы и написание слова.' }) : null,
+        titleIn, grid, tools, el('div', { 'class': 'tbact' }, foot));
+    }
+    paint();
+    return {
+      node: box,
+      clear: function () { st.open = false; st.dirty = false; st.reset = false; st.m = null; paint(); },
+      result: function () {
+        if (st.reset) return { del: true };
+        if (!(st.open && st.dirty)) return null;
+        var m = st.m;
+        var rows = m.rows.map(function (r) { return { l: String(r.l).trim(), c: r.c.map(function (x) { return String(x).trim(); }) }; })
+          .filter(function (r) { return r.l || r.c.some(Boolean); });
+        if (!rows.length) return { del: true };
+        return { tbl: { title: String(m.title || '').trim() || 'Таблица', cols: m.cols.map(function (c) { return String(c).trim(); }), rows: rows } };
+      }
+    };
   }
 
   function renderDetail(reset) {
@@ -1967,6 +2061,9 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
       return el('div', { 'class': 'field' }, el('label', { 'for': forId, text: label }), control, extra);
     }
 
+    var tf = tableField(w, function () {
+      return Object.assign({}, d, { tr: tr.value.trim(), fa: fa.value.trim(), tags: Array.from(sel), forms: sel.has('глагол') ? joinForms(pastIn.value, presIn.value, forms.value) : forms.value.trim() });
+    });
     var saveBtn, moreBtn;
     async function submit(more) {
       var trv = tr.value.trim(), mv = meaning.value.trim();
@@ -1980,13 +2077,16 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
         forms: sel.has('глагол') ? joinForms(pastIn.value, presIn.value, forms.value) : forms.value.trim(), ex: ex.value.trim(), exTr: exTr.value.trim(), notes: notes.value.trim(),
         created: w ? (w.created || now) : now, updated: now
       };
+      if (w && w.tbl) rec.tbl = w.tbl;
+      var tres = tf.result();
+      if (tres) { if (tres.del) delete rec.tbl; else rec.tbl = tres.tbl; }
       saveBtn.disabled = true; if (moreBtn) moreBtn.disabled = true;
       var ok = await saveWord(rec);
       saveBtn.disabled = false; if (moreBtn) moreBtn.disabled = false;
       if (!ok) return;
       if (isNew && more) {
         [fa, tr, meaning, pastIn, presIn, syn, ant, forms, ex, exTr].forEach(function (i) { i.value = ''; });
-        notes.value = ''; sel.clear(); syncVerb();
+        notes.value = ''; sel.clear(); syncVerb(); tf.clear();
         picks.querySelectorAll('.pick').forEach(function (b) { b._sync(); });
         dup.hidden = true; toast('Добавлено: ' + rec.tr);
         fa.focus(); formRoot.firstElementChild.scrollTop = 0;
@@ -2017,7 +2117,8 @@ var SETS = [{"n":"Знакомство","d":"Представиться, спр�
           field('Формы', 'f-forms', forms, el('p', { 'class': 'hint', text: 'Множественное число и всё остальное, что не вошло в другие поля.' })),
           field('Пример', 'f-ex', ex),
           field('Перевод примера', 'f-extr', exTr),
-          field('Заметки', 'f-notes', notes)),
+          field('Заметки', 'f-notes', notes),
+          el('div', { 'class': 'field' }, el('label', { text: 'Таблица' }), tf.node)),
         el('div', { 'class': 'actions' }, saveBtn, moreBtn)));
     formRoot.replaceChildren(sheet);
     syncVerb();
@@ -2354,35 +2455,81 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
   }
   function backupText() { return JSON.stringify(backupObject()); }
   function backupName() { var d = new Date(); return 'persian-dictionary-backup-' + d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + '.json'; }
-  async function exportBackup() {
-    var text = backupText(), name = backupName();
+
+  /* меняет содержимое уже открытого диалога на месте, без закрытия и истории */
+  function swapDialog(children) {
+    var scrim = dialogRoot.firstElementChild;
+    var kids = children.filter(function (x) { return x != null && x !== false; });
+    if (!scrim || !layers.some(function (l) { return l.name === 'dialog'; })) { showDialog(kids); return; }
+    var dlg = scrim.querySelector('.dialog');
+    if (!dlg) { showDialog(kids); return; }
+    dlg.replaceChildren.apply(dlg, kids);
+  }
+
+  /* копирование: clipboard API, потом старый execCommand */
+  function copyText(text, ta) {
+    function legacy() {
+      var t = ta, tmp = false;
+      try {
+        if (!t) { t = el('textarea', { readonly: 'readonly', style: 'position:fixed;left:0;top:0;opacity:0' }); t.value = text; document.body.appendChild(t); tmp = true; }
+        t.focus(); t.select(); try { t.setSelectionRange(0, t.value.length); } catch (e) {}
+        var ok = document.execCommand('copy');
+        if (tmp) t.remove();
+        return !!ok;
+      } catch (e) { if (tmp && t.parentNode) t.remove(); return false; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacy(); });
+    }
+    return Promise.resolve(legacy());
+  }
+
+  async function saveBackupFile(text, name) {
     try {
       if (downloadsApi) { await downloadsApi.save({ filename: name, data: text }); toast('Копия сохранена'); return; }
       var file = null;
       try { file = new File([text], name, { type: 'application/json' }); } catch (e) {}
-      if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Копия словаря' }); toast('Копия готова'); return; }
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Копия словаря' }); return; }
       var url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
       var a = document.createElement('a'); a.href = url; a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-      toast('Копия сохранена в загрузки');
-    } catch (e) { if (!e || (e.name !== 'AbortError' && e.code !== 'declined')) toast('Не удалось сохранить. Попробуйте «Скопировать текст копии».'); }
-  }
-  async function copyBackup() {
-    var text = backupText();
-    try { await navigator.clipboard.writeText(text); toast('Текст копии скопирован'); }
-    catch (e) {
-      var ta = el('textarea', { 'class': 'bktext', readonly: 'readonly' }); ta.value = text;
-      popLayer('dialog');
-      setTimeout(function () {
-        showDialog([el('p', { 'class': 'dt', text: 'Копия словаря' }), el('p', { 'class': 'setnote', text: 'Выделите весь текст и скопируйте его вручную.' }), ta,
-          el('div', { 'class': 'dact' }, el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: function () { popLayer('dialog'); } }))]);
-        ta.focus(); ta.select();
-      }, 200);
+      toast('Если файл не появился, нажмите «Скопировать текст»');
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      toast('Файл не сохранился. Скопируйте текст копии.');
     }
   }
+
+  function openBackupExport() {
+    var text = backupText(), name = backupName();
+    var ta = el('textarea', { 'class': 'bktext', readonly: 'readonly', 'aria-label': 'Текст копии' });
+    ta.value = text;
+    ta.addEventListener('focus', function () { try { ta.select(); } catch (e) {} });
+    var kb = Math.max(1, Math.round(text.length / 1024));
+    var canShareText = !!navigator.share;
+    swapDialog([
+      el('p', { 'class': 'dt', text: 'Копия словаря' }),
+      el('p', { 'class': 'setnote', text: 'Размер около ' + kb + ' КБ. Самый надёжный способ: скопировать текст и отправить себе в заметки или в Избранное мессенджера. Потом его можно вставить в «Загрузить копию».' }),
+      el('div', { 'class': 'bkrow', style: 'margin-top:10px' },
+        el('button', { type: 'button', 'class': 'btn primary', text: 'Скопировать текст', onclick: function () {
+          copyText(text, ta).then(function (ok) { toast(ok ? 'Текст скопирован' : 'Не вышло. Выделите текст ниже и скопируйте вручную'); });
+        } }),
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Сохранить файлом', onclick: function () { saveBackupFile(text, name); } }),
+        canShareText ? el('button', { type: 'button', 'class': 'btn ghost', text: 'Поделиться', onclick: function () {
+          navigator.share({ title: 'Копия словаря', text: text }).catch(function () {});
+        } }) : null),
+      ta,
+      el('div', { 'class': 'dact' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Назад', onclick: openSettings }),
+        el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: function () { popLayer('dialog'); } }))
+    ]);
+  }
+
   function applyBackup(text) {
-    var obj; try { obj = JSON.parse(text); } catch (e) { obj = null; }
+    var obj;
+    text = String(text || '').replace(/^\ufeff/, '').trim();
+    try { obj = JSON.parse(text); } catch (e) { obj = null; }
     if (!obj || obj.app !== 'fa-dict' || !obj.data || typeof obj.data !== 'object') { toast('Это не копия словаря'); return; }
     var keys = Object.keys(obj.data).filter(function (k) { return k.indexOf('fa-dict:') === 0 && typeof obj.data[k] === 'string'; });
     if (!keys.length) { toast('В копии нет данных'); return; }
@@ -2395,30 +2542,42 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
       });
     }, 220);
   }
-  function openBackupPaste() {
+
+  function openBackupRestore() {
     var ta = el('textarea', { 'class': 'bktext', placeholder: 'Вставьте сюда текст копии', 'aria-label': 'Текст копии' });
-    popLayer('dialog');
-    setTimeout(function () {
-      showDialog([el('p', { 'class': 'dt', text: 'Загрузить из текста' }), ta,
-        el('div', { 'class': 'dact' },
-          el('button', { type: 'button', 'class': 'btn ghost', text: 'Отмена', onclick: function () { popLayer('dialog'); } }),
-          el('button', { type: 'button', 'class': 'btn primary', text: 'Загрузить', onclick: function () { applyBackup(ta.value.trim()); } }))]);
-    }, 200);
-  }
-  function backupGroup() {
-    var fileIn = el('input', { type: 'file', accept: '.json,application/json,text/plain', hidden: 'hidden' });
+    var fileIn = el('input', { type: 'file', accept: '.json,application/json,text/plain', hidden: true });
     fileIn.addEventListener('change', function () {
       var f = fileIn.files && fileIn.files[0]; if (!f) return;
       if (f.size > 20 * 1024 * 1024) { toast('Файл слишком большой'); return; }
-      var r = new FileReader(); r.onload = function () { applyBackup(String(r.result || '').replace(/^\ufeff/, '').trim()); }; r.onerror = function () { toast('Не удалось прочитать файл'); }; r.readAsText(f);
+      var r = new FileReader();
+      r.onload = function () { ta.value = String(r.result || ''); fileIn.value = ''; toast('Файл прочитан. Нажмите «Загрузить»'); };
+      r.onerror = function () { toast('Не удалось прочитать файл. Вставьте текст вручную'); };
+      r.readAsText(f);
     });
+    var pasteBtn = (navigator.clipboard && navigator.clipboard.readText) ? el('button', { type: 'button', 'class': 'btn ghost', text: 'Вставить из буфера', onclick: function () {
+      navigator.clipboard.readText().then(function (t) { ta.value = t || ''; if (!t) toast('Буфер пуст'); }, function () { toast('Нет доступа к буферу. Вставьте текст в поле вручную'); });
+    } }) : null;
+    swapDialog([
+      el('p', { 'class': 'dt', text: 'Загрузить копию' }),
+      el('p', { 'class': 'setnote', text: 'Вставьте текст копии в поле или выберите файл. Текущие данные на этом устройстве будут заменены.' }),
+      el('div', { 'class': 'bkrow', style: 'margin-top:10px' },
+        pasteBtn,
+        el('label', { 'class': 'btn ghost', style: 'display:block;text-align:center;cursor:pointer', text: 'Выбрать файл' }, fileIn)),
+      ta,
+      el('div', { 'class': 'dact' },
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Назад', onclick: openSettings }),
+        el('button', { type: 'button', 'class': 'btn primary', text: 'Загрузить', onclick: function () {
+          if (!ta.value.trim()) { toast('Сначала вставьте текст копии'); return; }
+          applyBackup(ta.value);
+        } }))
+    ]);
+  }
+
+  function backupGroup() {
     return el('div', { 'class': 'setgrp' }, el('p', { 'class': 'sett', text: 'Резервная копия' }),
       el('div', { 'class': 'bkrow' },
-        el('button', { type: 'button', 'class': 'btn ghost', text: 'Сохранить копию в файл', onclick: exportBackup }),
-        el('button', { type: 'button', 'class': 'btn ghost', text: 'Скопировать текст копии', onclick: copyBackup }),
-        el('button', { type: 'button', 'class': 'btn ghost', text: 'Загрузить из файла', onclick: function () { fileIn.click(); } }),
-        el('button', { type: 'button', 'class': 'btn ghost', text: 'Загрузить из текста', onclick: openBackupPaste }),
-        fileIn),
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Сохранить копию', onclick: openBackupExport }),
+        el('button', { type: 'button', 'class': 'btn ghost', text: 'Загрузить копию', onclick: openBackupRestore })),
       el('p', { 'class': 'setnote', text: 'В копию входят добавленные и изменённые слова, прогресс тренировки, избранное, свои фразы и настройки. Так можно перенести данные на другой телефон или вернуть после очистки браузера.' }));
   }
 
@@ -2441,7 +2600,7 @@ var DIALOGS = [{"t":"Знакомство","d":"Приветствие, имя, 
         backupGroup());
     }
     build();
-    showDialog([el('p', { 'class': 'dt', text: 'Настройки' }), box,
+    swapDialog([el('p', { 'class': 'dt', text: 'Настройки' }), box,
       el('div', { 'class': 'dact' }, el('button', { type: 'button', 'class': 'btn primary', text: 'Готово', onclick: function () { popLayer('dialog'); } }))]);
   }
 
